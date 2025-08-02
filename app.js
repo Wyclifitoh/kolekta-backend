@@ -8,7 +8,7 @@ const cors = require('cors');
 
 const TWO_HOURS = 1000 * 60 * 60 * 2;
 
-const { PORT = 3000, 
+const { PORT = 4000, 
 } = process.env;
 
 // Load environment variables
