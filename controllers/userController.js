@@ -177,14 +177,28 @@ exports.getCaseFileByID = async (req, res) => {
 };
 
 // GET all notes for a case file
+// GET all notes for a case file
 exports.getNotesByCaseFile = async (req, res) => {
   const { cfid } = req.params;
+
   try {
     const [notes] = await pool.query(`
-      SELECT cn.*, 
-             ct.title AS call_type,
-             ctt.title AS contact_type,
-             cs.title AS contact_status
+      SELECT 
+        cn.id,
+        cn.cfid,
+        cn.note_text,
+        cn.note_date,
+        cn.note_type,
+        cn.next_action,
+        cn.next_action_date,
+        cn.call_type_id,
+        cn.contact_type_id,
+        cn.contact_status_id,
+        cn.created_by,
+        cn.created_at,
+        ct.title AS call_type,
+        ctt.title AS contact_type,
+        cs.title AS contact_status
       FROM case_notes cn
       LEFT JOIN call_types ct ON cn.call_type_id = ct.id
       LEFT JOIN contact_types ctt ON cn.contact_type_id = ctt.id
@@ -242,10 +256,10 @@ exports.addNote = async (req, res) => {
 
     // Check if the contact status means "Promise To Pay"
     const [statusRes] = await connection.query(
-      `SELECT name FROM contact_statuses WHERE id = ? LIMIT 1`,
+      `SELECT title FROM contact_statuses WHERE id = ? LIMIT 1`,
       [contact_status_id]
     );
-    const contactStatusName = statusRes[0]?.name;
+    const contactStatusName = statusRes[0]?.title;
 
     // Insert into case_notes
     const [noteResult] = await connection.query(

@@ -21,9 +21,10 @@ app.use(express.json());
 
 app.use(cors({
   origin: [
-    'https://smartcollect.hapmodproperties.co.ke', 
-    'http://192.168.100.202:5500',   
-    'http://localhost:5173'         
+    'https://smartcollect.hapmodproperties.co.ke',
+    'https://kolekta.netlify.app',
+    'http://localhost:5174',
+    'http://localhost:5173'
   ], 
   methods: 'GET,POST,PUT,DELETE',  
   credentials: true,   
