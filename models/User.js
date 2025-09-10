@@ -193,7 +193,7 @@ exports.findAll = async (filters) => {
       cf.account_number,
       cf.contract_no,
       cf.phones,
-      cf.email,
+      cf.emails,
       cf.amount,
       cf.principal_amount,
       cf.amount_repaid,
