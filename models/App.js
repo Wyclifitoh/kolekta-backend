@@ -25,11 +25,11 @@ exports.getAllDebtCategory = async () => {
 };
 
 // -------------------- Debt Type --------------------
-exports.addDebtType = async (name, description) => {
+exports.addDebtType = async (title, description) => {
   try {
     const [result] = await pool.query(
       'INSERT INTO debt_types (title, description) VALUES (?, ?)',
-      [name, description]
+      [title, description]
     );
     return result;
   } catch (error) {
