@@ -31,7 +31,6 @@ exports.addDebtType = async (name, description) => {
       'INSERT INTO debt_types (title, description) VALUES (?, ?)',
       [name, description]
     );
-    // result.insertId contains the new record ID
     return result;
   } catch (error) {
     console.error('Error adding debt type:', error);
