@@ -16,8 +16,8 @@ exports.addDebtCategory = async (title, description) => {
 
 exports.getAllDebtCategory = async () => {
   try {
-    const result = await pool.query('SELECT * FROM debt_categories ORDER BY id ASC');
-    return result.rows;
+    const [result] = await pool.query('SELECT * FROM debt_categories ORDER BY id ASC');
+    return result;
   } catch (error) {
     console.error('Error fetching debt categories:', error);
     throw error;
@@ -92,8 +92,8 @@ exports.addCurrency = async (code, name, symbol) => {
 
 exports.getAllCurrencies = async () => {
   try {
-    const result = await pool.query('SELECT * FROM currencies ORDER BY id ASC');
-    return result.rows;
+    const [result] = await pool.query('SELECT * FROM currencies ORDER BY id ASC');
+    return result;
   } catch (error) {
     console.error('Error fetching currencies:', error);
     throw error;
