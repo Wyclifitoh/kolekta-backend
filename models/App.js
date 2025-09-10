@@ -25,24 +25,19 @@ exports.getAllDebtCategory = async () => {
 };
 
 // -------------------- Debt Type --------------------
-exports.addDebtType = async (title, description) => {
+exports.addDebtType = async (name, description) => {
   try {
     const [result] = await pool.query(
       'INSERT INTO debt_types (title, description) VALUES (?, ?)',
-      [title, description]
+      [name, description]
     );
     // result.insertId contains the new record ID
-    return {
-      id: result.insertId,
-      title,
-      description
-    };
+    return result;
   } catch (error) {
     console.error('Error adding debt type:', error);
     throw error;
   }
 };
-
 
 exports.getAllDebtTypes = async () => {
   try {

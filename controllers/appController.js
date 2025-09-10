@@ -101,11 +101,11 @@ exports.addDebtType = async (req, res) => {
     const { name, description } = req.body;
     if (!name) return res.status(400).json({ message: 'Name is required' });
 
-    const newType = await App.addDebtType({ title: name, description });
+    const newType = await App.addDebtType( name, description );
     return res.status(201).json({ message: 'Debt type added', data: newType });
   } catch (error) {
     console.error('Add Debt Type Error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
