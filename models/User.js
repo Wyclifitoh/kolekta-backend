@@ -150,55 +150,77 @@ exports.updateUser = async (user_id, updateData) => {
   }
 };
 
-exports.caseFileBulkInsert = async (records) => {
+exports.caseFileBulkInsert = async (connection, records) => {
   const values = records.map(r => [
-    r.client_id, r.cfid, r.product_id, r.debt_category, r.debt_type, r.currency_id, r.batch_no,
-    r.full_names, r.amount, r.principal_amount, r.amount_repaid, r.arrears,
-    r.account_number, r.contract_no, r.customer_id, r.identification, r.phones, r.emails, r.loan_taken_date, r.loan_due_date, r.dpd,
-    r.last_paid_amount, r.last_paid_date, r.loan_counter, r.risk_category, r.branch,
-    r.physical_address, r.postal_address, r.employer_and_address, r.nok_full_names,
-    r.nok_relationship, r.nok_phones, r.nok_address, r.nok_emails, r.gua_full_names,
-    r.gua_phones, r.gua_emails, r.gua_address, r.outsource_date
+    r.client_id, r.cfid, r.product_id, r.debt_type_id, r.debt_sub_type_id, r.debt_category_id, r.currency_id, r.held_by || null,
+    r.full_names, r.identification, r.customer_id, r.account_number, r.contract_no,
+    r.phones, r.emails, r.physical_address, r.postal_address, r.branch, r.employer_and_address,
+    r.nok_full_names, r.nok_relationship, r.nok_phones, r.nok_address, r.nok_emails,
+    r.gua_full_names, r.gua_phones, r.gua_emails, r.gua_address,
+    r.amount, r.principal_amount, r.amount_repaid, r.arrears,
+    r.loan_taken_date, r.loan_due_date, r.dpd, r.last_paid_amount, r.last_paid_date, r.loan_counter, r.risk_category,
+    r.status, r.outsource_date, r.days_since_outsource, r.batch_no,
+    r.created_by, r.updated_by
   ]);
 
   const sql = `
     INSERT INTO case_files (
-      client_id, cfid, product_id, debt_category, debt_type, currency_id, batch_no,
-      full_names, amount, principal_amount, amount_repaid, arrears,
-      account_number, contract_no, customer_id, identification, phones, emails, loan_taken_date, loan_due_date, dpd,
-      last_paid_amount, last_paid_date, loan_counter, risk_category, branch,
-      physical_address, postal_address, employer_and_address, nok_full_names,
-      nok_relationship, nok_phones, nok_address, nok_emails, gua_full_names,
-      gua_phones, gua_emails, gua_address, outsource_date
+      client_id, cfid, product_id, debt_type_id, debt_sub_type_id, debt_category_id, currency_id, held_by,
+      full_names, identification, customer_id, account_number, contract_no,
+      phones, emails, physical_address, postal_address, branch, employer_and_address,
+      nok_full_names, nok_relationship, nok_phones, nok_address, nok_emails,
+      gua_full_names, gua_phones, gua_emails, gua_address,
+      amount, principal_amount, amount_repaid, arrears,
+      loan_taken_date, loan_due_date, dpd, last_paid_amount, last_paid_date, loan_counter, risk_category,
+      status, outsource_date, days_since_outsource, batch_no,
+      created_by, updated_by
     )
     VALUES ?
   `;
 
-  await pool.query(sql, [values]);
+  await connection.query(sql, [values]);
 };
 
+
 exports.findAll = async (filters) => {
+  const values = [];
   let sql = `
-    SELECT 
-      cf.*, 
+    SELECT
+      cf.cfid,
+      cf.full_names,
+      cf.identification,
+      cf.customer_id,
+      cf.account_number,
+      cf.contract_no,
+      cf.amount,
+      cf.principal_amount,
+      cf.amount_repaid,
+      cf.arrears,
+      cf.dpd,
+      cf.loan_taken_date,
+      cf.loan_due_date,
+      cf.outsource_date,
+      cf.batch_no,
+      cf.status,
+      cf.held_by,
+      cf.client_id,
+      cf.product_id,
+      cf.debt_type_id,
+      cf.debt_category_id,
+      cf.currency_id,
       c.name AS client_name,
-      d.title AS debt_category_name,
       dt.title AS debt_type_name,
+      d.title AS debt_category_name,
       p.title AS product_name,
-      cu.code AS currency_code,
-      cu.name AS currency_name,
       u.first_name AS held_by_name
     FROM case_files cf
     LEFT JOIN clients c ON cf.client_id = c.id
     LEFT JOIN client_products p ON cf.product_id = p.id
-    LEFT JOIN currencies cu ON cf.currency_id = cu.id
     LEFT JOIN staff u ON cf.held_by = u.id
-    LEFT JOIN debt_categories d ON cf.debt_category = d.id
-    LEFT JOIN debt_types dt ON cf.debt_type = dt.id 
+    LEFT JOIN debt_categories d ON cf.debt_category_id = d.id
+    LEFT JOIN debt_types dt ON cf.debt_type_id = dt.id
     WHERE 1=1
   `;
-
-  const values = [];
 
   if (filters.client_id) {
     sql += ' AND cf.client_id = ?';
@@ -208,20 +230,26 @@ exports.findAll = async (filters) => {
     sql += ' AND cf.product_id = ?';
     values.push(filters.product_id);
   }
-  if (filters.debt_category) {
-    sql += ' AND cf.debt_category = ?';
-    values.push(filters.debt_category);
+  if (filters.debt_category_id) {
+    sql += ' AND cf.debt_category_id = ?';
+    values.push(filters.debt_category_id);
   }
-  if (filters.debt_type) {
-    sql += ' AND cf.debt_type = ?';
-    values.push(filters.debt_type);
+  if (filters.debt_type_id) {
+    sql += ' AND cf.debt_type_id = ?';
+    values.push(filters.debt_type_id);
   }
   if (filters.currency_id) {
     sql += ' AND cf.currency_id = ?';
     values.push(filters.currency_id);
   }
 
-  sql += ' ORDER BY cf.created_at DESC';
+  sql += ' ORDER BY cf.outsource_date DESC, cf.cfid DESC';
+  
+  // Pagination
+  if (filters.limit) {
+    sql += ' LIMIT ? OFFSET ?';
+    values.push(filters.limit, filters.offset || 0);
+  }
 
   const [rows] = await pool.query(sql, values);
   return rows;

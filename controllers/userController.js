@@ -66,98 +66,130 @@ exports.getAllStaff = async (req, res) => {
 };
 
 exports.uploadCaseFile = async (req, res) => {
-    try {
-      const {
-        client_id,
-        product_id,
-        debt_category,
-        debt_type,
-        currency_id,
-        batch_no
-      } = req.body;
-  
-      const file = req.file;
-  
-      if (!file) {
-        return res.status(400).json({ message: 'No file uploaded' });
-      }
-      const dateFormat = 'YYYY-MM-DD';
-      let outsource_date = moment().format(dateFormat);
-      const workbook = xlsx.readFile(file.path);
-      const sheetName = workbook.SheetNames[0];
-      const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  let connection;
+  try {
+    connection = await pool.getConnection();
 
-      const latestFile = await Staff.findLatestFileId();
-        let newFileId = 1000;  
+    const {
+      client_id,
+      product_id,
+      debt_category_id,
+      debt_type_id,
+      debt_sub_type_id,
+      currency_id,
+      batch_no,
+      user_id // for created_by
+    } = req.body;
 
-        if (latestFile && latestFile.cfid) {
-            newFileId = latestFile.cfid + 1;
-        }
-  
-      const caseRecords = data.map(row => ({
-        client_id,
-        cfid: newFileId,
-        product_id,
-        debt_category,
-        debt_type,
-        currency_id,
-        batch_no,
-        full_names: row.full_names,
-        amount: row.amount,
-        principal_amount: row.principal_amount,
-        amount_repaid: row.amount_repaid,
-        arrears: row.arrears,
-        account_number: row.account_number,
-        contract_no: row.contract_no,
-        customer_id: row.customer_id, 
-        identification: row.identification,
-        phones: row.phones,
-        emails: row.emails,
-        loan_taken_date: row.loan_taken_date ? new Date(row.loan_taken_date) : null,
-        loan_due_date: row.loan_due_date ? new Date(row.loan_due_date) : null,
-        dpd: row.dpd,
-        last_paid_amount: row.last_paid_amount,
-        last_paid_date: row.last_paid_date ? new Date(row.last_paid_date) : null,
-        loan_counter: row.loan_counter,
-        risk_category: row.risk_category,
-        branch: row.branch,
-        physical_address: row.physical_address,
-        postal_address: row.postal_address,
-        employer_and_address: row.employer_and_address,
-        nok_full_names: row.nok_full_names,
-        nok_relationship: row.nok_relationship,
-        nok_phones: row.nok_phones,
-        nok_address: row.nok_address,
-        nok_emails: row.nok_emails,
-        gua_full_names: row.gua_full_names,
-        gua_phones: row.gua_phones,
-        gua_emails: row.gua_emails,
-        gua_address: row.gua_address,
-        outsource_date: outsource_date
-      }));
-  
-      // Save all records in bulk
-      await Staff.caseFileBulkInsert(caseRecords);
-  
-      res.status(200).json({ message: 'Case file uploaded and records inserted successfully' });
-  
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Upload failed', error: error.message });
-    }
-  };
+    const file = req.file;
+    if (!file) return res.status(400).json({ message: 'No file uploaded' });
+
+    const outsource_date = moment().format('YYYY-MM-DD');
+
+    // Read Excel
+    const workbook = xlsx.readFile(file.path);
+    const sheetName = workbook.SheetNames[0];
+    const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    // Get latest CFID
+    const latestFile = await Staff.findLatestFileId();
+    let nextCFID = latestFile && latestFile.cfid ? latestFile.cfid + 1 : 1000;
+
+    const caseRecords = data.map(row => ({
+      client_id,
+      product_id,
+      debt_category_id,
+      debt_type_id,
+      debt_sub_type_id,
+      currency_id,
+      cfid: nextCFID++,
+      batch_no,
+      full_names: row.full_names || '',
+      identification: row.identification || '',
+      customer_id: row.customer_id || '',
+      account_number: row.account_number || '',
+      contract_no: row.contract_no || '',
+      phones: row.phones || '',
+      emails: row.emails || '',
+      physical_address: row.physical_address || '',
+      postal_address: row.postal_address || '',
+      branch: row.branch || '',
+      employer_and_address: row.employer_and_address || '',
+      nok_full_names: row.nok_full_names || '',
+      nok_relationship: row.nok_relationship || '',
+      nok_phones: row.nok_phones || '',
+      nok_address: row.nok_address || '',
+      nok_emails: row.nok_emails || '',
+      gua_full_names: row.gua_full_names || '',
+      gua_phones: row.gua_phones || '',
+      gua_emails: row.gua_emails || '',
+      gua_address: row.gua_address || '',
+      amount: row.amount || 0,
+      principal_amount: row.principal_amount || 0,
+      amount_repaid: row.amount_repaid || 0,
+      arrears: row.arrears || 0,
+      loan_taken_date: row.loan_taken_date ? moment(row.loan_taken_date).toDate() : null,
+      loan_due_date: row.loan_due_date ? moment(row.loan_due_date).toDate() : null,
+      dpd: row.dpd || 0,
+      last_paid_amount: row.last_paid_amount || 0,
+      last_paid_date: row.last_paid_date ? moment(row.last_paid_date).toDate() : null,
+      loan_counter: row.loan_counter || 0,
+      risk_category: row.risk_category || '',
+      status: 'active',
+      outsource_date,
+      days_since_outsource: 0,
+      created_by: user_id,
+      updated_by: user_id
+    }));
+
+    await connection.beginTransaction();
+    await Staff.caseFileBulkInsert(connection, caseRecords);
+    await connection.commit();
+
+    fs.unlinkSync(file.path);
+
+    res.status(200).json({ message: 'Case file uploaded successfully' });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error(error);
+    res.status(500).json({ message: 'Upload failed', error: error.message });
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+
 
 exports.getAllCaseFiles = async (req, res) => {
-    const { client_id, product_id, debt_category, debt_type, currency_id } = req.query;
-  
-    try {
-      const files = await Staff.findAll({ client_id, product_id, debt_category, debt_type, currency_id });
-      res.status(200).json({files});
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error fetching case files' });
-    }
-  };
+  try {
+    const { 
+      client_id, product_id, debt_category_id, debt_type_id, currency_id,
+      limit = 50, page = 1
+    } = req.query;
+
+    // Convert limit/page to integers
+    const pageInt = parseInt(page, 10);
+    const limitInt = Math.min(parseInt(limit, 10), 100); // max 100 rows per page
+    const offset = (pageInt - 1) * limitInt;
+
+    const filters = {
+      client_id, 
+      product_id, 
+      debt_category_id, 
+      debt_type_id, 
+      currency_id, 
+      limit: limitInt,
+      offset
+    };
+
+    const files = await Staff.findAll(filters);
+
+    res.status(200).json({ files, page: pageInt, limit: limitInt });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error fetching case files' });
+  }
+};
 
 exports.getCaseFileByID = async (req, res) => {
   const { cfid } = req.query;
