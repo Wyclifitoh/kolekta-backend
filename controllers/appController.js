@@ -98,10 +98,10 @@ exports.getAllDebtCategory = async (req, res) => {
 // ---------------------- Debt Types ----------------------
 exports.addDebtType = async (req, res) => {
   try {
-    const { title, description } = req.body;
-    if (!title) return res.status(400).json({ message: 'Name is required' });
+    const { name, description } = req.body;
+    if (!name) return res.status(400).json({ message: 'Name is required' });
 
-    const newType = await App.addDebtType({ title, description });
+    const newType = await App.addDebtType({ title: name, description });
     return res.status(201).json({ message: 'Debt type added', data: newType });
   } catch (error) {
     console.error('Add Debt Type Error:', error);

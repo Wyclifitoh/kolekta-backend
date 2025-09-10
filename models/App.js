@@ -27,16 +27,22 @@ exports.getAllDebtCategory = async () => {
 // -------------------- Debt Type --------------------
 exports.addDebtType = async (title, description) => {
   try {
-    const result = await pool.query(
-      'INSERT INTO debt_types (title, description) VALUES ($1) RETURNING *',
+    const [result] = await pool.query(
+      'INSERT INTO debt_types (title, description) VALUES (?, ?)',
       [title, description]
     );
-    return result.rows[0];
+    // result.insertId contains the new record ID
+    return {
+      id: result.insertId,
+      title,
+      description
+    };
   } catch (error) {
     console.error('Error adding debt type:', error);
     throw error;
   }
 };
+
 
 exports.getAllDebtTypes = async () => {
   try {
@@ -72,16 +78,23 @@ exports.getAllDebtSubTypes = async () => {
 // -------------------- Currency --------------------
 exports.addCurrency = async (code, name, symbol) => {
   try {
-    const result = await pool.query(
-      'INSERT INTO currencies (code, name, symbol) VALUES ($1, $2) RETURNING *',
+    const [result] = await pool.query(
+      'INSERT INTO currencies (code, name, symbol) VALUES (?, ?, ?)',
       [code, name, symbol]
     );
-    return result.rows[0];
+
+    return {
+      id: result.insertId,
+      code,
+      name,
+      symbol
+    };
   } catch (error) {
     console.error('Error adding currency:', error);
     throw error;
   }
 };
+
 
 exports.getAllCurrencies = async () => {
   try {
