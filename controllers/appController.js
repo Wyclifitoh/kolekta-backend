@@ -193,32 +193,7 @@ exports.getAllClientTypes = async (req, res) => {
     res.status(500).json({ message: 'Error fetching client types' });
   }
 };
-
-// ---------- Debt Types ----------
-exports.addDebtType = async (req, res) => {
-  const { title, description, status } = req.body;
-  try {
-    const [result] = await pool.query(
-      `INSERT INTO debt_types (title, description, status) VALUES (?, ?, ?)`,
-      [title, description, status || 'active']
-    );
-    res.status(201).json({ id: result.insertId, title, description, status });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error adding debt type' });
-  }
-};
-
-exports.getAllDebtTypes = async (req, res) => {
-  try {
-    const [rows] = await pool.query(`SELECT * FROM debt_types ORDER BY id DESC`);
-    res.status(200).json(rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error fetching debt types' });
-  }
-};
-
+ 
 
 // ---------- Client Products ----------
 exports.addClientProduct = async (req, res) => {
