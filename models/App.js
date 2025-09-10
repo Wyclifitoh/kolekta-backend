@@ -41,8 +41,8 @@ exports.addDebtType = async (name, description) => {
 
 exports.getAllDebtTypes = async () => {
   try {
-    const result = await pool.query('SELECT * FROM debt_types ORDER BY id ASC');
-    return result.rows;
+    const [result] = await pool.query('SELECT * FROM debt_types ORDER BY id ASC');
+    return result;
   } catch (error) {
     console.error('Error fetching debt types:', error);
     throw error;
