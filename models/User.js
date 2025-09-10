@@ -192,6 +192,8 @@ exports.findAll = async (filters) => {
       cf.customer_id,
       cf.account_number,
       cf.contract_no,
+      cf.phones,
+      cf.email,
       cf.amount,
       cf.principal_amount,
       cf.amount_repaid,
