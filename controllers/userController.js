@@ -165,12 +165,12 @@ exports.uploadCaseFile = async (req, res) => {
     connection = await pool.getConnection();
     console.log('[DB] Database connection established.');
     const user_id = req.user.id;
+    const debt_sub_type_id = 1;
     const {
       client_id,
       product_id,
       debt_category_id,
       debt_type_id,
-      debt_sub_type_id,
       currency_id,
       batch_no 
     } = req.body;
