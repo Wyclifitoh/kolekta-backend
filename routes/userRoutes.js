@@ -13,13 +13,13 @@ const {
   addNote,
   getPhoneContacts,
   addPhoneContact,
-  getCaseProgress,
+  getProgressReports,
   addCaseProgress,
   getSmsData,
   addSms,
   getPTPData,
   addPTP,
-  getPaymentsData,
+  getPayments,
   addPayment,
   getCallTypes,
   addCallType,
@@ -47,8 +47,8 @@ router.get('/case-file/contacts/:cfid', authenticateToken, getPhoneContacts);
 router.post('/case-file/contacts', authenticateToken, addPhoneContact);
 
 // === Progress ===
-router.get('/case-file/progress-data/:cfid', authenticateToken, getCaseProgress);
-router.post('/case-file/progress', authenticateToken, addCaseProgress);
+router.get('/casefile/progress', authenticateToken, getProgressReports);
+router.post('/casefile/progress', authenticateToken, addCaseProgress);
 
 // === SMS ===
 router.get('/case-file/sms-data/:cfid', authenticateToken, getSmsData);
@@ -59,8 +59,8 @@ router.get('/casefile/ptp', authenticateToken, getPTPData);
 router.post('/casefile/ptp', authenticateToken, addPTP);
 
 // === Payments ===
-router.get('/case-file/payments-data/:cfid', authenticateToken, getPaymentsData);
-router.post('/case-file/payments', authenticateToken, addPayment);
+router.get('/casefile/payments', authenticateToken, getPayments);
+router.post('/casefile/payments', authenticateToken, addPayment);
 
 // === Reference Lookups ===
 router.get('/call-types', authenticateToken, getCallTypes);

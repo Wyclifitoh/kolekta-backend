@@ -634,7 +634,6 @@ exports.getPTPData = async (req, res) => {
   }
 };
 
-
 exports.addPTP = async (req, res) => {
   const { cfid, ptp_date, ptp_amount, ptp_by, ptp_type, ptp_status, affirm_status } = req.body;
   try {
@@ -736,6 +735,84 @@ exports.addContactStatus = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Failed to add contact status' });
+  }
+};
+
+
+exports.getProgressReports = async (req, res) => {
+  const { cfid } = req.query;
+  try {
+    const query = `
+      SELECT 
+        pr.id,
+        pr.report,
+        pr.created_at,
+        cs.title AS contact_status,
+        u.name AS updated_by_name
+      FROM progress_reports pr
+      LEFT JOIN contact_statuses cs ON pr.contact_status_id = cs.id
+      LEFT JOIN users u ON pr.updated_by = u.id
+      WHERE pr.casefile_id = ?
+      ORDER BY pr.created_at DESC
+    `;
+
+    const [progressReports] = await pool.query(query, [cfid]);
+    res.status(200).json({ progressReports });
+  } catch (err) {
+    console.error('Error fetching progress reports:', err);
+    res.status(500).json({ message: 'Server error fetching progress reports' });
+  }
+};
+
+exports.getPayments = async (req, res) => {
+  const { cfid } = req.query;
+  try {
+    const query = `
+      SELECT 
+        p.id,
+        p.amount_paid,
+        p.date_paid,
+        p.receipt_no,
+        p.payment_channel,
+        p.comment,
+        p.created_at,
+        u.name AS posted_by_name
+      FROM payments p
+      LEFT JOIN users u ON p.posted_by = u.id
+      WHERE p.casefile_id = ?
+      ORDER BY p.date_paid DESC
+    `;
+
+    const [payments] = await pool.query(query, [cfid]);
+    res.status(200).json({ payments });
+  } catch (err) {
+    console.error('Error fetching payments:', err);
+    res.status(500).json({ message: 'Server error fetching payments' });
+  }
+};
+
+exports.getCasefileContacts = async (req, res) => {
+  const { cfid } = req.query;
+  try {
+    const query = `
+      SELECT 
+        c.id,
+        c.full_name,
+        c.relationship,
+        c.phones,
+        c.emails,
+        c.address,
+        c.created_at
+      FROM casefile_contacts c
+      WHERE c.casefile_id = ?
+      ORDER BY c.created_at DESC
+    `;
+
+    const [contacts] = await pool.query(query, [cfid]);
+    res.status(200).json({ contacts });
+  } catch (err) {
+    console.error('Error fetching contacts:', err);
+    res.status(500).json({ message: 'Server error fetching contacts' });
   }
 };
 
