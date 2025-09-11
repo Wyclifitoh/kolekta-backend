@@ -164,7 +164,7 @@ exports.uploadCaseFile = async (req, res) => {
     console.log('[Upload] Starting uploadCaseFile...'); // Debug log start
     connection = await pool.getConnection();
     console.log('[DB] Database connection established.');
-
+    const user_id = req.user.id;
     const {
       client_id,
       product_id,
@@ -172,8 +172,7 @@ exports.uploadCaseFile = async (req, res) => {
       debt_type_id,
       debt_sub_type_id,
       currency_id,
-      batch_no,
-      user_id // for created_by
+      batch_no 
     } = req.body;
 
     console.log('[Request Body]', {
@@ -207,7 +206,7 @@ exports.uploadCaseFile = async (req, res) => {
       product_id,
       debt_category_id,
       debt_type_id,
-      debt_sub_type_id,
+      debt_sub_type_id: debt_sub_type_id || null,
       currency_id,
       cfid: nextCFID++,
       batch_no,
