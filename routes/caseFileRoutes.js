@@ -20,26 +20,26 @@ const {
 } = require('../controllers/casefileController');
 
 
-router.post('/', authenticateToken, createCaseFile);
-router.get('/', authenticateToken, getAllCaseFiles);
-router.get('/:id', authenticateToken, getCaseFileDetails);
+// router.post('/', authenticateToken, createCaseFile);
+// router.get('/', authenticateToken, getAllCaseFiles);
+// router.get('/:id', authenticateToken, getCaseFileDetails);
 
 // Interactions
 router.post('/interactions', authenticateToken, addInteraction);
-router.get('/interactions/:casefile_id', authenticateToken, getInteractionsByCase);
+// router.get('/interactions/:casefile_id', authenticateToken, getInteractionsByCase);
 
 // PTPs
 router.post('/ptp', authenticateToken, addPTP);
-router.put('/ptp/:id', authenticateToken, updatePTP);
+// router.put('/ptp/:id', authenticateToken, updatePTP);
 router.put('/ptp/:id/reschedule', authenticateToken, reschedulePTP);
-router.get('/ptp/:casefile_id', authenticateToken, getPTPsByCase);
+// router.get('/ptp/:casefile_id', authenticateToken, getPTPsByCase);
 
 // Progress Reports
-router.get('/progress/:casefile_id', authenticateToken, getProgressReports);
+// router.get('/progress/:casefile_id', authenticateToken, getProgressReports);
 
 // Payments
 router.post('/payments', authenticateToken, addPayment);
-router.get('/payments/:casefile_id', authenticateToken, getPayments);
+// router.get('/payments/:casefile_id', authenticateToken, getPayments);
 
 // SMS
 router.post('/sms', authenticateToken, sendSMS);
@@ -48,6 +48,6 @@ router.post('/sms', authenticateToken, sendSMS);
 router.post('/mail', authenticateToken, sendMail);
 
 // Contacts
-router.get('/contacts/:casefile_id', authenticateToken, getContacts);
+// router.get('/contacts/:casefile_id', authenticateToken, getContacts);
 
 module.exports = router;
