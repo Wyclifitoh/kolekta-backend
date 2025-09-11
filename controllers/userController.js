@@ -158,8 +158,6 @@ exports.uploadCaseFile = async (req, res) => {
   }
 };
 
-
-
 exports.getAllCaseFiles = async (req, res) => {
   try {
     const { 
