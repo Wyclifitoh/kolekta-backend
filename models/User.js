@@ -184,77 +184,83 @@ exports.caseFileBulkInsert = async (connection, records) => {
 
 exports.findAll = async (filters) => {
   const values = [];
-  let sql = `
-    SELECT
-      cf.cfid,
-      cf.full_names,
-      cf.identification,
-      cf.customer_id,
-      cf.account_number,
-      cf.contract_no,
-      cf.phones,
-      cf.emails,
-      cf.amount,
-      cf.principal_amount,
-      cf.amount_repaid,
-      cf.arrears,
-      cf.dpd,
-      cf.loan_taken_date,
-      cf.loan_due_date,
-      cf.outsource_date,
-      cf.batch_no,
-      cf.status,
-      cf.held_by,
-      cf.client_id,
-      cf.product_id,
-      cf.debt_type_id,
-      cf.debt_category_id,
-      cf.currency_id,
-      c.name AS client_name,
-      dt.title AS debt_type_name,
-      d.title AS debt_category_name,
-      p.title AS product_name,
-      u.first_name AS held_by_name
-    FROM case_files cf
-    LEFT JOIN clients c ON cf.client_id = c.id
-    LEFT JOIN client_products p ON cf.product_id = p.id
-    LEFT JOIN staff u ON cf.held_by = u.id
-    LEFT JOIN debt_categories d ON cf.debt_category_id = d.id
-    LEFT JOIN debt_types dt ON cf.debt_type_id = dt.id
-    WHERE 1=1
-  `;
+  try {
+    let sql = `
+      SELECT
+        cf.cfid,
+        cf.full_names,
+        cf.identification,
+        cf.customer_id,
+        cf.account_number,
+        cf.contract_no,
+        cf.phones,
+        cf.emails,
+        cf.amount,
+        cf.principal_amount,
+        cf.amount_repaid,
+        cf.arrears,
+        cf.dpd,
+        cf.loan_taken_date,
+        cf.loan_due_date,
+        cf.outsource_date,
+        cf.batch_no,
+        cf.status,
+        cf.held_by,
+        cf.client_id,
+        cf.product_id,
+        cf.debt_type_id,
+        cf.debt_category_id,
+        cf.currency_id,
+        c.name AS client_name,
+        dt.title AS debt_type_name,
+        d.title AS debt_category_name,
+        p.title AS product_name,
+        u.first_name AS held_by_name
+      FROM case_files cf
+      LEFT JOIN clients c ON cf.client_id = c.id
+      LEFT JOIN client_products p ON cf.product_id = p.id
+      LEFT JOIN staff u ON cf.held_by = u.id
+      LEFT JOIN debt_categories d ON cf.debt_category_id = d.id
+      LEFT JOIN debt_types dt ON cf.debt_type_id = dt.id
+      WHERE 1=1
+    `;
 
-  if (filters.client_id) {
-    sql += ' AND cf.client_id = ?';
-    values.push(filters.client_id);
-  }
-  if (filters.product_id) {
-    sql += ' AND cf.product_id = ?';
-    values.push(filters.product_id);
-  }
-  if (filters.debt_category_id) {
-    sql += ' AND cf.debt_category_id = ?';
-    values.push(filters.debt_category_id);
-  }
-  if (filters.debt_type_id) {
-    sql += ' AND cf.debt_type_id = ?';
-    values.push(filters.debt_type_id);
-  }
-  if (filters.currency_id) {
-    sql += ' AND cf.currency_id = ?';
-    values.push(filters.currency_id);
-  }
+    if (filters.client_id) {
+      sql += ' AND cf.client_id = ?';
+      values.push(filters.client_id);
+    }
+    if (filters.product_id) {
+      sql += ' AND cf.product_id = ?';
+      values.push(filters.product_id);
+    }
+    if (filters.debt_category_id) {
+      sql += ' AND cf.debt_category_id = ?';
+      values.push(filters.debt_category_id);
+    }
+    if (filters.debt_type_id) {
+      sql += ' AND cf.debt_type_id = ?';
+      values.push(filters.debt_type_id);
+    }
+    if (filters.currency_id) {
+      sql += ' AND cf.currency_id = ?';
+      values.push(filters.currency_id);
+    }
 
-  sql += ' ORDER BY cf.outsource_date DESC, cf.cfid DESC';
-  
-  // Pagination
-  if (filters.limit) {
-    sql += ' LIMIT ? OFFSET ?';
-    values.push(filters.limit, filters.offset || 0);
-  }
+    sql += ' ORDER BY cf.outsource_date DESC, cf.cfid DESC';
+    
+    // Pagination
+    if (filters.limit) {
+      sql += ' LIMIT ? OFFSET ?';
+      values.push(filters.limit, filters.offset || 0);
+    }
 
-  const [rows] = await pool.query(sql, values);
-  return rows;
+    const [rows] = await pool.query(sql, values);
+    return rows;
+  } catch (error) {
+    console.error(`Error ${error}`)
+    throw new Error(`Error ${error.messsage}`);
+    
+  }
 };
 
 
