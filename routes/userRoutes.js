@@ -11,6 +11,7 @@ const {
   getCaseFileByID,
   getNotesByCaseFile,
   addNote,
+  getCasefileContacts,
   getPhoneContacts,
   addPhoneContact,
   getProgressReports,
@@ -49,6 +50,10 @@ router.post('/case-file/contacts', authenticateToken, addPhoneContact);
 // === Progress ===
 router.get('/casefile/progress', authenticateToken, getProgressReports);
 router.post('/casefile/progress', authenticateToken, addCaseProgress);
+
+// === Contacts ===
+router.get('/casefile/contacts', authenticateToken, getCasefileContacts);
+// router.post('/casefile/progress', authenticateToken, addCaseProgress);
 
 // === SMS ===
 router.get('/case-file/sms-data/:cfid', authenticateToken, getSmsData);
