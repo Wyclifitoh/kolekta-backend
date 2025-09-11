@@ -279,7 +279,6 @@ exports.uploadCaseFile = async (req, res) => {
   }
 };
 
-
 exports.getAllCaseFiles = async (req, res) => {
   try {
     const { 
@@ -301,13 +300,8 @@ exports.getAllCaseFiles = async (req, res) => {
       limit: limitInt,
       offset
     };
-
-    console.log('PAGE ', page);
-    console.log('LIMIT ', limit);    
-
+ 
     const files = await Staff.findAll(filters);
-
-    console.log('FILES ', files);
 
     res.status(200).json({ files, page: pageInt, limit: limitInt });
   } catch (error) {
@@ -315,6 +309,56 @@ exports.getAllCaseFiles = async (req, res) => {
     res.status(500).json({ message: 'Server error fetching case files' });
   }
 };
+
+exports.getCaseInteractions = async (req, res) => {
+  try {
+    const { cfid } = req.query;
+
+    const query = `
+      SELECT 
+        ci.id,
+        ci.date_created AS date,
+        u.name AS created_by,
+        ct.title AS contact_type,
+        cs.title AS contact_status,
+        callt.title AS call_type,
+        na.title AS next_action,
+        ci.next_action_date,
+        ptp.ptp_amount,
+        ptp.ptp_date,
+        ptp.ptp_type,
+        ptp.ptp_status,
+        ptp.affirm_status,
+        pr.report AS progress_report,
+        sms.message AS sms_message,
+        mail.subject AS mail_subject,
+        pay.amount_paid AS payment_amount,
+        pay.date_paid AS payment_date,
+        rr.title AS reschedule_reason
+      FROM casefile_interactions ci
+      LEFT JOIN contact_types ct ON ci.contact_type_id = ct.id
+      LEFT JOIN contact_statuses cs ON ci.contact_status_id = cs.id
+      LEFT JOIN call_types callt ON ci.call_type_id = callt.id
+      LEFT JOIN next_actions na ON ci.next_action_id = na.id
+      LEFT JOIN users u ON ci.created_by = u.id
+      LEFT JOIN ptps ptp ON ci.ptp_id = ptp.id
+      LEFT JOIN progress_reports pr ON ci.progress_report_id = pr.id
+      LEFT JOIN sms_logs sms ON ci.sms_id = sms.id
+      LEFT JOIN mail_logs mail ON ci.mail_id = mail.id
+      LEFT JOIN payments pay ON ci.payment_id = pay.id
+      LEFT JOIN ptp_reschedule_reasons rr ON ci.ptp_reschedule_reason_id = rr.id
+      WHERE ci.casefile_id = ?
+      ORDER BY ci.date_created DESC
+    `;
+
+    const [rows] = await pool.query(query, [cfid]);
+    return res.status(200).json(rows);
+  } catch (error) {
+    console.error('[Interactions] Fetch error:', error);
+    return res.status(500).json({ message: 'Failed to fetch case interactions', error: error.message });
+  }
+};
+
 
 exports.getCaseFileByID = async (req, res) => {
   const { cfid } = req.query;

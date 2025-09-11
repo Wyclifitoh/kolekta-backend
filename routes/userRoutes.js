@@ -7,6 +7,7 @@ const {
   getAllStaff,
   uploadCaseFile,
   getAllCaseFiles,
+  getCaseInteractions,
   getCaseFileByID,
   getNotesByCaseFile,
   addNote,
@@ -33,8 +34,9 @@ const {
 router.post('/staff', authenticateToken, createStaff);
 router.get('/staff', authenticateToken, getAllStaff);
 router.post('/upload-case-file', authenticateToken, upload.single('file'), uploadCaseFile);
-router.get('/casefile', authenticateToken, getCaseFileByID);
+router.get('/casefile', authenticateToken, getCaseFileByID); 
 router.get('/case-files', authenticateToken, getAllCaseFiles);
+router.get('/logs', authenticateToken, getCaseInteractions);
 
 // === Notes ===
 router.get('/case-file/notes/:cfid', authenticateToken, getNotesByCaseFile);
