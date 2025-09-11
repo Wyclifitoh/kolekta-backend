@@ -65,7 +65,7 @@ exports.getAllStaff = async (req, res) => {
     }
 };
 
-exports.uploadCaseFile = async (req, res) => {
+exports.uploadCaseFileV1 = async (req, res) => {
   let connection;
   try {
     connection = await pool.getConnection();
@@ -157,6 +157,128 @@ exports.uploadCaseFile = async (req, res) => {
     if (connection) connection.release();
   }
 };
+
+exports.uploadCaseFile = async (req, res) => {
+  let connection;
+  try {
+    console.log('[Upload] Starting uploadCaseFile...'); // Debug log start
+    connection = await pool.getConnection();
+    console.log('[DB] Database connection established.');
+
+    const {
+      client_id,
+      product_id,
+      debt_category_id,
+      debt_type_id,
+      debt_sub_type_id,
+      currency_id,
+      batch_no,
+      user_id // for created_by
+    } = req.body;
+
+    console.log('[Request Body]', {
+      client_id, product_id, debt_category_id, debt_type_id, debt_sub_type_id, currency_id, batch_no, user_id
+    });
+
+    const file = req.file;
+    if (!file) {
+      console.error('[Upload] No file uploaded.');
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    console.log('[Upload] File received:', file.originalname);
+
+    const outsource_date = moment().format('YYYY-MM-DD');
+
+    // Read Excel
+    const workbook = xlsx.readFile(file.path);
+    const sheetName = workbook.SheetNames[0];
+    console.log('[Excel] Sheet found:', sheetName);
+
+    const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+    console.log(`[Excel] Rows found: ${data.length}`);
+
+    // Get latest CFID
+    const latestFile = await Staff.findLatestFileId();
+    let nextCFID = latestFile && latestFile.cfid ? latestFile.cfid + 1 : 1000;
+    console.log(`[CFID] Starting CFID: ${nextCFID}`);
+
+    const caseRecords = data.map((row, index) => ({
+      client_id,
+      product_id,
+      debt_category_id,
+      debt_type_id,
+      debt_sub_type_id,
+      currency_id,
+      cfid: nextCFID++,
+      batch_no,
+      full_names: row.full_names || '',
+      identification: row.identification || '',
+      customer_id: row.customer_id || '',
+      account_number: row.account_number || '',
+      contract_no: row.contract_no || '',
+      phones: row.phones || '',
+      emails: row.emails || '',
+      physical_address: row.physical_address || '',
+      postal_address: row.postal_address || '',
+      branch: row.branch || '',
+      employer_and_address: row.employer_and_address || '',
+      nok_full_names: row.nok_full_names || '',
+      nok_relationship: row.nok_relationship || '',
+      nok_phones: row.nok_phones || '',
+      nok_address: row.nok_address || '',
+      nok_emails: row.nok_emails || '',
+      gua_full_names: row.gua_full_names || '',
+      gua_phones: row.gua_phones || '',
+      gua_emails: row.gua_emails || '',
+      gua_address: row.gua_address || '',
+      amount: row.amount || 0,
+      principal_amount: row.principal_amount || 0,
+      amount_repaid: row.amount_repaid || 0,
+      arrears: row.arrears || 0,
+      loan_taken_date: row.loan_taken_date ? moment(row.loan_taken_date).toDate() : null,
+      loan_due_date: row.loan_due_date ? moment(row.loan_due_date).toDate() : null,
+      dpd: row.dpd || 0,
+      last_paid_amount: row.last_paid_amount || 0,
+      last_paid_date: row.last_paid_date ? moment(row.last_paid_date).toDate() : null,
+      loan_counter: row.loan_counter || 0,
+      risk_category: row.risk_category || '',
+      status: 'active',
+      outsource_date,
+      days_since_outsource: 0,
+      created_by: user_id,
+      updated_by: user_id
+    }));
+
+    console.log(`[Processing] Prepared ${caseRecords.length} records for insert.`);
+
+    await connection.beginTransaction();
+    console.log('[DB] Transaction started.');
+
+    await Staff.caseFileBulkInsert(connection, caseRecords);
+    console.log('[DB] Bulk insert successful.');
+
+    await connection.commit();
+    console.log('[DB] Transaction committed.');
+
+    fs.unlinkSync(file.path);
+    console.log('[Cleanup] Temporary file deleted.');
+
+    res.status(200).json({ message: 'Case file uploaded successfully' });
+  } catch (error) {
+    if (connection) {
+      console.error('[DB] Rolling back transaction due to error.');
+      await connection.rollback();
+    }
+    console.error('[Error] Upload failed:', error);
+    res.status(500).json({ message: 'Upload failed', error: error.message });
+  } finally {
+    if (connection) {
+      connection.release();
+      console.log('[DB] Connection released.');
+    }
+  }
+};
+
 
 exports.getAllCaseFiles = async (req, res) => {
   try {
