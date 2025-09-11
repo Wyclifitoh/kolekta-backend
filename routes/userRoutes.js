@@ -27,7 +27,8 @@ const {
   getContactTypes,
   addContactType,
   getContactStatuses,
-  addContactStatus
+  addContactStatus,
+  getNextActions
 } = require('../controllers/userController');
 
   
@@ -75,6 +76,9 @@ router.get('/contact-types', authenticateToken, getContactTypes);
 router.post('/contact-types', authenticateToken, addContactType);
 
 router.get('/contact-statuses', authenticateToken, getContactStatuses);
-router.post('/contact-statuses', authenticateToken, addContactStatus);
+router.post('/contact-statuses', authenticateToken, addContactStatus); 
+
+router.get('/next-actions', authenticateToken, getNextActions);
+// router.post('/contact-statuses', authenticateToken, addContactStatus); 
 
 module.exports = router;

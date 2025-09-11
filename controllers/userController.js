@@ -351,8 +351,8 @@ exports.getCaseInteractions = async (req, res) => {
       ORDER BY ci.date_created DESC
     `;
 
-    const [rows] = await pool.query(query, [cfid]);
-    return res.status(200).json(rows);
+    const [logs] = await pool.query(query, [cfid]);
+    res.status(200).json({ logs });
   } catch (error) {
     console.error('[Interactions] Fetch error:', error);
     return res.status(500).json({ message: 'Failed to fetch case interactions', error: error.message });
@@ -727,6 +727,16 @@ exports.getContactStatuses = async (req, res) => {
   }
 };
 
+exports.getNextActions = async (req, res) => {
+  try {
+    const [nextActions] = await pool.query(`SELECT * FROM next_actions ORDER BY id DESC`);
+    res.status(200).json({ nextActions });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to fetch contact statuses' });
+  }
+};
+
 exports.addContactStatus = async (req, res) => {
   const { title } = req.body;
   try {
@@ -737,7 +747,6 @@ exports.addContactStatus = async (req, res) => {
     res.status(500).json({ message: 'Failed to add contact status' });
   }
 };
-
 
 exports.getProgressReports = async (req, res) => {
   const { cfid } = req.query;
