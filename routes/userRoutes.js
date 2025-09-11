@@ -28,7 +28,8 @@ const {
   addContactType,
   getContactStatuses,
   addContactStatus,
-  getNextActions
+  getNextActions,
+  getSMSTemplates
 } = require('../controllers/userController');
 
   
@@ -78,7 +79,10 @@ router.post('/contact-types', authenticateToken, addContactType);
 router.get('/contact-statuses', authenticateToken, getContactStatuses);
 router.post('/contact-statuses', authenticateToken, addContactStatus); 
 
-router.get('/next-actions', authenticateToken, getNextActions);
+router.get('/next-actions', authenticateToken, getNextActions);  
 // router.post('/contact-statuses', authenticateToken, addContactStatus); 
+
+router.get('/sms-templates', authenticateToken, getSMSTemplates); 
+// router.post('/sms-templates', authenticateToken, addContactStatus); 
 
 module.exports = router;

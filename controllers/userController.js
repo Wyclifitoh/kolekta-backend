@@ -825,3 +825,32 @@ exports.getCasefileContacts = async (req, res) => {
   }
 };
 
+exports.getSMSTemplates = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        st.id,
+        st.title,
+        st.content,
+        c.name AS client,
+        p.name AS product,
+        d.name AS debt_category,
+        st.bulk_only,
+        u.name AS created_by,
+        st.created_at
+      FROM sms_templates st
+      LEFT JOIN clients c ON st.client_id = c.id
+      LEFT JOIN client_products p ON st.product_id = p.id
+      LEFT JOIN debt_categories d ON st.debt_category_id = d.id
+      LEFT JOIN users u ON st.created_by = u.id
+      ORDER BY st.created_at DESC
+    `;
+
+    const [templates] = await pool.query(query);
+    return res.status(200).json({ templates });
+  } catch (error) {
+    console.error('[SMS Templates] Fetch error:', error);
+    return res.status(500).json({ message: 'Failed to fetch SMS templates', error: error.message });
+  }
+};
+
