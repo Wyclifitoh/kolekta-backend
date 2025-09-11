@@ -606,15 +606,34 @@ exports.addSms = async (req, res) => {
 };
 
 exports.getPTPData = async (req, res) => {
-  const { cfid } = req.params;
+  const { cfid } = req.query;
   try {
-    const [ptps] = await pool.query(`SELECT * FROM promise_to_pay WHERE cfid = ? ORDER BY ptp_date DESC`, [cfid]);
+    const query = `
+      SELECT 
+        p.id,
+        p.ptp_date,
+        p.ptp_amount,
+        p.ptp_type,
+        p.ptp_status,
+        p.affirm_status,
+        p.is_active,
+        p.created_at,
+        u.name AS ptp_by_name
+      FROM ptps p
+      LEFT JOIN users u ON p.ptp_by = u.id
+      WHERE p.casefile_id = ?
+      ORDER BY p.created_at DESC
+    `;
+
+    const [ptps] = await pool.query(query, [cfid]);
+
     res.status(200).json({ ptps });
   } catch (err) {
     console.error('Error fetching PTPs:', err);
     res.status(500).json({ message: 'Server error fetching PTPs' });
   }
 };
+
 
 exports.addPTP = async (req, res) => {
   const { cfid, ptp_date, ptp_amount, ptp_by, ptp_type, ptp_status, affirm_status } = req.body;

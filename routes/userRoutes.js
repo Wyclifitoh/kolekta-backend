@@ -55,8 +55,8 @@ router.get('/case-file/sms-data/:cfid', authenticateToken, getSmsData);
 router.post('/case-file/sms', authenticateToken, addSms);
 
 // === Promise to Pay (PTP) ===
-router.get('/case-file/ptp/:cfid', authenticateToken, getPTPData);
-router.post('/case-file/ptp', authenticateToken, addPTP);
+router.get('/casefile/ptp', authenticateToken, getPTPData);
+router.post('/casefile/ptp', authenticateToken, addPTP);
 
 // === Payments ===
 router.get('/case-file/payments-data/:cfid', authenticateToken, getPaymentsData);
