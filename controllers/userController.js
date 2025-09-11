@@ -180,7 +180,12 @@ exports.getAllCaseFiles = async (req, res) => {
       offset
     };
 
+    console.log('PAGE ', page);
+    console.log('LIMIT ', limit);    
+
     const files = await Staff.findAll(filters);
+
+    console.log('FILES ', files);
 
     res.status(200).json({ files, page: pageInt, limit: limitInt });
   } catch (error) {
