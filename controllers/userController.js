@@ -9,6 +9,7 @@ const generateUid = require('../utils/utils');
 const xlsx = require('xlsx');
 const path = require('path'); 
 const pool = require('../config/db');
+const fs = require('fs');
 
 exports.createStaff = async (req, res) => {
     const { first_name, last_name, email_address, phone_number, dialing_id, role, permission, password } = req.body;
