@@ -3,6 +3,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const appRoutes = require('./routes/appRoutes');
+const caseFileRoutes = require('./routes/caseFileRoutes');
 const dotenv = require('dotenv'); 
 const cors = require('cors');
 
@@ -35,8 +36,8 @@ app.use(cors({
 app.use('/api/auth', authRoutes); 
 app.use('/api/users', userRoutes); 
 app.use('/api/client', clientRoutes); 
+app.use('/api/casefile', caseFileRoutes);
 app.use('/api', appRoutes); 
-
 
 
 app.listen(PORT, () => {

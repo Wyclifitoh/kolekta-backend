@@ -263,28 +263,25 @@ exports.findAll = async (filters) => {
   }
 };
 
-
 exports.findCaseFileByID = async (id) => {
   const sql = `
-    SELECT 
-      cf.*, 
-      c.name AS client_name,
-      d.title AS debt_category_name,
-      dt.title AS debt_type_name,
-      p.title AS product_name,
-      cu.code AS currency_code,
-      cu.name AS currency_name,
-      u.first_name AS held_by_name
-    FROM case_files cf
-    LEFT JOIN clients c ON cf.client_id = c.id
-    LEFT JOIN client_products p ON cf.product_id = p.id
-    LEFT JOIN currencies cu ON cf.currency_id = cu.id
-    LEFT JOIN staff u ON cf.held_by = u.id
-    LEFT JOIN debt_categories d ON cf.debt_category = d.id
-    LEFT JOIN debt_types dt ON cf.debt_type = dt.id 
-    WHERE cf.cfid = ?
-    LIMIT 1
-  `;
+      SELECT
+        cf.*,
+        c.name AS client_name,
+        dt.title AS debt_type_name,
+        d.title AS debt_category_name,
+        p.title AS product_name,
+        u.first_name AS held_by_name
+      FROM case_files cf
+      LEFT JOIN clients c ON cf.client_id = c.id
+      LEFT JOIN client_products p ON cf.product_id = p.id
+      LEFT JOIN staff u ON cf.held_by = u.id
+      LEFT JOIN debt_categories d ON cf.debt_category_id = d.id
+      LEFT JOIN debt_types dt ON cf.debt_type_id = dt.id
+      WHERE cf.cfid = ?
+      LIMIT 1
+    `;
+ 
 
   const [rows] = await pool.query(sql, [id]);
   return rows[0] || null;
