@@ -10,6 +10,7 @@ const xlsx = require('xlsx');
 const path = require('path'); 
 const pool = require('../config/db');
 const fs = require('fs');
+const { logInteraction } = require('../helpers/casefileInteractions');
 
 exports.createStaff = async (req, res) => {
     const { first_name, last_name, email_address, phone_number, dialing_id, role, permission, password } = req.body;
@@ -570,17 +571,46 @@ exports.getCaseProgress = async (req, res) => {
   }
 };
 
-exports.addCaseProgress = async (req, res) => {
-  const { cfid, report, date_updated, contact_status_id, updated_by } = req.body;
+// controllers/progressController.js
+exports.addProgressReport = async (req, res) => {
+  const conn = await pool.getConnection();
   try {
-    await pool.query(`INSERT INTO case_progress (cfid, report, date_updated, contact_status_id, updated_by) VALUES (?, ?, ?, ?, ?)`, 
-      [cfid, report, date_updated, contact_status_id, updated_by]);
-    res.status(201).json({ message: 'Progress added successfully' });
-  } catch (err) {
-    console.error('Error adding progress:', err);
-    res.status(500).json({ message: 'Server error adding progress' });
+    const { casefile_id, contact_status_id, report } = req.body;
+    const updated_by = req.user.id;  
+
+    // Insert new progress report
+    const [result] = await conn.query(
+      `INSERT INTO progress_reports (casefile_id, contact_status_id, report, updated_by) 
+       VALUES (?, ?, ?, ?)`,
+      [casefile_id, contact_status_id, report, updated_by]
+    );
+
+      const newInteraction = await logInteraction({
+          casefile_id,
+          created_by: updated_by,
+          notes: report, 
+          contact_status_id
+        }, conn);
+
+    // Fetch full details for the newly created report
+    const [newReport] = await conn.query(
+      `SELECT pr.id, pr.report, pr.created_at, cs.title AS contactStatus, u.name AS updatedBy
+       FROM progress_reports pr
+       LEFT JOIN contact_statuses cs ON pr.contact_status_id = cs.id
+       LEFT JOIN users u ON pr.updated_by = u.id
+       WHERE pr.id = ?`,
+      [result.insertId]
+    );
+
+    return res.status(201).json(newReport[0]);
+  } catch (error) {
+    console.error('[Progress] Add error:', error);
+    return res.status(500).json({ message: 'Failed to add progress report', error: error.message });
+  } finally {
+    conn.release();
   }
 };
+
 
 exports.getSmsData = async (req, res) => {
   const { cfid } = req.params;
