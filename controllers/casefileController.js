@@ -7,7 +7,7 @@ const SMS = require('../services/smsService');
 const Mail = require('../services/mailService');
 const Contacts = require('../models/contactsModel');
 const { logInteraction } = require('../helpers/casefileInteractions');
-
+const pool = require('../config/db');
 //  Create Case File
 exports.createCaseFile = async (req, res) => {
   try {
