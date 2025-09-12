@@ -6,10 +6,10 @@ const {
   getCaseFileDetails,
   getAllCaseFiles,
   addInteraction,
+  reschedulePTP,
   getInteractionsByCase,
   addPTP,
-  updatePTP,
-  reschedulePTP,
+  updatePTP, 
   getPTPsByCase,
   getProgressReports,
   addPayment,
@@ -25,13 +25,13 @@ const {
 // router.get('/:id', authenticateToken, getCaseFileDetails);
 
 // Interactions
-router.post('/interactions', authenticateToken, addInteraction);
+router.post('/interactions', authenticateToken, addInteraction); 
 // router.get('/interactions/:casefile_id', authenticateToken, getInteractionsByCase);
 
 // PTPs
-router.post('/ptp', authenticateToken, addPTP);
+router.post('/ptp', authenticateToken, addPTP); 
 // router.put('/ptp/:id', authenticateToken, updatePTP);
-router.put('/ptp/:id/reschedule', authenticateToken, reschedulePTP);
+router.put('/ptp/:ptpId/reschedule', authenticateToken, reschedulePTP);
 // router.get('/ptp/:casefile_id', authenticateToken, getPTPsByCase);
 
 // Progress Reports

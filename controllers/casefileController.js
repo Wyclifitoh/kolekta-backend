@@ -107,6 +107,52 @@ exports.addInteraction = async (req, res) => {
   }
 };
 
+exports.reschedulePTP = async (req, res) => {
+  const conn = await pool.getConnection();
+  try {
+    const { ptpId } = req.params;
+    const { casefile_id, newAmount, newDate, nextActionId, nextActionDate, reason } = req.body;
+    const createdBy = req.user.id;
+
+    await conn.beginTransaction();
+
+    // Update PTP record with new date and amount
+    await conn.query(
+      `UPDATE ptps 
+       SET new_amount = ?, new_date = ?, is_rescheduled = 1, updated_at = NOW()
+       WHERE id = ?`,
+      [newAmount, newDate, ptpId]
+    );
+
+    // Log interaction for reschedule
+    const newInteraction = await logInteraction({
+      casefile_id,
+      created_by: createdBy,
+      notes: reason,  
+      next_action_id: nextActionId,
+      next_action_date: nextActionDate,
+      ptp_id: ptpId
+    }, conn); 
+
+    // await logInteraction({
+    //   casefile_id: req.body.casefile_id,
+    //   created_by: req.user.id,
+    //   notes: `PTP Rescheduled: Old Amount ${req.body.old_amount}, New Amount ${req.body.new_amount}, New Date ${req.body.new_date}`
+    // });
+
+    await conn.commit();
+    return res.status(200).json({ message: "PTP rescheduled successfully" });
+
+  } catch (err) {
+    await conn.rollback();
+    console.error("[PTP Reschedule] Error:", err);
+    return res.status(500).json({ message: "Failed to reschedule PTP" });
+  } finally {
+    conn.release();
+  }
+};
+
+
 
 //  Add PTP
 exports.addPTP = async (req, res) => {
@@ -131,7 +177,7 @@ exports.addPTP = async (req, res) => {
 };
 
 //  Reschedule PTP
-exports.reschedulePTP = async (req, res) => {
+exports.reschedulePTPV1 = async (req, res) => {
   try {
     const { id } = req.params;
     const updatedPTP = await PTPs.reschedule(id, req.body);
