@@ -832,9 +832,9 @@ exports.getSMSTemplates = async (req, res) => {
         st.id,
         st.title,
         st.content,
-        c.name AS client,
-        p.name AS product,
-        d.name AS debt_category,
+        c.name AS client_name,
+        p.title AS product,
+        d.title AS debt_category,
         st.bulk_only,
         u.name AS created_by,
         st.created_at
