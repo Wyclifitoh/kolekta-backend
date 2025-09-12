@@ -855,6 +855,22 @@ exports.getCasefileContacts = async (req, res) => {
   }
 };
 
+exports.addCaseFileContact = async (req, res) => {
+  const posted_by = req.user.id;  
+  const { casefile_id, full_name, relationship, phones, emails, address = '', isPrimary } = req.body;
+  try {
+    await pool.query(`
+      INSERT INTO casefile_contacts (casefile_id, full_name, relationship, phones, emails, address, posted_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [casefile_id, full_name, relationship, phones, emails, address, posted_by]);
+
+    res.status(201).json({ message: 'Contact added successfully' });
+  } catch (err) {
+    console.error('Error adding contact:', err);
+    res.status(500).json({ message: 'Server error adding contact' });
+  }
+};
+
 exports.getSMSTemplates = async (req, res) => {
   try {
     const query = `
