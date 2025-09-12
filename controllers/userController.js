@@ -318,6 +318,7 @@ exports.getCaseInteractions = async (req, res) => {
     const query = `
       SELECT 
         ci.id,
+        ci.notes,
         ci.date_created AS date,
         u.name AS created_by,
         ct.title AS contact_type,
@@ -378,7 +379,6 @@ exports.getCaseFileByID = async (req, res) => {
   }
 };
 
-// GET all notes for a case file
 // GET all notes for a case file
 exports.getNotesByCaseFile = async (req, res) => {
   const { cfid } = req.params;
@@ -571,7 +571,6 @@ exports.getCaseProgress = async (req, res) => {
   }
 };
 
-// controllers/progressController.js
 exports.addProgressReport = async (req, res) => {
   const conn = await pool.getConnection();
   try {
@@ -594,7 +593,7 @@ exports.addProgressReport = async (req, res) => {
 
     // Fetch full details for the newly created report
     const [newReport] = await conn.query(
-      `SELECT pr.id, pr.report, pr.created_at, cs.title AS contactStatus, u.name AS updatedBy
+      `SELECT pr.id, pr.report, pr.created_at, cs.title AS contact_status, u.name AS updated_by
        FROM progress_reports pr
        LEFT JOIN contact_statuses cs ON pr.contact_status_id = cs.id
        LEFT JOIN users u ON pr.updated_by = u.id
