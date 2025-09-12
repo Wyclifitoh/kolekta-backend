@@ -52,7 +52,7 @@ exports.addInteraction = async (req, res) => {
     if (last_ptp_outcome) {
       await conn.query(
         `UPDATE ptps 
-         SET ptp_status = ?, is_active = 0, updated_at = NOW() 
+         SET ptp_status = ?, updated_at = NOW() 
          WHERE casefile_id = ? AND is_active = 1 
          ORDER BY created_at DESC LIMIT 1`,
         [last_ptp_outcome, casefile_id]
@@ -64,7 +64,7 @@ exports.addInteraction = async (req, res) => {
       const [result] = await conn.query(
         `INSERT INTO ptps 
           (casefile_id, ptp_date, ptp_amount, ptp_type, ptp_status, affirm_status, is_active, ptp_by, created_at) 
-         VALUES (?, ?, ?, ?, 'Active', 'Not Affirmed', 1, ?, NOW())`,
+         VALUES (?, ?, ?, ?, 'Not Honoured', 'Not Affirmed', 1, ?, NOW())`,
         [
           casefile_id,
           ptp.date,
