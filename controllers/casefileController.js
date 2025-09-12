@@ -110,7 +110,7 @@ exports.addInteraction = async (req, res) => {
 exports.reschedulePTP = async (req, res) => {
   const conn = await pool.getConnection();
   try {
-    const { ptpId } = req.params;
+    const { ptpId } = req.query;
     const { casefile_id, newAmount, newDate, nextActionId, nextActionDate, reason } = req.body;
     const createdBy = req.user.id;
 
