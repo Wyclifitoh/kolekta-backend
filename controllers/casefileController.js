@@ -28,29 +28,85 @@ exports.createCaseFile = async (req, res) => {
   }
 };
 
-//  Add Interaction (UPDATE Tab)
 exports.addInteraction = async (req, res) => {
+  const conn = await pool.getConnection();
+  
   try {
-    const data = { ...req.body, created_by: req.user.id };
-    const newInteraction = await Interactions.create(data);
+    await conn.beginTransaction();
 
-    await logInteraction({
-      casefile_id: data.casefile_id,
-      created_by: req.user.id,
-      notes: data.notes,
-      contact_type_id: data.contact_type_id,
-      contact_status_id: data.contact_status_id,
-      call_type_id: data.call_type_id,
-      next_action_id: data.next_action_id,
-      next_action_date: data.next_action_date
+    const {
+      casefile_id,
+      contact_type_id,
+      contact_status_id,
+      call_type_id,
+      next_action_id,
+      next_action_date,
+      notes,
+      last_ptp_outcome,
+      ptp // optional { amount, date, fullFinal }
+    } = req.body;
+    const createdBy = req.user.id;
+
+    let newPTP = null;
+    // 1. If last PTP outcome is provided, update the previous active PTP
+    if (last_ptp_outcome) {
+      await conn.query(
+        `UPDATE ptps 
+         SET ptp_status = ?, is_active = 0, updated_at = NOW() 
+         WHERE casefile_id = ? AND is_active = 1 
+         ORDER BY created_at DESC LIMIT 1`,
+        [last_ptp_outcome, casefile_id]
+      );
+    }
+
+    // 1. If PTP is provided, insert it first
+    if (ptp && ptp.amount && ptp.date) {
+      const [result] = await conn.query(
+        `INSERT INTO ptps 
+          (casefile_id, ptp_date, ptp_amount, ptp_type, ptp_status, affirm_status, is_active, ptp_by, created_at) 
+         VALUES (?, ?, ?, ?, 'Active', 'Not Affirmed', 1, ?, NOW())`,
+        [
+          casefile_id,
+          ptp.date,
+          ptp.amount,
+          ptp.fullFinal ? 'Full & Final' : 'Normal',
+          createdBy
+        ]
+      );
+
+      const [ptpData] = await conn.query(`SELECT * FROM ptps WHERE id = ?`, [result.insertId]);
+      newPTP = ptpData[0];
+    }
+
+    // 2. Log Interaction (link PTP if present)
+    const newInteraction = await logInteraction({
+      casefile_id,
+      created_by: createdBy,
+      notes,
+      contact_type_id,
+      contact_status_id,
+      call_type_id,
+      next_action_id,
+      next_action_date,
+      ptp_id: newPTP ? newPTP.id : null
+    }, conn);
+
+    await conn.commit();
+
+    return res.status(201).json({
+      message: 'Interaction logged successfully',
+      data: { interaction: newInteraction, ptp: newPTP }
     });
 
-    return res.status(201).json({ message: 'Interaction logged successfully', data: newInteraction });
   } catch (error) {
+    await conn.rollback();
     console.error('[Interaction] Add error:', error);
     return res.status(500).json({ message: 'Failed to log interaction', error: error.message });
+  } finally {
+    conn.release();
   }
 };
+
 
 //  Add PTP
 exports.addPTP = async (req, res) => {
