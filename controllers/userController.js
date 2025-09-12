@@ -689,21 +689,6 @@ exports.getPaymentsData = async (req, res) => {
   }
 };
 
-exports.addPayment = async (req, res) => {
-  const { cfid, date, amount, channel, reference, staff } = req.body;
-  try {
-    await pool.query(`
-      INSERT INTO case_payments (cfid, payment_date, amount, channel, reference, received_by)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `, [cfid, date, amount, channel, reference, staff]);
-
-    res.status(201).json({ message: 'Payment recorded successfully' });
-  } catch (err) {
-    console.error('Error adding payment:', err);
-    res.status(500).json({ message: 'Server error adding payment' });
-  }
-};
-
 exports.getCallTypes = async (req, res) => {
   try {
     const [callTypes] = await pool.query(`SELECT * FROM call_types ORDER BY id DESC`);
@@ -799,6 +784,22 @@ exports.getProgressReports = async (req, res) => {
   } catch (err) {
     console.error('Error fetching progress reports:', err);
     res.status(500).json({ message: 'Server error fetching progress reports' });
+  }
+};
+
+exports.addPayment = async (req, res) => {
+  const staff = req.user.id;  
+  const { cfid, date, amount, channel, reference, comment } = req.body;
+  try {
+    await pool.query(`
+      INSERT INTO payments (casefile_id, amount_paid, date_paid, receipt_no, payment_channel, comment, posted_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [cfid, amount, date, reference, channel, comment, staff]);
+
+    res.status(201).json({ message: 'Payment recorded successfully' });
+  } catch (err) {
+    console.error('Error adding payment:', err);
+    res.status(500).json({ message: 'Server error adding payment' });
   }
 };
 
