@@ -5,10 +5,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["asterisk", "pbx", "telephony", "call-center", "voip"],
+  "author": "Wycliff Vuzigu",
   "license": "ISC",
-  "description": "",
+  "description": "WikiTeq Solutions",
   "dependencies": {
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
@@ -25,6 +25,26 @@
     "nodemailer": "^6.10.0",
     "validate": "^5.2.0",
     "validator": "^13.12.0",
+    "winston": "^3.11.0",
+    "socket.io": "^4.7.4",
+    "bull": "^4.12.0",
+    "redis": "^4.6.11",
+    "ari-client": "^2.2.1",
+    "asterisk-manager": "^0.1.16",
+    "uuid": "^9.0.1",
+    "joi": "^17.11.0",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "aws-sdk": "^2.1506.0",
+    "express-validator": "^7.0.1",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
   }
+
 }
