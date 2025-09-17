@@ -41,7 +41,7 @@ exports.addClient = async (req, res) => {
         }
 
         // Insert client into database
-        const [clientResult] = await db.query(
+        const [clientResult] = await pool.query(
             'INSERT INTO clients (name, abbreviation, client_type, team_leader_id, paybill, general_target) VALUES (?, ?, ?, ?, ?, ?)',
             [name, abbreviation, client_type, team_leader_id, paybill, general_target]
         );
@@ -58,7 +58,7 @@ exports.addClient = async (req, res) => {
                 contact.email
             ]);
 
-            await db.query(
+            await pool.query(
                 'INSERT INTO client_contacts (client_id, name, designation, branch_department, phone, email) VALUES ?;',
                 [contactValues]
             );
@@ -412,17 +412,17 @@ exports.getSummaryV1 = async (req, res) => {
       : '';
 
     // 1. Cases count
-    const [cases] = await db.query(`SELECT COUNT(*) as total FROM case_files ${caseFilter}`);
+    const [cases] = await pool.query(`SELECT COUNT(*) as total FROM case_files ${caseFilter}`);
 
     // 2. Active staff only for admins/team_leaders
     let activeStaffCount = 0;
     if (userRole !== 'staff') {
-      const [activeStaff] = await db.query(`SELECT COUNT(*) as total FROM staff WHERE is_active = 1`);
+      const [activeStaff] = await pool.query(`SELECT COUNT(*) as total FROM staff WHERE is_active = 1`);
       activeStaffCount = activeStaff[0].total;
     }
 
     // 3. Total recovered
-    const [recovered] = await db.query(`
+    const [recovered] = await pool.query(`
       SELECT IFNULL(SUM(amount), 0) as total
       FROM payments p
       ${paymentFilter}
@@ -430,13 +430,13 @@ exports.getSummaryV1 = async (req, res) => {
     `);
 
     // 4. Overdue cases
-    const [overdueCases] = await db.query(`
+    const [overdueCases] = await pool.query(`
       SELECT COUNT(*) as total FROM case_files
       ${caseFilter ? caseFilter + ' AND' : 'WHERE'} loan_due_date < NOW() AND status != "closed"
     `);
 
     // 5. Today's collections
-    const [todaysCollections] = await db.query(`
+    const [todaysCollections] = await pool.query(`
       SELECT IFNULL(SUM(amount), 0) as total
       FROM payments p
       ${paymentFilter}
@@ -444,7 +444,7 @@ exports.getSummaryV1 = async (req, res) => {
     `);
 
     // 6. Total debt
-    const [totalDebt] = await db.query(`
+    const [totalDebt] = await pool.query(`
       SELECT IFNULL(SUM(amount), 0) as total
       FROM case_files
       ${caseFilter}
@@ -457,7 +457,7 @@ exports.getSummaryV1 = async (req, res) => {
     // 7. Staff performance only for admins/team leaders
     let staffPerformance = [];
     if (userRole !== 'staff') {
-      [staffPerformance] = await db.query(`
+      [staffPerformance] = await pool.query(`
         SELECT u.first_name, u.last_name, SUM(p.amount) as total
         FROM payments p
         JOIN staff u ON p.user_id = u.id
@@ -469,7 +469,7 @@ exports.getSummaryV1 = async (req, res) => {
     }
 
     // 8. Monthly recoveries
-    const [monthlyRecoveries] = await db.query(`
+    const [monthlyRecoveries] = await pool.query(`
       SELECT DATE_FORMAT(created_at, '%Y-%m') as month, SUM(amount) as total
       FROM payments p
       ${paymentFilter}
@@ -483,7 +483,7 @@ exports.getSummaryV1 = async (req, res) => {
       ? `WHERE ci.casefile_id IN (SELECT id FROM case_files WHERE held_by = ${userId})`
       : '';
 
-    const [interactions] = await db.query(`
+    const [interactions] = await pool.query(`
       SELECT 
         ci.id,
         ci.notes,
@@ -560,7 +560,7 @@ exports.getSummary = async (req, res) => {
       caseCondition = `held_by = ${userId}`;
     } else if (userRole === 'team_leader') {
       // For team leader, get all staff IDs under them
-      const [teamStaff] = await db.query(`SELECT id FROM staff WHERE manager_id = ${userId}`);
+      const [teamStaff] = await pool.query(`SELECT id FROM staff WHERE manager_id = ${userId}`);
       const staffIds = teamStaff.map(s => s.id);
       if (staffIds.length > 0) {
         caseCondition = `held_by IN (${staffIds.join(',')})`;
@@ -575,30 +575,30 @@ exports.getSummary = async (req, res) => {
     const caseFilter = `WHERE ${caseCondition}`;
 
     // Step 2: Total Cases
-    const [cases] = await db.query(`SELECT COUNT(*) as total FROM case_files ${caseFilter}`);
+    const [cases] = await pool.query(`SELECT COUNT(*) as total FROM case_files ${caseFilter}`);
 
     // Step 3: Active Staff (only admins/team_leaders)
     let activeStaffCount = 0;
     if (userRole !== 'staff') {
-      const [activeStaff] = await db.query(`SELECT COUNT(*) as total FROM staff WHERE is_active = 1`);
+      const [activeStaff] = await pool.query(`SELECT COUNT(*) as total FROM staff WHERE is_active = 1`);
       activeStaffCount = activeStaff[0].total;
     }
 
     // Step 4: Total Recovered
-    const [recovered] = await db.query(`
+    const [recovered] = await pool.query(`
       SELECT IFNULL(SUM(amount), 0) as total
       FROM payments
       WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter}) AND status = "completed"
     `);
 
     // Step 5: Overdue Cases
-    const [overdueCases] = await db.query(`
+    const [overdueCases] = await pool.query(`
       SELECT COUNT(*) as total FROM case_files
       ${caseFilter} AND loan_due_date < NOW() AND status != "closed"
     `);
 
     // Step 6: Today's Collections
-    const [todaysCollections] = await db.query(`
+    const [todaysCollections] = await pool.query(`
       SELECT IFNULL(SUM(amount), 0) as total
       FROM payments
       WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
@@ -606,7 +606,7 @@ exports.getSummary = async (req, res) => {
     `);
 
     // Step 7: Total Debt
-    const [totalDebt] = await db.query(`
+    const [totalDebt] = await pool.query(`
       SELECT IFNULL(SUM(amount), 0) as total
       FROM case_files
       ${caseFilter}
@@ -619,7 +619,7 @@ exports.getSummary = async (req, res) => {
     // Step 8: Staff Performance (only admins/team leaders)
     let staffPerformance = [];
     if (userRole !== 'staff') {
-      [staffPerformance] = await db.query(`
+      [staffPerformance] = await pool.query(`
         SELECT u.first_name, u.last_name, SUM(p.amount) as total
         FROM payments p
         JOIN staff u ON p.user_id = u.id
@@ -631,7 +631,7 @@ exports.getSummary = async (req, res) => {
     }
 
     // Step 9: Monthly Recoveries
-    const [monthlyRecoveries] = await db.query(`
+    const [monthlyRecoveries] = await pool.query(`
       SELECT DATE_FORMAT(created_at, '%Y-%m') as month, SUM(amount) as total
       FROM payments
       WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
@@ -641,7 +641,7 @@ exports.getSummary = async (req, res) => {
     `);
 
     // Step 10: Recent Activity
-    const [interactions] = await db.query(`
+    const [interactions] = await pool.query(`
       SELECT 
         ci.id,
         ci.notes,
