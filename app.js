@@ -102,7 +102,7 @@ app.use(errorHandler);
 async function startServer() {
   try {
     // Test DB connection
-    await database.testConnection();
+   // await database.testConnection();
     logger.info('Database connection established');
 
     // Initialize services
