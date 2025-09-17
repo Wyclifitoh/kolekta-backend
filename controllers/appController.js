@@ -398,157 +398,6 @@ exports.getAllPtpRescheduleReasons = async (req, res) => {
 };
 
 
-exports.getSummaryV1 = async (req, res) => {
-  try {
-    const userId = req.user.id; // assuming you set user from auth middleware
-    const userRole = req.user.role; // admin, team_leader, staff etc.
-
-    // For staff, we filter case files by held_by
-    const caseFilter = (userRole === 'staff') ? `WHERE held_by = ${userId}` : '';
-
-    // For staff, payments should also be linked to only their cases
-    const paymentFilter = (userRole === 'staff')
-      ? `WHERE p.casefile_id IN (SELECT id FROM case_files WHERE held_by = ${userId})`
-      : '';
-
-    // 1. Cases count
-    const [cases] = await pool.query(`SELECT COUNT(*) as total FROM case_files ${caseFilter}`);
-
-    // 2. Active staff only for admins/team_leaders
-    let activeStaffCount = 0;
-    if (userRole !== 'staff') {
-      const [activeStaff] = await pool.query(`SELECT COUNT(*) as total FROM staff WHERE is_active = 1`);
-      activeStaffCount = activeStaff[0].total;
-    }
-
-    // 3. Total recovered
-    const [recovered] = await pool.query(`
-      SELECT IFNULL(SUM(amount), 0) as total
-      FROM payments p
-      ${paymentFilter}
-      ${paymentFilter ? 'AND' : 'WHERE'} status = "completed"
-    `);
-
-    // 4. Overdue cases
-    const [overdueCases] = await pool.query(`
-      SELECT COUNT(*) as total FROM case_files
-      ${caseFilter ? caseFilter + ' AND' : 'WHERE'} loan_due_date < NOW() AND status != "closed"
-    `);
-
-    // 5. Today's collections
-    const [todaysCollections] = await pool.query(`
-      SELECT IFNULL(SUM(amount), 0) as total
-      FROM payments p
-      ${paymentFilter}
-      ${paymentFilter ? 'AND' : 'WHERE'} DATE(created_at)=CURDATE()
-    `);
-
-    // 6. Total debt
-    const [totalDebt] = await pool.query(`
-      SELECT IFNULL(SUM(amount), 0) as total
-      FROM case_files
-      ${caseFilter}
-    `);
-
-    const recoveryRate = totalDebt[0].total > 0
-      ? ((recovered[0].total / totalDebt[0].total) * 100).toFixed(2)
-      : 0;
-
-    // 7. Staff performance only for admins/team leaders
-    let staffPerformance = [];
-    if (userRole !== 'staff') {
-      [staffPerformance] = await pool.query(`
-        SELECT u.first_name, u.last_name, SUM(p.amount) as total
-        FROM payments p
-        JOIN staff u ON p.user_id = u.id
-        WHERE p.status = "completed"
-        GROUP BY u.id
-        ORDER BY total DESC
-        LIMIT 5
-      `);
-    }
-
-    // 8. Monthly recoveries
-    const [monthlyRecoveries] = await pool.query(`
-      SELECT DATE_FORMAT(created_at, '%Y-%m') as month, SUM(amount) as total
-      FROM payments p
-      ${paymentFilter}
-      ${paymentFilter ? 'AND' : 'WHERE'} status = "completed"
-      GROUP BY month
-      ORDER BY month ASC
-    `);
-
-    // 9. Recent activity - filter by staff cases if staff
-    const interactionFilter = (userRole === 'staff')
-      ? `WHERE ci.casefile_id IN (SELECT id FROM case_files WHERE held_by = ${userId})`
-      : '';
-
-    const [interactions] = await pool.query(`
-      SELECT 
-        ci.id,
-        ci.notes,
-        ci.date_created AS date,
-        u.name AS created_by,
-        ct.title AS contact_type,
-        cs.title AS contact_status,
-        callt.title AS call_type,
-        na.title AS next_action,
-        ci.next_action_date,
-        ptp.ptp_amount,
-        ptp.ptp_date,
-        ptp.ptp_type,
-        ptp.ptp_status,
-        ptp.affirm_status,
-        pr.report AS progress_report,
-        sms.message AS sms_message,
-        mail.subject AS mail_subject,
-        pay.amount_paid AS payment_amount,
-        pay.date_paid AS payment_date,
-        rr.title AS reschedule_reason
-      FROM casefile_interactions ci
-      LEFT JOIN contact_types ct ON ci.contact_type_id = ct.id
-      LEFT JOIN contact_statuses cs ON ci.contact_status_id = cs.id
-      LEFT JOIN call_types callt ON ci.call_type_id = callt.id
-      LEFT JOIN next_actions na ON ci.next_action_id = na.id
-      LEFT JOIN staff u ON ci.created_by = u.id
-      LEFT JOIN ptps ptp ON ci.ptp_id = ptp.id
-      LEFT JOIN progress_reports pr ON ci.progress_report_id = pr.id
-      LEFT JOIN sms_logs sms ON ci.sms_id = sms.id
-      LEFT JOIN mail_logs mail ON ci.mail_id = mail.id
-      LEFT JOIN payments pay ON ci.payment_id = pay.id
-      LEFT JOIN ptp_reschedule_reasons rr ON ci.ptp_reschedule_reason_id = rr.id
-      ${interactionFilter}
-      ORDER BY ci.date_created DESC
-      LIMIT 10
-    `);
-
-    const formattedActivity = interactions.map(interaction => ({
-      id: interaction.id,
-      date: interaction.date,
-      created_by: interaction.created_by,
-      notes: formatInteractionNotes(interaction)
-    }));
-
-    res.json({
-      stats: {
-        totalCases: cases[0].total,
-        activeStaff: activeStaffCount,
-        totalRecovered: recovered[0].total || 0,
-        recoveryRate,
-        overdueCases: overdueCases[0].total,
-        todaysCollections: todaysCollections[0].total || 0,
-        staffPerformance
-      },
-      charts: { monthlyRecoveries },
-      recentActivity: formattedActivity
-    });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error fetching dashboard summary' });
-  }
-};
-
 exports.getSummary = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -586,9 +435,9 @@ exports.getSummary = async (req, res) => {
 
     // Step 4: Total Recovered
     const [recovered] = await pool.query(`
-      SELECT IFNULL(SUM(amount), 0) as total
+      SELECT IFNULL(SUM(amount_paid), 0) as total
       FROM payments
-      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter}) AND status = "completed"
+      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter}) AND status = "confirmed"
     `);
 
     // Step 5: Overdue Cases
@@ -599,7 +448,7 @@ exports.getSummary = async (req, res) => {
 
     // Step 6: Today's Collections
     const [todaysCollections] = await pool.query(`
-      SELECT IFNULL(SUM(amount), 0) as total
+      SELECT IFNULL(SUM(amount_paid), 0) as total
       FROM payments
       WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
       AND DATE(created_at)=CURDATE()
@@ -607,7 +456,7 @@ exports.getSummary = async (req, res) => {
 
     // Step 7: Total Debt
     const [totalDebt] = await pool.query(`
-      SELECT IFNULL(SUM(amount), 0) as total
+      SELECT IFNULL(SUM(amount_paid), 0) as total
       FROM case_files
       ${caseFilter}
     `);
@@ -620,10 +469,10 @@ exports.getSummary = async (req, res) => {
     let staffPerformance = [];
     if (userRole !== 'staff') {
       [staffPerformance] = await pool.query(`
-        SELECT u.first_name, u.last_name, SUM(p.amount) as total
+        SELECT u.first_name, u.last_name, SUM(p.amount_paid) as total
         FROM payments p
         JOIN staff u ON p.user_id = u.id
-        WHERE p.status = "completed"
+        WHERE p.status = "confirmed"
         GROUP BY u.id
         ORDER BY total DESC
         LIMIT 5
@@ -632,10 +481,10 @@ exports.getSummary = async (req, res) => {
 
     // Step 9: Monthly Recoveries
     const [monthlyRecoveries] = await pool.query(`
-      SELECT DATE_FORMAT(created_at, '%Y-%m') as month, SUM(amount) as total
+      SELECT DATE_FORMAT(created_at, '%Y-%m') as month, SUM(amount_paid) as total
       FROM payments
       WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
-      AND status = "completed"
+      AND status = "confirmed"
       GROUP BY month
       ORDER BY month ASC
     `);
