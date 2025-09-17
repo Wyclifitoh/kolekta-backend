@@ -471,7 +471,7 @@ exports.getSummary = async (req, res) => {
       [staffPerformance] = await pool.query(`
         SELECT u.first_name, u.last_name, SUM(p.amount_paid) as total
         FROM payments p
-        JOIN staff u ON p.user_id = u.id
+        JOIN staff u ON p.posted_by = u.id
         WHERE p.status = "confirmed"
         GROUP BY u.id
         ORDER BY total DESC
