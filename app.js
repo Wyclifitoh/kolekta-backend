@@ -102,14 +102,14 @@ app.use(errorHandler);
 async function startServer() {
   try {
     // Test DB connection
-  //  await database.testConnection();
+    await database.testConnection();
     logger.info('Database connection established');
 
     // Initialize services
-  //  await queueService.initialize();
+    await queueService.initialize();
     logger.info('Queue service initialized');
 
- //   await asteriskService.initialize();
+    await asteriskService.initialize();
     logger.info('Asterisk service initialized');
 
     server.listen(PORT, () => {
