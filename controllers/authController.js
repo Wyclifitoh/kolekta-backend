@@ -93,7 +93,7 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'User with provided email does not exist' });
     }
 
-    if (user.status != "active") {
+    if (!user.is_active) {
       return res.status(400).json({ message: 'Account not active' });
     }
 
@@ -103,7 +103,7 @@ exports.login = async (req, res) => {
     }
 
     // Generate tokens
-    const payload = { id: user.id, email: user.email, role: user.role, status: user.status };
+    const payload = { id: user.id, email: user.email_address, role: user.role, status: user.is_active };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
     const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '30d' });
     const redirect = '';
@@ -118,11 +118,11 @@ exports.login = async (req, res) => {
       site_url: site_url,
       user: {
         id: user.id,
-        user_name: user.name,
-        email: user.email,
+        user_name: user.first_name,
+        email: user.email_address,
         role: user.role,
-        status: user.status,
-        phone_number: user.contact_info
+        status: user.is_active,
+        phone_number: user.phone_number
       }
     });
 
