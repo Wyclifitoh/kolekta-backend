@@ -39,7 +39,6 @@ exports.findAllStaff = async () => {
   return rows;
 };
 
-
 // Find user by email
 exports.findUserByEmail = async (email) => {
   const sql = `SELECT * FROM staff WHERE email_address = ?`;

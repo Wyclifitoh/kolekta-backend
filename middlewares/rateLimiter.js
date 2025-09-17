@@ -15,7 +15,7 @@ const generalRateLimit = rateLimit({
     // Skip rate limiting for health checks
     return req.path.startsWith('/health');
   },
-  onLimitReached: (req) => {
+  requestWasLimited: (req) => {
     logger.warn('Rate limit reached:', {
       ip: req.ip,
       path: req.path,
@@ -26,28 +26,23 @@ const generalRateLimit = rateLimit({
 
 // Call-specific rate limiter (more restrictive)
 const callRateLimit = rateLimit({
-  windowMs: 60000, // 1 minute
-  max: parseInt(process.env.CALL_RATE_LIMIT_MAX) || 10, // 10 calls per minute
-  message: {
-    success: false,
-    message: 'Too many call requests, please wait before making another call'
-  },
+  windowMs: 60000,
+  max: parseInt(process.env.CALL_RATE_LIMIT_MAX) || 10,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
-    // Rate limit per user, not just IP
-    return `call_${req.user?.id || req.ip}`;
-  },
-  skip: (req) => {
-    // Allow admins higher limits
-    return req.user?.isAdmin === true;
-  },
-  onLimitReached: (req) => {
+  keyGenerator: (req) => `call_${req.user?.id || req.ip}`,
+  skip: (req) => req.user?.isAdmin === true,
+  handler: (req, res, next, options) => {
     logger.warn('Call rate limit reached:', {
       userId: req.user?.id,
       staffId: req.user?.staffId,
       ip: req.ip,
       path: req.path
+    });
+
+    res.status(options.statusCode).json({
+      success: false,
+      message: 'Too many call requests, please wait before making another call'
     });
   }
 });

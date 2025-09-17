@@ -106,8 +106,8 @@ exports.login = async (req, res) => {
     const payload = { id: user.id, email: user.email, role: user.role, status: user.status };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
     const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '30d' });
-    const redirect = 'https://smartcollect.hapmodproperties.co.ke/dashboard.html';
-    const site_url = 'https://smartcollect.hapmodproperties.co.ke';
+    const redirect = '';
+    const site_url = '';
 
     await User.saveRefreshToken(user.id, refreshToken);
     res.json({
