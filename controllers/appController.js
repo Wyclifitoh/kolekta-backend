@@ -456,7 +456,7 @@ exports.getSummary = async (req, res) => {
 
     // Step 7: Total Debt
     const [totalDebt] = await pool.query(`
-      SELECT IFNULL(SUM(amount_paid), 0) as total
+      SELECT IFNULL(SUM(amount), 0) as total
       FROM case_files
       ${caseFilter}
     `);
