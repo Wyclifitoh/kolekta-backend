@@ -58,6 +58,7 @@ router.post('/add-ptp-reschedule-reason', authenticateToken, appController.addPt
 router.get('/get-ptp-reschedule-reasons', authenticateToken, appController.getAllPtpRescheduleReasons);
 
 router.get('/summary', authenticateToken, appController.getSummary);
+router.get('/calendar', authenticateToken, appController.getCalendar);
 
 
 

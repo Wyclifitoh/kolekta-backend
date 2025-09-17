@@ -676,6 +676,100 @@ exports.getSummary = async (req, res) => {
   }
 };
 
+exports.getCalendar = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
+
+    // --- Role-based filter ---
+    let caseCondition = '';
+    if (userRole === 'staff') {
+      caseCondition = `c.held_by = ${userId}`;
+    } else if (userRole === 'team_leader') {
+      const [teamStaff] = await pool.query(`SELECT id FROM staff WHERE manager_id = ${userId}`);
+      const staffIds = teamStaff.map(s => s.id);
+      caseCondition = staffIds.length > 0 ? `c.held_by IN (${staffIds.join(',')})` : '1=0';
+    } else {
+      caseCondition = '1=1'; // admin sees all
+    }
+
+    // --- Get Case Files ---
+    const [caseFiles] = await pool.query(`
+      SELECT 
+        c.*
+      FROM case_files c
+      WHERE ${caseCondition}
+      ORDER BY c.created_at DESC
+    `);
+
+    // --- Get PTPs + join case files for full object ---
+    const [ptps] = await pool.query(`
+      SELECT 
+        p.*, 
+        c.id AS casefile_id, c.cfid, c.client_id, c.product_id, c.debt_type_id,
+        c.debt_sub_type_id, c.debt_category_id, c.currency_id, c.held_by,
+        c.full_names, c.identification, c.customer_id, c.account_number, c.contract_no,
+        c.phones, c.emails, c.amount, c.principal_amount, c.amount_repaid, c.arrears,
+        c.status AS case_status, c.created_at AS case_created_at, c.updated_at AS case_updated_at
+      FROM ptps p
+      JOIN case_files c ON c.id = p.casefile_id
+      WHERE ${caseCondition}
+      ORDER BY p.ptp_date DESC
+    `);
+
+    // --- Build Final Response ---
+    const ptpsWithCaseFiles = ptps.map(p => ({
+      id: p.id,
+      casefile_id: p.casefile_id,
+      ptp_date: p.ptp_date,
+      ptp_amount: p.ptp_amount,
+      ptp_by: p.ptp_by,
+      ptp_type: p.ptp_type,
+      ptp_status: p.ptp_status,
+      affirm_status: p.affirm_status,
+      is_active: p.is_active === 1,
+      is_rescheduled: p.is_rescheduled === 1,
+      created_at: p.created_at,
+      updated_at: p.updated_at,
+      casefile: {
+        id: p.casefile_id,
+        cfid: p.cfid,
+        client_id: p.client_id,
+        product_id: p.product_id,
+        debt_type_id: p.debt_type_id,
+        debt_sub_type_id: p.debt_sub_type_id,
+        debt_category_id: p.debt_category_id,
+        currency_id: p.currency_id,
+        held_by: p.held_by,
+        full_names: p.full_names,
+        identification: p.identification,
+        customer_id: p.customer_id,
+        account_number: p.account_number,
+        contract_no: p.contract_no,
+        phones: p.phones,
+        emails: p.emails,
+        amount: p.amount,
+        principal_amount: p.principal_amount,
+        amount_repaid: p.amount_repaid,
+        arrears: p.arrears,
+        status: p.case_status,
+        created_at: p.case_created_at,
+        updated_at: p.case_updated_at
+      }
+    }));
+
+    res.json({
+      caseFiles: caseFiles,
+      ptps: ptpsWithCaseFiles
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching calendar data" });
+  }
+};
+
+
 
 
 
