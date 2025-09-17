@@ -42,21 +42,21 @@ exports.findAllStaff = async () => {
 
 // Find user by email
 exports.findUserByEmail = async (email) => {
-  const sql = `SELECT * FROM users WHERE email = ?`;
+  const sql = `SELECT * FROM staff WHERE email_address = ?`;
   const [rows] = await pool.query(sql, [email]);
   return rows[0];
 };
 
 // Find user by id
 exports.findUserById = async (id) => {
-  const sql = `SELECT * FROM users WHERE id = ?`;
+  const sql = `SELECT * FROM staff WHERE id = ?`;
   const [rows] = await pool.query(sql, [id]);
   return rows[0];
 };
 
 // Find user by reset token
 exports.findUserByResetToken = async (token) => {
-  const sql = `SELECT * FROM users WHERE reset_token = ? AND reset_token_expire > ?`;
+  const sql = `SELECT * FROM staff WHERE reset_token = ? AND reset_token_expire > ?`;
   const [rows] = await pool.query(sql, [token, Date.now()]);
   return rows[0];
 };

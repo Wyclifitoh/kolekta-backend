@@ -57,6 +57,8 @@ router.get('/get-call-types', authenticateToken, appController.getAllCallTypes);
 router.post('/add-ptp-reschedule-reason', authenticateToken, appController.addPtpRescheduleReason);
 router.get('/get-ptp-reschedule-reasons', authenticateToken, appController.getAllPtpRescheduleReasons);
 
+router.get('/summary', authenticateToken, appController.getSummary);
+
 
 
 module.exports = router;

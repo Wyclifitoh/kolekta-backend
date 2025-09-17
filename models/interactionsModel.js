@@ -18,9 +18,9 @@ exports.create = async (data) => {
 
 exports.findByCase = async (casefile_id) => {
   const [rows] = await pool.query(`
-    SELECT ci.*, u.name AS created_by_name
+    SELECT ci.*, u.first_name AS created_by_name
     FROM casefile_interactions ci
-    LEFT JOIN users u ON ci.created_by = u.id
+    LEFT JOIN staff u ON ci.created_by = u.id
     WHERE ci.casefile_id = ?
     ORDER BY ci.date_created DESC
   `, [casefile_id]);

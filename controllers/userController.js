@@ -320,7 +320,7 @@ exports.getCaseInteractions = async (req, res) => {
         ci.id,
         ci.notes,
         ci.date_created AS date,
-        u.name AS created_by,
+        u.first_name AS created_by,
         ct.title AS contact_type,
         cs.title AS contact_status,
         callt.title AS call_type,
@@ -342,7 +342,7 @@ exports.getCaseInteractions = async (req, res) => {
       LEFT JOIN contact_statuses cs ON ci.contact_status_id = cs.id
       LEFT JOIN call_types callt ON ci.call_type_id = callt.id
       LEFT JOIN next_actions na ON ci.next_action_id = na.id
-      LEFT JOIN users u ON ci.created_by = u.id
+      LEFT JOIN staff u ON ci.created_by = u.id
       LEFT JOIN ptps ptp ON ci.ptp_id = ptp.id
       LEFT JOIN progress_reports pr ON ci.progress_report_id = pr.id
       LEFT JOIN sms_logs sms ON ci.sms_id = sms.id
@@ -593,10 +593,10 @@ exports.addProgressReport = async (req, res) => {
 
     // Fetch full details for the newly created report
     const [newReport] = await conn.query(
-      `SELECT pr.id, pr.report, pr.created_at, cs.title AS contact_status, u.name AS updated_by
+      `SELECT pr.id, pr.report, pr.created_at, cs.title AS contact_status, u.first_name AS updated_by
        FROM progress_reports pr
        LEFT JOIN contact_statuses cs ON pr.contact_status_id = cs.id
-       LEFT JOIN users u ON pr.updated_by = u.id
+       LEFT JOIN staff u ON pr.updated_by = u.id
        WHERE pr.id = ?`,
       [result.insertId]
     );
@@ -647,9 +647,9 @@ exports.getPTPData = async (req, res) => {
         p.affirm_status,
         p.is_active,
         p.created_at,
-        u.name AS ptp_by_name
+        u.first_name AS ptp_by_name
       FROM ptps p
-      LEFT JOIN users u ON p.ptp_by = u.id
+      LEFT JOIN staff u ON p.ptp_by = u.id
       WHERE p.casefile_id = ?
       ORDER BY p.created_at DESC
     `;
@@ -771,10 +771,10 @@ exports.getProgressReports = async (req, res) => {
         pr.report,
         pr.created_at,
         cs.title AS contact_status,
-        u.name AS updated_by_name
+        u.first_name AS updated_by_name
       FROM progress_reports pr
       LEFT JOIN contact_statuses cs ON pr.contact_status_id = cs.id
-      LEFT JOIN users u ON pr.updated_by = u.id
+      LEFT JOIN staff u ON pr.updated_by = u.id
       WHERE pr.casefile_id = ?
       ORDER BY pr.created_at DESC
     `;
@@ -815,9 +815,9 @@ exports.getPayments = async (req, res) => {
         p.payment_channel,
         p.comment,
         p.created_at,
-        u.name AS posted_by_name
+        u.first_name AS posted_by_name
       FROM payments p
-      LEFT JOIN users u ON p.posted_by = u.id
+      LEFT JOIN staff u ON p.posted_by = u.id
       WHERE p.casefile_id = ?
       ORDER BY p.date_paid DESC
     `;
@@ -882,13 +882,13 @@ exports.getSMSTemplates = async (req, res) => {
         p.title AS product,
         d.title AS debt_category,
         st.bulk_only,
-        u.name AS created_by,
+        u.first_name AS created_by,
         st.created_at
       FROM sms_templates st
       LEFT JOIN clients c ON st.client_id = c.id
       LEFT JOIN client_products p ON st.product_id = p.id
       LEFT JOIN debt_categories d ON st.debt_category_id = d.id
-      LEFT JOIN users u ON st.created_by = u.id
+      LEFT JOIN staff u ON st.created_by = u.id
       ORDER BY st.created_at DESC
     `;
 
