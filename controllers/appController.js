@@ -198,18 +198,45 @@ exports.getAllClientTypes = async (req, res) => {
 // ---------- Client Products ----------
 exports.addClientProduct = async (req, res) => {
   const { client_id, title, description, general_target, paybill, status } = req.body;
+
   try {
+    // --- Validate Required Fields ---
+    if (!client_id) {
+      return res.status(400).json({ message: 'Client ID is required' });
+    }
+
+    if (!title || title.trim() === '') {
+      return res.status(400).json({ message: 'Product title is required' });
+    }
+
+    // Optional: Ensure general_target is a valid number
+    if (general_target && isNaN(Number(general_target))) {
+      return res.status(400).json({ message: 'General target must be a number' });
+    }
+
+    // --- Insert into Database ---
     const [result] = await pool.query(
       `INSERT INTO client_products (client_id, title, description, general_target, paybill, status) 
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [client_id, title, description, general_target, paybill, status || 'active']
+      [client_id, title, description || null, general_target || 0, paybill || null, status || 'active']
     );
-    res.status(201).json({ id: result.insertId, client_id, title, description, status });
+
+    res.status(201).json({ 
+      id: result.insertId, 
+      client_id, 
+      title, 
+      description, 
+      general_target: general_target || 0, 
+      paybill, 
+      status: status || 'active',
+      message: "Product added successfully"
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error adding client product' });
   }
 };
+
 
 exports.getAllClientProducts = async (req, res) => {
   try {
