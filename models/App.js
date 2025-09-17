@@ -4,7 +4,7 @@ const pool = require('../config/db');
 exports.addDebtCategory = async (title, description) => {
   try {
     const result = await pool.query(
-      'INSERT INTO debt_categories (title, description) VALUES ($1) RETURNING *',
+      'INSERT INTO debt_categories (title, description) VALUES (?, ?)',
       [title, description]
     );
     return result.rows[0];
