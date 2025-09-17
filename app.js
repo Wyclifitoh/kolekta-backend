@@ -106,10 +106,10 @@ async function startServer() {
     logger.info('Database connection established');
 
     // Initialize services
-    await queueService.initialize();
+   // await queueService.initialize();
     logger.info('Queue service initialized');
 
-    await asteriskService.initialize();
+ //   await asteriskService.initialize();
     logger.info('Asterisk service initialized');
 
     server.listen(PORT, () => {
