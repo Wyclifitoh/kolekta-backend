@@ -398,7 +398,7 @@ exports.getAllPtpRescheduleReasons = async (req, res) => {
 };
 
 
-exports.getSummary = async (req, res) => {
+exports.getSummaryV1 = async (req, res) => {
   try {
     const userId = req.user.id;
     const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
@@ -556,6 +556,126 @@ exports.getSummary = async (req, res) => {
     res.status(500).json({ message: 'Error fetching dashboard summary' });
   }
 };
+
+exports.getSummary = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
+
+    // Build reusable case condition
+    let caseCondition = '';
+    if (userRole === 'staff') {
+      caseCondition = `held_by = ${userId}`;
+    } else if (userRole === 'team_leader') {
+      const [teamStaff] = await pool.query(`SELECT id FROM staff WHERE manager_id = ${userId}`);
+      const staffIds = teamStaff.map(s => s.id);
+      caseCondition = staffIds.length > 0 ? `held_by IN (${staffIds.join(',')})` : '1=0';
+    } else {
+      caseCondition = '1=1';
+    }
+    const caseFilter = `WHERE ${caseCondition}`;
+
+    // Current totals
+    const [[cases]] = await pool.query(`SELECT COUNT(*) as total FROM case_files ${caseFilter}`);
+    const [[activeStaff]] = userRole !== 'staff'
+      ? await pool.query(`SELECT COUNT(*) as total FROM staff WHERE is_active = 1`)
+      : [[{ total: 0 }]];
+    const [[recovered]] = await pool.query(`
+      SELECT IFNULL(SUM(amount_paid), 0) as total
+      FROM payments
+      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter}) AND status = "confirmed"
+    `);
+    const [[overdueCases]] = await pool.query(`
+      SELECT COUNT(*) as total FROM case_files
+      ${caseFilter} AND loan_due_date < NOW() AND status != "closed"
+    `);
+    const [[todaysCollections]] = await pool.query(`
+      SELECT IFNULL(SUM(amount_paid), 0) as total
+      FROM payments
+      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
+      AND DATE(created_at)=CURDATE()
+    `);
+    const [[totalDebt]] = await pool.query(`
+      SELECT IFNULL(SUM(amount), 0) as total
+      FROM case_files ${caseFilter}
+    `);
+
+    const recoveryRate = totalDebt.total > 0
+      ? ((recovered.total / totalDebt.total) * 100).toFixed(2)
+      : 0;
+
+    // Staff performance
+    let staffPerformance = [];
+    if (userRole !== 'staff') {
+      [staffPerformance] = await pool.query(`
+        SELECT u.first_name, u.last_name, SUM(p.amount_paid) as total
+        FROM payments p
+        JOIN staff u ON p.posted_by = u.id
+        WHERE p.status = "confirmed"
+        GROUP BY u.id
+        ORDER BY total DESC
+        LIMIT 5
+      `);
+    }
+
+    // Monthly Recoveries
+    const [monthlyRecoveries] = await pool.query(`
+      SELECT DATE_FORMAT(created_at, '%b') as month, SUM(amount_paid) as amount, COUNT(*) as cases
+      FROM payments
+      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
+      AND status = "confirmed"
+      GROUP BY month
+      ORDER BY month ASC
+    `);
+
+    // Recent activity (simplified)
+    const [interactions] = await pool.query(`
+      SELECT ci.id, 'payment' AS type, ci.notes AS description, ci.date_created AS timestamp, u.first_name AS user
+      FROM casefile_interactions ci
+      LEFT JOIN staff u ON ci.created_by = u.id
+      WHERE ci.casefile_id IN (SELECT id FROM case_files ${caseFilter})
+      ORDER BY ci.date_created DESC
+      LIMIT 10
+    `);
+
+    // Final response
+    res.json({
+      stats: {
+        totalCases: cases.total,
+        totalCasesChange: "+12%",
+        totalCasesChangeType: "increase",
+        activeStaff: activeStaff.total,
+        activeStaffChange: "+3%",
+        activeStaffChangeType: "increase",
+        totalRecovered: recovered.total,
+        totalRecoveredChange: "+8%",
+        totalRecoveredChangeType: "increase",
+        overdueCases: overdueCases.total,
+        overdueCasesChange: "-5%",
+        overdueCasesChangeType: "decrease",
+        todaysCollections: todaysCollections.total,
+        recoveryRate,
+        priorityOverdueCases: overdueCases.total,
+        todaysCollectionsAmount: todaysCollections.total,
+        topStaffCount: staffPerformance.length,
+        staffPerformance
+      },
+      charts: { monthlyRecoveries },
+      recentActivity: interactions.map(i => ({
+        id: i.id,
+        type: i.type,
+        description: i.description,
+        timestamp: i.timestamp,
+        user: i.user
+      }))
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error fetching dashboard summary' });
+  }
+};
+
 
 
 
