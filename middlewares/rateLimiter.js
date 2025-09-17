@@ -3,28 +3,25 @@ const logger = require('../utils/logger');
 
 // General API rate limiter
 const generalRateLimit = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60000, // 1 minute
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60000, // 1 min
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  message: {
-    success: false,
-    message: 'Too many requests from this IP, please try again later'
-  },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => {
-    // Skip rate limiting for health checks
-    return req.path.startsWith('/health');
-  },
-  requestWasLimited: (req) => {
+  skip: (req) => req.path.startsWith('/health'), // Skip health checks
+  handler: (req, res) => {
     logger.warn('Rate limit reached:', {
       ip: req.ip,
       path: req.path,
       userAgent: req.get('User-Agent')
     });
+    res.status(429).json({
+      success: false,
+      message: 'Too many requests from this IP, please try again later'
+    });
   }
 });
 
-// Call-specific rate limiter (more restrictive)
+// Call-specific rate limiter
 const callRateLimit = rateLimit({
   windowMs: 60000,
   max: parseInt(process.env.CALL_RATE_LIMIT_MAX) || 10,
@@ -32,75 +29,70 @@ const callRateLimit = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => `call_${req.user?.id || req.ip}`,
   skip: (req) => req.user?.isAdmin === true,
-  handler: (req, res, next, options) => {
+  handler: (req, res) => {
     logger.warn('Call rate limit reached:', {
       userId: req.user?.id,
       staffId: req.user?.staffId,
       ip: req.ip,
       path: req.path
     });
-
-    res.status(options.statusCode).json({
+    res.status(429).json({
       success: false,
       message: 'Too many call requests, please wait before making another call'
     });
   }
 });
 
-// Webhook rate limiter (for external systems)
+// Webhook rate limiter
 const webhookRateLimit = rateLimit({
-  windowMs: 60000, // 1 minute
-  max: 1000, // Allow high volume for legitimate webhooks
-  message: {
-    success: false,
-    message: 'Webhook rate limit exceeded'
-  },
+  windowMs: 60000,
+  max: 1000,
   standardHeaders: false,
   legacyHeaders: false,
-  onLimitReached: (req) => {
+  handler: (req, res) => {
     logger.warn('Webhook rate limit reached:', {
       ip: req.ip,
       path: req.path,
       userAgent: req.get('User-Agent')
+    });
+    res.status(429).json({
+      success: false,
+      message: 'Webhook rate limit exceeded'
     });
   }
 });
 
 // Recording download rate limiter
 const recordingRateLimit = rateLimit({
-  windowMs: 60000, // 1 minute
-  max: 50, // 50 recordings per minute per user
-  message: {
-    success: false,
-    message: 'Too many recording requests, please wait'
-  },
-  keyGenerator: (req) => {
-    return `recording_${req.user?.id || req.ip}`;
-  },
-  onLimitReached: (req) => {
+  windowMs: 60000,
+  max: 50,
+  keyGenerator: (req) => `recording_${req.user?.id || req.ip}`,
+  handler: (req, res) => {
     logger.warn('Recording rate limit reached:', {
       userId: req.user?.id,
       ip: req.ip
     });
+    res.status(429).json({
+      success: false,
+      message: 'Too many recording requests, please wait'
+    });
   }
 });
 
-// Transfer/hangup rate limiter
+// Call control rate limiter
 const callControlRateLimit = rateLimit({
-  windowMs: 60000, // 1 minute
-  max: 30, // 30 control actions per minute
-  message: {
-    success: false,
-    message: 'Too many call control requests'
-  },
-  keyGenerator: (req) => {
-    return `control_${req.user?.id || req.ip}`;
-  },
-  onLimitReached: (req) => {
+  windowMs: 60000,
+  max: 30,
+  keyGenerator: (req) => `control_${req.user?.id || req.ip}`,
+  handler: (req, res) => {
     logger.warn('Call control rate limit reached:', {
       userId: req.user?.id,
       action: req.path,
       ip: req.ip
+    });
+    res.status(429).json({
+      success: false,
+      message: 'Too many call control requests'
     });
   }
 });
@@ -109,16 +101,14 @@ const callControlRateLimit = rateLimit({
 class DynamicRateLimiter {
   constructor() {
     this.suspiciousIPs = new Map();
-    this.cleanupInterval = setInterval(() => {
-      this.cleanupOldEntries();
-    }, 300000); // Cleanup every 5 minutes
+    this.cleanupInterval = setInterval(() => this.cleanupOldEntries(), 300000);
   }
 
   middleware() {
     return (req, res, next) => {
       const ip = req.ip;
       const now = Date.now();
-      
+
       const ipData = this.suspiciousIPs.get(ip) || {
         attempts: 0,
         lastAttempt: now,
@@ -126,7 +116,6 @@ class DynamicRateLimiter {
         blockExpiry: 0
       };
 
-      // Check if IP is currently blocked
       if (ipData.blocked && now < ipData.blockExpiry) {
         logger.warn('Blocked IP attempted access:', { ip, path: req.path });
         return res.status(429).json({
@@ -135,32 +124,25 @@ class DynamicRateLimiter {
         });
       }
 
-      // Reset block if expired
       if (ipData.blocked && now >= ipData.blockExpiry) {
         ipData.blocked = false;
         ipData.attempts = 0;
       }
 
-      // Track attempts
-      if (now - ipData.lastAttempt < 60000) { // Within last minute
-        ipData.attempts++;
-      } else {
-        ipData.attempts = 1; // Reset counter
-      }
+      ipData.attempts = (now - ipData.lastAttempt < 60000)
+        ? ipData.attempts + 1
+        : 1;
 
       ipData.lastAttempt = now;
 
-      // Block if too many attempts
-      if (ipData.attempts > 200) { // Very high threshold for blocking
+      if (ipData.attempts > 200) {
         ipData.blocked = true;
-        ipData.blockExpiry = now + (30 * 60 * 1000); // Block for 30 minutes
-        
+        ipData.blockExpiry = now + (30 * 60 * 1000);
+
         logger.error('IP blocked for suspicious activity:', { 
-          ip, 
-          attempts: ipData.attempts,
-          path: req.path 
+          ip, attempts: ipData.attempts, path: req.path 
         });
-        
+
         return res.status(429).json({
           success: false,
           message: 'IP blocked due to excessive requests'
@@ -175,7 +157,6 @@ class DynamicRateLimiter {
   cleanupOldEntries() {
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
-    
     for (const [ip, data] of this.suspiciousIPs.entries()) {
       if (now - data.lastAttempt > oneHour && !data.blocked) {
         this.suspiciousIPs.delete(ip);
@@ -197,7 +178,6 @@ class DynamicRateLimiter {
   getBlockedIPs() {
     const blocked = [];
     const now = Date.now();
-    
     for (const [ip, data] of this.suspiciousIPs.entries()) {
       if (data.blocked && now < data.blockExpiry) {
         blocked.push({
@@ -208,7 +188,6 @@ class DynamicRateLimiter {
         });
       }
     }
-    
     return blocked;
   }
 
