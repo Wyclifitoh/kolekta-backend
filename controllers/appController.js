@@ -629,7 +629,17 @@ exports.addContactStatus = async (req, res) => {
 
 exports.getAllContactStatuses = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT * FROM contact_statuses ORDER BY id DESC`);
+    const [rows] = await pool.query(`
+      SELECT 
+        cs.*, 
+        ct.title AS contact_type_title,
+        c.title AS contactability_title
+      FROM contact_statuses cs
+      LEFT JOIN contact_types ct ON cs.contact_type_id = ct.id
+      LEFT JOIN contactability c ON ct.contactability_id = c.id
+      ORDER BY cs.id DESC
+    `);
+
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
