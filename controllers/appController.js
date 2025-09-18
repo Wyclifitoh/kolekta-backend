@@ -542,13 +542,22 @@ exports.addContactType = async (req, res) => {
 
 exports.getAllContactTypes = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT * FROM contact_types ORDER BY id DESC`);
+    const [rows] = await pool.query(`
+      SELECT 
+        ct.*, 
+        c.title AS contactability_title
+      FROM contact_types ct
+      LEFT JOIN contactability c ON ct.contactability_id = c.id
+      ORDER BY ct.id DESC
+    `);
+    
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error fetching contact types' });
   }
 };
+
 
 // =================== Update Contact Type ===================
 exports.updateContactType = async (req, res) => {
