@@ -10,6 +10,7 @@ const moment = require('moment');
 const { validateDate, formatDate, DATE_FORMAT } = require('../utils/dateUtils');
 const pool = require('../config/db');
 const nodemailer = require("nodemailer");
+const { logInteraction } = require('../helpers/casefileInteractions');
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -1693,6 +1694,7 @@ exports.deleteCasesV1 = async (req, res) => {
 exports.allocateCases = async (req, res) => {
   const { case_ids, user_id } = req.body;
   const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
+  const performedBy = req.user.id;
 
   // Role restriction
   if (userRole === "staff") {
@@ -1704,20 +1706,36 @@ exports.allocateCases = async (req, res) => {
   }
 
   try {
+    // First update the case files allocation
     const [result] = await pool.query(
       `UPDATE case_files SET held_by = ? WHERE cfid IN (?)`,
       [user_id, case_ids]
     );
 
+    // Fetch names for logging
+    const [[allocatedTo]] = await pool.query(`SELECT first_name, last_name FROM staff WHERE id = ?`, [user_id]);
+    const [[allocatedBy]] = await pool.query(`SELECT first_name, last_name FROM staff WHERE id = ?`, [performedBy]);
+
+    const allocatedToName = allocatedTo?.first_name +' '+ allocatedTo?.last_name || "Unknown User";
+    const allocatedByName = allocatedBy?.first_name +' '+ allocatedBy?.last_name || "Unknown User";
+
+    // Log interaction for each case file
+    for (const caseId of case_ids) {
+      await logInteraction({
+        casefile_id: caseId,
+        created_by: performedBy,
+        notes: `Casefile allocated to ${allocatedToName} by ${allocatedByName}`,
+      });
+    }
+
     return res.json({
-      message: `Successfully allocated ${result.affectedRows} case(s)`,
+      message: `Successfully allocated ${result.affectedRows} case(s) to ${allocatedToName}`,
     });
   } catch (err) {
     console.error("Error allocating cases:", err);
     return res.status(500).json({ message: "Error allocating cases" });
   }
 };
-
 
 exports.deleteCases = async (req, res) => {
   const { case_ids } = req.body;
