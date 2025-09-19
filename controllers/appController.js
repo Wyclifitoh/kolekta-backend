@@ -1041,7 +1041,7 @@ exports.getSummaryV1 = async (req, res) => {
     const [recovered] = await pool.query(`
       SELECT IFNULL(SUM(amount_paid), 0) as total
       FROM payments
-      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter}) AND status = "confirmed"
+      WHERE casefile_id IN (SELECT cfid FROM case_files ${caseFilter}) AND status = "confirmed"
     `);
 
     // Step 5: Overdue Cases
@@ -1054,7 +1054,7 @@ exports.getSummaryV1 = async (req, res) => {
     const [todaysCollections] = await pool.query(`
       SELECT IFNULL(SUM(amount_paid), 0) as total
       FROM payments
-      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
+      WHERE casefile_id IN (SELECT cfid FROM case_files ${caseFilter})
       AND DATE(created_at)=CURDATE()
     `);
 
@@ -1087,7 +1087,7 @@ exports.getSummaryV1 = async (req, res) => {
     const [monthlyRecoveries] = await pool.query(`
       SELECT DATE_FORMAT(created_at, '%Y-%m') as month, SUM(amount_paid) as total
       FROM payments
-      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
+      WHERE casefile_id IN (SELECT cfid FROM case_files ${caseFilter})
       AND status = "confirmed"
       GROUP BY month
       ORDER BY month ASC
@@ -1128,7 +1128,7 @@ exports.getSummaryV1 = async (req, res) => {
       LEFT JOIN mail_logs mail ON ci.mail_id = mail.id
       LEFT JOIN payments pay ON ci.payment_id = pay.id
       LEFT JOIN ptp_reschedule_reasons rr ON ci.ptp_reschedule_reason_id = rr.id
-      WHERE ci.casefile_id IN (SELECT id FROM case_files ${caseFilter})
+      WHERE ci.casefile_id IN (SELECT cfid FROM case_files ${caseFilter})
       ORDER BY ci.date_created DESC
       LIMIT 10
     `);
@@ -1308,7 +1308,7 @@ exports.getSummary = async (req, res) => {
     const [[recovered]] = await pool.query(`
       SELECT IFNULL(SUM(amount_paid), 0) AS total
       FROM payments
-      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter}) AND status = "confirmed"
+      WHERE casefile_id IN (SELECT cfid FROM case_files ${caseFilter}) AND status = "confirmed"
     `);
 
     const [[overdueCases]] = await pool.query(`
@@ -1319,7 +1319,7 @@ exports.getSummary = async (req, res) => {
     const [[todaysCollections]] = await pool.query(`
       SELECT IFNULL(SUM(amount_paid), 0) AS total
       FROM payments
-      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
+      WHERE casefile_id IN (SELECT cfid FROM case_files ${caseFilter})
         AND DATE(created_at) = CURDATE() AND status = "confirmed"
     `);
 
@@ -1355,7 +1355,7 @@ exports.getSummary = async (req, res) => {
         CAST(IFNULL(SUM(amount_paid), 0) AS DECIMAL(15,2)) AS amount,
         COUNT(*) AS cases
       FROM payments
-      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
+      WHERE casefile_id IN (SELECT cfid FROM case_files ${caseFilter})
         AND status = "confirmed"
       GROUP BY YEAR(created_at), MONTH(created_at)
       ORDER BY YEAR(created_at), MONTH(created_at)
@@ -1377,7 +1377,7 @@ exports.getSummary = async (req, res) => {
       SELECT ci.id, 'payment' AS type, ci.notes AS description, ci.date_created AS timestamp, s.first_name AS user
       FROM casefile_interactions ci
       LEFT JOIN staff s ON ci.created_by = s.id
-      WHERE ci.casefile_id IN (SELECT id FROM case_files ${caseFilter})
+      WHERE ci.casefile_id IN (SELECT cfid FROM case_files ${caseFilter})
       ORDER BY ci.date_created DESC
       LIMIT 10
     `);
