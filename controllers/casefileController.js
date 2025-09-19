@@ -223,7 +223,7 @@ exports.addPayment = async (req, res) => {
     await logInteraction({
       casefile_id: data.casefile_id,
       created_by: req.user.id,
-      notes: `Payment of ${data.amount_paid} recorded on ${data.date_paid}`
+      notes: `Payment of Ksh. ${data.amount_paid} recorded on ${data.date_paid}`
     });
 
     return res.status(201).json({ message: 'Payment added successfully', data: newPayment });

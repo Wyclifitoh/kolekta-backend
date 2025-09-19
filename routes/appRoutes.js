@@ -101,6 +101,9 @@ router.get('/calendar', authenticateToken, appController.getCalendar);
 router.get('/cases/next-case/:currentCaseId', authenticateToken, appController.getNextCaseFile);
 router.get('/cases/task-list', authenticateToken, appController.getTaskList);
 
+router.post('/allocate-cases', authenticateToken, appController.allocateCases);
+router.delete('/delete-cases', authenticateToken, appController.deleteCases);
+
 
 
 module.exports = router;

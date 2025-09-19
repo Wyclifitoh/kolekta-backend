@@ -1520,7 +1520,6 @@ exports.getCalendar = async (req, res) => {
   }
 };
 
-
 exports.getNextCaseFile = async (req, res) => {
   const { currentCaseId } = req.params;
   const userId = req.user.id;
@@ -1630,6 +1629,150 @@ exports.getTaskList = async (req, res) => {
     return res.status(500).json({ message: "Error fetching task list" });
   }
 };
+
+exports.allocateCasesV1 = async (req, res) => {
+  const { case_ids, user_id } = req.body;
+  const userRole = req.user.role;
+  if (userRole !== 'admin') {
+
+  }
+  if (!Array.isArray(case_ids) || case_ids.length === 0 || !user_id) {
+    return res.status(400).json({ message: "Invalid request data" });
+  }
+
+  try {
+    const [result] = await pool.query(
+      `UPDATE case_files SET held_by = ? WHERE cfid IN (?)`,
+      [user_id, case_ids]
+    );
+
+    return res.json({
+      message: `Successfully allocated ${result.affectedRows} case(s)`,
+    });
+  } catch (err) {
+    console.error("Error allocating cases:", err);
+    return res.status(500).json({ message: "Error allocating cases" });
+  }
+};
+
+exports.deleteCasesV1 = async (req, res) => {
+  const { case_ids } = req.body;
+
+  if (!Array.isArray(case_ids) || case_ids.length === 0) {
+    return res.status(400).json({ message: "Invalid request data" });
+  }
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction(); 
+
+    // Delete from child tables first
+    await conn.query(`DELETE FROM payments WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM ptps WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM casefile_interactions WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM casefile_next_actions WHERE casefile_id IN (?)`, [case_ids]); 
+    await conn.query(`DELETE FROM casefile_contacts WHERE casefile_id IN (?)`, [case_ids]); 
+    await conn.query(`DELETE FROM progress_reports WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM sms_logs WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM mail_logs WHERE casefile_id IN (?)`, [case_ids]);
+
+    // Finally delete case_files
+    const [result] = await conn.query(`DELETE FROM case_files WHERE cfid IN (?)`, [case_ids]);
+
+    await conn.commit();
+    return res.json({ message: `Deleted ${result.affectedRows} case(s) and all linked data` });
+  } catch (err) {
+    await conn.rollback();
+    console.error("Error deleting cases:", err);
+    return res.status(500).json({ message: "Error deleting cases" });
+  } finally {
+    conn.release();
+  }
+};
+
+exports.allocateCases = async (req, res) => {
+  const { case_ids, user_id } = req.body;
+  const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
+
+  // Role restriction
+  if (userRole === "staff") {
+    return res.status(403).json({ message: "Staff are not allowed to allocate cases." });
+  }
+
+  if (!Array.isArray(case_ids) || case_ids.length === 0 || !user_id) {
+    return res.status(400).json({ message: "Invalid request data" });
+  }
+
+  try {
+    const [result] = await pool.query(
+      `UPDATE case_files SET held_by = ? WHERE cfid IN (?)`,
+      [user_id, case_ids]
+    );
+
+    return res.json({
+      message: `Successfully allocated ${result.affectedRows} case(s)`,
+    });
+  } catch (err) {
+    console.error("Error allocating cases:", err);
+    return res.status(500).json({ message: "Error allocating cases" });
+  }
+};
+
+
+exports.deleteCases = async (req, res) => {
+  const { case_ids } = req.body;
+  const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
+
+  // Role restriction
+  if (userRole === "staff") {
+    return res.status(403).json({ message: "Staff are not allowed to delete cases." });
+  }
+
+  if (!Array.isArray(case_ids) || case_ids.length === 0) {
+    return res.status(400).json({ message: "Invalid request data" });
+  }
+
+  const conn = await pool.getConnection();
+  try {
+    // Safety check: Any confirmed payments?
+    const [payments] = await conn.query(
+      `SELECT DISTINCT casefile_id FROM payments WHERE casefile_id IN (?) AND status = 'confirmed'`,
+      [case_ids]
+    );
+
+    if (payments.length > 0) {
+      const blockedCases = payments.map(p => p.casefile_id);
+      return res.status(400).json({
+        message: `Cannot delete case(s) with confirmed payments: ${blockedCases.join(", ")}`
+      });
+    }
+
+    await conn.beginTransaction();
+
+     // Delete from child tables first
+    await conn.query(`DELETE FROM payments WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM ptps WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM casefile_interactions WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM casefile_next_actions WHERE casefile_id IN (?)`, [case_ids]); 
+    await conn.query(`DELETE FROM casefile_contacts WHERE casefile_id IN (?)`, [case_ids]); 
+    await conn.query(`DELETE FROM progress_reports WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM sms_logs WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM mail_logs WHERE casefile_id IN (?)`, [case_ids]);
+
+    // Finally delete case_files
+    const [result] = await conn.query(`DELETE FROM case_files WHERE cfid IN (?)`, [case_ids]);
+
+    await conn.commit();
+    return res.json({ message: `Deleted ${result.affectedRows} case(s) and all linked data` });
+  } catch (err) {
+    await conn.rollback();
+    console.error("Error deleting cases:", err);
+    return res.status(500).json({ message: "Error deleting cases" });
+  } finally {
+    conn.release();
+  }
+};
+
 
 
 
