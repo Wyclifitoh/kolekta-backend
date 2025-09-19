@@ -1571,7 +1571,7 @@ exports.getNextCaseFile = async (req, res) => {
   }
 };
 
-exports.getTaskList = async (req, res) => {
+exports.getTaskListV1 = async (req, res) => {
   const userId = req.user.id;
   const userRole = req.user.role; // 'staff', 'team_leader', 'admin'
 
@@ -1630,6 +1630,80 @@ exports.getTaskList = async (req, res) => {
     return res.status(500).json({ message: "Error fetching task list" });
   }
 };
+
+exports.getTaskList = async (req, res) => {
+  const userId = req.user.id;
+  const userRole = req.user.role; // 'staff', 'team_leader', 'admin'
+
+  try {
+    let query = `
+      SELECT 
+        cf.cfid,
+        MAX(cf.full_names) AS debtor_name,
+        MAX(d.title) AS debt_category,
+        MAX(c.name) AS client,
+        MAX(p.title) AS product,
+        MAX(na.title) AS scheduled_action,
+        MAX(ct.title) AS contact_type,
+        MAX(cs.title) AS contact_status,
+        cna.next_action_date AS task_date,
+        
+        -- Balance from payments table
+        (MAX(cf.amount) - COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0)) AS balance,
+
+        -- Days on task list
+        DATEDIFF(CURDATE(), cna.next_action_date) AS days_on_tl
+
+      FROM casefile_next_actions cna
+      JOIN case_files cf ON cna.casefile_id = cf.cfid
+      JOIN next_actions na ON cna.next_action_id = na.id
+      JOIN staff u ON cna.staff_id = u.id
+      LEFT JOIN clients c ON cf.client_id = c.id
+      LEFT JOIN client_products p ON cf.product_id = p.id
+      LEFT JOIN debt_categories d ON cf.debt_category_id = d.id
+      LEFT JOIN debt_types dt ON cf.debt_type_id = dt.id
+      LEFT JOIN payments pay ON cf.cfid = pay.casefile_id
+      LEFT JOIN contact_types ct ON ct.id = (
+        SELECT contact_type_id 
+        FROM casefile_interactions 
+        WHERE casefile_id = cf.cfid 
+        ORDER BY date_created DESC 
+        LIMIT 1
+      )
+      LEFT JOIN contact_statuses cs ON cs.id = (
+        SELECT contact_status_id 
+        FROM casefile_interactions 
+        WHERE casefile_id = cf.cfid 
+        ORDER BY date_created DESC 
+        LIMIT 1
+      )
+
+      WHERE cna.next_action_date <= CURDATE()
+    `;
+
+    const params = [];
+
+    // If staff, only show tasks assigned to them
+    if (userRole === 'staff') {
+      query += ` AND cna.staff_id = ?`;
+      params.push(userId);
+    }
+
+    // Group only by cfid and date, rest handled via MAX()
+    query += `
+      GROUP BY cf.cfid, cna.next_action_date
+      ORDER BY cna.next_action_date ASC
+    `;
+
+    const [rows] = await pool.query(query, params);
+    return res.json({ tasks: rows });
+
+  } catch (err) {
+    console.error("Error fetching task list:", err);
+    return res.status(500).json({ message: "Error fetching task list" });
+  }
+};
+
 
 exports.allocateCasesV1 = async (req, res) => {
   const { case_ids, user_id } = req.body;
