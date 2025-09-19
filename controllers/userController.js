@@ -787,7 +787,7 @@ exports.getProgressReports = async (req, res) => {
   }
 };
 
-exports.addPayment = async (req, res) => {
+exports.addPaymentV1 = async (req, res) => {
   const staff = req.user.id;  
   const { cfid, date, amount, channel, reference, comment } = req.body;
   try {
@@ -802,6 +802,30 @@ exports.addPayment = async (req, res) => {
     res.status(500).json({ message: 'Server error adding payment' });
   }
 };
+
+exports.addPayment = async (req, res) => {
+  const staff = req.user.id;  
+  const userRole = req.user.role;  
+  const { cfid, date, amount, channel, reference, comment } = req.body;
+
+  try { 
+    const status = (userRole === 'admin' || userRole === 'team_leader') 
+      ? 'confirmed' 
+      : 'pending';
+
+    await pool.query(`
+      INSERT INTO payments 
+        (casefile_id, amount_paid, date_paid, receipt_no, payment_channel, comment, posted_by, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [cfid, amount, date, reference, channel, comment, staff, status]);
+
+    res.status(201).json({ message: `Payment recorded as ${status}` });
+  } catch (err) {
+    console.error('Error adding payment:', err);
+    res.status(500).json({ message: 'Server error adding payment' });
+  }
+};
+
 
 // Get confirmed payments
 exports.getPayments = async (req, res) => {

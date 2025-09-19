@@ -264,27 +264,91 @@ exports.findAll = async (filters) => {
 
 exports.findCaseFileByID = async (id) => {
   const sql = `
-      SELECT
-        cf.*,
-        c.name AS client_name,
-        dt.title AS debt_type_name,
-        d.title AS debt_category_name,
-        p.title AS product_name,
-        u.first_name AS held_by_name
-      FROM case_files cf
-      LEFT JOIN clients c ON cf.client_id = c.id
-      LEFT JOIN client_products p ON cf.product_id = p.id
-      LEFT JOIN staff u ON cf.held_by = u.id
-      LEFT JOIN debt_categories d ON cf.debt_category_id = d.id
-      LEFT JOIN debt_types dt ON cf.debt_type_id = dt.id
-      WHERE cf.cfid = ?
-      LIMIT 1
-    `;
- 
+    SELECT
+      cf.id,
+      cf.cfid,
+      cf.client_id,
+      cf.product_id,
+      cf.debt_type_id,
+      cf.debt_sub_type_id,
+      cf.debt_category_id,
+      cf.currency_id,
+      cf.held_by,
+      cf.full_names,
+      cf.identification,
+      cf.customer_id,
+      cf.account_number,
+      cf.contract_no,
+      cf.phones,
+      cf.emails,
+      cf.physical_address,
+      cf.postal_address,
+      cf.branch,
+      cf.employer_and_address,
+      cf.nok_full_names,
+      cf.nok_relationship,
+      cf.nok_phones,
+      cf.nok_address,
+      cf.nok_emails,
+      cf.gua_full_names,
+      cf.gua_phones,
+      cf.gua_emails,
+      cf.gua_address,
+      cf.amount,
+      cf.principal_amount,
+      cf.amount_repaid,
+      cf.arrears,
+      cf.loan_taken_date,
+      cf.loan_due_date,
+      cf.dpd,
+      cf.loan_counter,
+      cf.risk_category,
+      cf.status,
+      cf.outsource_date,
+      cf.days_since_outsource,
+      cf.batch_no,
+      cf.created_at,
+      cf.updated_at,
+      cf.created_by,
+      cf.updated_by,
+      
+      -- Joins
+      c.name AS client_name,
+      dt.title AS debt_type_name,
+      d.title AS debt_category_name,
+      p.title AS product_name,
+      u.first_name AS held_by_name,
+
+      -- Computed Fields
+      COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0) AS amount_paid,
+      (cf.amount - COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0)) AS balance,
+
+      -- Last Payment Info
+      (SELECT amount_paid FROM payments 
+        WHERE casefile_id = cf.cfid AND status = 'confirmed'
+        ORDER BY date_paid DESC LIMIT 1) AS last_paid_amount,
+
+      (SELECT date_paid FROM payments 
+        WHERE casefile_id = cf.cfid AND status = 'confirmed'
+        ORDER BY date_paid DESC LIMIT 1) AS last_paid_date
+
+    FROM case_files cf
+    LEFT JOIN clients c ON cf.client_id = c.id
+    LEFT JOIN client_products p ON cf.product_id = p.id
+    LEFT JOIN staff u ON cf.held_by = u.id
+    LEFT JOIN debt_categories d ON cf.debt_category_id = d.id
+    LEFT JOIN debt_types dt ON cf.debt_type_id = dt.id
+    LEFT JOIN payments pay ON cf.cfid = pay.casefile_id
+    
+    WHERE cf.cfid = ?
+    GROUP BY cf.id
+    LIMIT 1
+  `;
 
   const [rows] = await pool.query(sql, [id]);
   return rows[0] || null;
 };
+
 
 
 

@@ -40,6 +40,7 @@ router.post('/staff', authenticateToken, createStaff);
 router.get('/staff', authenticateToken, getAllStaff);
 router.post('/upload-case-file', authenticateToken, upload.single('file'), uploadCaseFile);
 router.get('/casefile', authenticateToken, getCaseFileByID); 
+
 router.get('/case-files', authenticateToken, getAllCaseFiles);
 router.get('/logs', authenticateToken, getCaseInteractions);
 
