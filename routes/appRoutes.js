@@ -98,6 +98,7 @@ router.delete('/delete-ptp-reschedule-reason/:id', authenticateToken, appControl
 
 router.get('/summary', authenticateToken, appController.getSummary);
 router.get('/calendar', authenticateToken, appController.getCalendar);
+router.get('/cases/next-case/:currentCaseId', authenticateToken, appController.getNextCaseFile);
 
 
 

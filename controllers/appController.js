@@ -1001,10 +1001,6 @@ exports.deletePtpRescheduleReason = async (req, res) => {
   }
 };
 
-
-
-
-
 exports.getSummaryV1 = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -1375,6 +1371,48 @@ exports.getCalendar = async (req, res) => {
     res.status(500).json({ message: "Error fetching calendar data" });
   }
 };
+
+exports.getNextCaseFile = async (req, res) => {
+  const { currentCaseId } = req.params;
+  const userId = req.user.id;
+  const userRole = req.user.role;  
+
+  try {
+    let query = '';
+    let params = [];
+
+    if (userRole === 'staff') {
+      // Staff: only cases assigned to them
+      query = `
+        SELECT id, cfid FROM case_files
+        WHERE held_by = ? AND id > ?
+        ORDER BY id ASC LIMIT 1
+      `;
+      params = [userId, currentCaseId];
+    } else {
+      // Admin/Team Leader: all cases
+      query = `
+        SELECT id, cfid FROM case_files
+        WHERE id > ?
+        ORDER BY id ASC LIMIT 1
+      `;
+      params = [currentCaseId];
+    }
+
+    const [rows] = await pool.query(query, params);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "No more case files available" });
+    }
+
+    return res.json({ nextCaseId: rows[0].id, cfid: rows[0].cfid });
+
+  } catch (err) {
+    console.error("Error fetching next case file:", err);
+    res.status(500).json({ message: "Error fetching next case file" });
+  }
+};
+
 
 
 

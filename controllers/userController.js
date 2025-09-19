@@ -803,6 +803,7 @@ exports.addPayment = async (req, res) => {
   }
 };
 
+// Get confirmed payments
 exports.getPayments = async (req, res) => {
   const { cfid } = req.query;
   try {
@@ -818,17 +819,46 @@ exports.getPayments = async (req, res) => {
         u.first_name AS posted_by_name
       FROM payments p
       LEFT JOIN staff u ON p.posted_by = u.id
-      WHERE p.casefile_id = ?
+      WHERE p.casefile_id = ? AND p.status = 'confirmed'
       ORDER BY p.date_paid DESC
     `;
 
     const [payments] = await pool.query(query, [cfid]);
     res.status(200).json({ payments });
   } catch (err) {
-    console.error('Error fetching payments:', err);
-    res.status(500).json({ message: 'Server error fetching payments' });
+    console.error('Error fetching confirmed payments:', err);
+    res.status(500).json({ message: 'Server error fetching confirmed payments' });
   }
 };
+
+// Get pending payments
+exports.getPendingPayments = async (req, res) => {
+  const { cfid } = req.query;
+  try {
+    const query = `
+      SELECT 
+        p.id,
+        p.amount_paid,
+        p.date_paid,
+        p.receipt_no,
+        p.payment_channel,
+        p.comment,
+        p.created_at,
+        u.first_name AS posted_by_name
+      FROM payments p
+      LEFT JOIN staff u ON p.posted_by = u.id
+      WHERE p.casefile_id = ? AND p.status = 'pending'
+      ORDER BY p.date_paid DESC
+    `;
+
+    const [payments] = await pool.query(query, [cfid]);
+    res.status(200).json({ payments });
+  } catch (err) {
+    console.error('Error fetching pending payments:', err);
+    res.status(500).json({ message: 'Server error fetching pending payments' });
+  }
+};
+
 
 exports.getCasefileContacts = async (req, res) => {
   const { cfid } = req.query;

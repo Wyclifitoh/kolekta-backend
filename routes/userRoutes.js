@@ -22,6 +22,7 @@ const {
   getPTPData,
   addPTP,
   getPayments,
+  getPendingPayments,
   addPayment,
   getCallTypes,
   addCallType,
@@ -68,6 +69,7 @@ router.post('/casefile/ptp', authenticateToken, addPTP);
 
 // === Payments ===
 router.get('/casefile/payments', authenticateToken, getPayments);
+router.get('/casefile/payments/pending', authenticateToken, getPendingPayments);
 router.post('/casefile/payments', authenticateToken, addPayment);
 
 // === Reference Lookups ===
