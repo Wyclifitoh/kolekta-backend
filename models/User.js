@@ -196,8 +196,7 @@ exports.findAll = async (filters) => {
         cf.phones,
         cf.emails,
         cf.amount,
-        cf.principal_amount,
-        cf.amount_repaid,
+        cf.principal_amount, 
         cf.arrears,
         cf.dpd,
         cf.loan_taken_date,
@@ -218,7 +217,7 @@ exports.findAll = async (filters) => {
         u.first_name AS held_by_name,
 
         -- Computed fields
-        COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0) AS amount_paid,
+        COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0) AS amount_repaid,
         (cf.amount - COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0)) AS balance,
 
         -- Last Payment Info
@@ -315,8 +314,7 @@ exports.findCaseFileByID = async (id) => {
       cf.gua_emails,
       cf.gua_address,
       cf.amount,
-      cf.principal_amount,
-      cf.amount_repaid,
+      cf.principal_amount, 
       cf.arrears,
       cf.loan_taken_date,
       cf.loan_due_date,
@@ -340,7 +338,7 @@ exports.findCaseFileByID = async (id) => {
       u.first_name AS held_by_name,
 
       -- Computed Fields
-      COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0) AS amount_paid,
+      COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0) AS amount_repaid,
       (cf.amount - COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0)) AS balance,
 
       -- Last Payment Info
