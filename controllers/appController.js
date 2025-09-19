@@ -1285,7 +1285,7 @@ exports.getSummary = async (req, res) => {
     const userId = req.user.id;
     const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
 
-    // Build reusable case condition
+    // 1. Build case condition
     let caseCondition = '';
     if (userRole === 'staff') {
       caseCondition = `held_by = ${userId}`;
@@ -1298,85 +1298,91 @@ exports.getSummary = async (req, res) => {
     }
     const caseFilter = `WHERE ${caseCondition}`;
 
-    // 1. Total cases
-    const [[cases]] = await pool.query(`SELECT COUNT(*) as total FROM case_files ${caseFilter}`);
+    // 2. Totals
+    const [[cases]] = await pool.query(`SELECT COUNT(*) AS total FROM case_files ${caseFilter}`);
 
-    // 2. Active staff
     const [[activeStaff]] = userRole !== 'staff'
-      ? await pool.query(`SELECT COUNT(*) as total FROM staff WHERE is_active = 1`)
+      ? await pool.query(`SELECT COUNT(*) AS total FROM staff WHERE is_active = 1`)
       : [[{ total: 0 }]];
 
-    // 3. Total recovered (Confirmed payments)
     const [[recovered]] = await pool.query(`
-      SELECT CAST(IFNULL(SUM(amount_paid), 0) AS DECIMAL(15,2)) as total
+      SELECT IFNULL(SUM(amount_paid), 0) AS total
       FROM payments
-      WHERE casefile_id IN (SELECT cfid FROM case_files ${caseFilter})
-      AND status = "confirmed"
+      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter}) AND status = "confirmed"
     `);
 
-    // 4. Overdue cases
     const [[overdueCases]] = await pool.query(`
-      SELECT COUNT(*) as total FROM case_files
+      SELECT COUNT(*) AS total FROM case_files
       ${caseFilter} AND loan_due_date < NOW() AND status != "closed"
     `);
 
-    // 5. Today's collections
     const [[todaysCollections]] = await pool.query(`
-      SELECT CAST(IFNULL(SUM(amount_paid), 0) AS DECIMAL(15,2)) as total
+      SELECT IFNULL(SUM(amount_paid), 0) AS total
       FROM payments
-      WHERE casefile_id IN (SELECT cfid FROM case_files ${caseFilter})
-      AND DATE(created_at)=CURDATE()
+      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
+        AND DATE(created_at) = CURDATE() AND status = "confirmed"
     `);
 
-    // 6. Total debt for recovery rate
     const [[totalDebt]] = await pool.query(`
-      SELECT CAST(IFNULL(SUM(amount), 0) AS DECIMAL(15,2)) as total
+      SELECT IFNULL(SUM(amount), 0) AS total
       FROM case_files ${caseFilter}
     `);
 
-    // Recovery rate in %
     const recoveryRate = totalDebt.total > 0
-      ? ((parseFloat(recovered.total) / parseFloat(totalDebt.total)) * 100).toFixed(2)
+      ? ((recovered.total / totalDebt.total) * 100).toFixed(2)
       : 0;
 
-    // 7. Staff performance (Top 5)
+    // 3. Staff Performance
     let staffPerformance = [];
     if (userRole !== 'staff') {
       [staffPerformance] = await pool.query(`
-        SELECT u.first_name, u.last_name, CAST(SUM(p.amount_paid) AS DECIMAL(15,2)) as total
+        SELECT s.first_name, s.last_name, CAST(IFNULL(SUM(p.amount_paid), 0) AS DECIMAL(15,2)) AS total
         FROM payments p
-        JOIN staff u ON p.posted_by = u.id
+        JOIN staff s ON p.posted_by = s.id
         WHERE p.status = "confirmed"
-        GROUP BY u.id
+        GROUP BY s.id
         ORDER BY total DESC
         LIMIT 5
       `);
     }
 
-    // 8. Monthly Recoveries (Group by month & year)
-    const [monthlyRecoveries] = await pool.query(`
+    // 4. Monthly Recoveries (All 12 months)
+    const [monthlyData] = await pool.query(`
       SELECT 
-        DATE_FORMAT(created_at, '%b') as month,
-        CAST(IFNULL(SUM(amount_paid), 0) AS DECIMAL(15,2)) as amount,
-        COUNT(*) as cases
+        YEAR(created_at) AS year,
+        MONTH(created_at) AS month_num,
+        DATE_FORMAT(MIN(created_at), '%b') AS month,
+        CAST(IFNULL(SUM(amount_paid), 0) AS DECIMAL(15,2)) AS amount,
+        COUNT(*) AS cases
       FROM payments
-      WHERE casefile_id IN (SELECT cfid FROM case_files ${caseFilter})
-      AND status = "confirmed"
-      GROUP BY DATE_FORMAT(created_at, '%Y-%m')
-      ORDER BY MIN(created_at)
+      WHERE casefile_id IN (SELECT id FROM case_files ${caseFilter})
+        AND status = "confirmed"
+      GROUP BY YEAR(created_at), MONTH(created_at)
+      ORDER BY YEAR(created_at), MONTH(created_at)
     `);
 
-    // 9. Recent activity
+    // Generate all 12 months even if empty
+    const allMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const monthlyRecoveries = allMonths.map(m => {
+      const found = monthlyData.find(x => x.month === m);
+      return {
+        month: m,
+        amount: found ? Number(found.amount) : 0,
+        cases: found ? Number(found.cases) : 0
+      };
+    });
+
+    // 5. Recent activity
     const [interactions] = await pool.query(`
-      SELECT ci.id, 'payment' AS type, ci.notes AS description, ci.date_created AS timestamp, u.first_name AS user
+      SELECT ci.id, 'payment' AS type, ci.notes AS description, ci.date_created AS timestamp, s.first_name AS user
       FROM casefile_interactions ci
-      LEFT JOIN staff u ON ci.created_by = u.id
-      WHERE ci.casefile_id IN (SELECT cfid FROM case_files ${caseFilter})
+      LEFT JOIN staff s ON ci.created_by = s.id
+      WHERE ci.casefile_id IN (SELECT id FROM case_files ${caseFilter})
       ORDER BY ci.date_created DESC
       LIMIT 10
     `);
 
-    // 10. Final response
+    // 6. Final response
     res.json({
       stats: {
         totalCases: cases.total,
@@ -1385,16 +1391,16 @@ exports.getSummary = async (req, res) => {
         activeStaff: activeStaff.total,
         activeStaffChange: "+3%",
         activeStaffChangeType: "increase",
-        totalRecovered: parseFloat(recovered.total),
+        totalRecovered: Number(recovered.total),
         totalRecoveredChange: "+8%",
         totalRecoveredChangeType: "increase",
         overdueCases: overdueCases.total,
         overdueCasesChange: "-5%",
         overdueCasesChangeType: "decrease",
-        todaysCollections: parseFloat(todaysCollections.total),
+        todaysCollections: Number(todaysCollections.total),
         recoveryRate,
         priorityOverdueCases: overdueCases.total,
-        todaysCollectionsAmount: parseFloat(todaysCollections.total),
+        todaysCollectionsAmount: Number(todaysCollections.total),
         topStaffCount: staffPerformance.length,
         staffPerformance
       },
