@@ -1603,8 +1603,8 @@ exports.getTaskList = async (req, res) => {
       LEFT JOIN debt_categories d ON cf.debt_category_id = d.id
       LEFT JOIN debt_types dt ON cf.debt_type_id = dt.id
       LEFT JOIN payments pay ON cf.cfid = pay.casefile_id
-      LEFT JOIN contact_types ct ON ct.id = (SELECT contact_type_id FROM interactions WHERE casefile_id = cf.cfid ORDER BY created_at DESC LIMIT 1)
-      LEFT JOIN contact_statuses cs ON cs.id = (SELECT contact_status_id FROM interactions WHERE casefile_id = cf.cfid ORDER BY created_at DESC LIMIT 1)
+      LEFT JOIN contact_types ct ON ct.id = (SELECT contact_type_id FROM casefile_interactions WHERE casefile_id = cf.cfid ORDER BY created_at DESC LIMIT 1)
+      LEFT JOIN contact_statuses cs ON cs.id = (SELECT contact_status_id FROM casefile_interactions WHERE casefile_id = cf.cfid ORDER BY created_at DESC LIMIT 1)
 
       WHERE cna.next_action_date <= CURDATE()
     `;
