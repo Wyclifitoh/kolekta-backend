@@ -1279,7 +1279,7 @@ exports.getSummary = async (req, res) => {
   }
 };
 
-exports.getCalendar = async (req, res) => {
+exports.getCalendarV1 = async (req, res) => {
   try {
     const userId = req.user.id;
     const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
@@ -1372,29 +1372,187 @@ exports.getCalendar = async (req, res) => {
   }
 };
 
+exports.getCalendar = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
+
+    // --- Role-based filter for casefiles ---
+    let caseCondition = '';
+    if (userRole === 'staff') {
+      caseCondition = `c.held_by = ${userId}`;
+    } else if (userRole === 'team_leader') {
+      const [teamStaff] = await pool.query(`SELECT id FROM staff WHERE manager_id = ${userId}`);
+      const staffIds = teamStaff.map(s => s.id);
+      caseCondition = staffIds.length > 0 ? `c.held_by IN (${staffIds.join(',')})` : '1=0';
+    } else {
+      caseCondition = '1=1'; // admin sees all
+    }
+
+    // --- 1. Casefile Next Actions ---
+    const [nextActions] = await pool.query(`
+      SELECT 
+        cna.id AS next_action_record_id,
+        cna.casefile_id,
+        cna.next_action_id,
+        cna.next_action_date,
+        na.title AS scheduled_action,
+        c.id AS casefile_internal_id,
+        c.cfid, c.client_id, c.product_id, c.debt_type_id, c.debt_category_id,
+        c.currency_id, c.held_by, c.full_names, c.identification, c.customer_id,
+        c.account_number, c.contract_no, c.phones, c.emails, c.amount, 
+        c.principal_amount, c.arrears, c.status AS case_status,
+        c.created_at AS case_created_at, c.updated_at AS case_updated_at,
+        CASE WHEN cna.next_action_date < CURDATE() THEN 1 ELSE 0 END AS overdue
+      FROM casefile_next_actions cna
+      JOIN case_files c ON c.cfid = cna.casefile_id
+      JOIN next_actions na ON na.id = cna.next_action_id
+      WHERE ${caseCondition}
+      ORDER BY cna.next_action_date ASC
+    `);
+
+    // --- 2. PTPs with Casefile Details ---
+    const [ptps] = await pool.query(`
+      SELECT 
+        p.id AS ptp_id,
+        p.casefile_id,
+        p.ptp_date, p.ptp_amount, p.ptp_by, p.ptp_type, p.ptp_status,
+        p.affirm_status, p.is_active, p.is_rescheduled,
+        c.id AS casefile_internal_id,
+        c.cfid, c.client_id, c.product_id, c.debt_type_id, c.debt_category_id,
+        c.currency_id, c.held_by, c.full_names, c.identification, c.customer_id,
+        c.account_number, c.contract_no, c.phones, c.emails, c.amount, 
+        c.principal_amount, c.arrears, c.status AS case_status,
+        c.created_at AS case_created_at, c.updated_at AS case_updated_at,
+        CASE WHEN p.ptp_date < CURDATE() THEN 1 ELSE 0 END AS overdue
+      FROM ptps p
+      JOIN case_files c ON c.cfid = p.casefile_id
+      WHERE ${caseCondition}
+      ORDER BY p.ptp_date ASC
+    `);
+
+    // --- Format Next Actions ---
+    const nextActionEvents = nextActions.map(a => ({
+      type: 'next_action',
+      id: a.next_action_record_id,
+      casefile_id: a.casefile_id,
+      date: a.next_action_date,
+      title: a.scheduled_action,
+      overdue: a.overdue === 1,
+      casefile: {
+        id: a.casefile_internal_id,
+        cfid: a.cfid,
+        client_id: a.client_id,
+        product_id: a.product_id,
+        debt_type_id: a.debt_type_id,
+        debt_category_id: a.debt_category_id,
+        currency_id: a.currency_id,
+        held_by: a.held_by,
+        full_names: a.full_names,
+        identification: a.identification,
+        customer_id: a.customer_id,
+        account_number: a.account_number,
+        contract_no: a.contract_no,
+        phones: a.phones,
+        emails: a.emails,
+        amount: a.amount,
+        principal_amount: a.principal_amount,
+        arrears: a.arrears,
+        status: a.case_status,
+        created_at: a.case_created_at,
+        updated_at: a.case_updated_at
+      }
+    }));
+
+    // --- Format PTP Events ---
+    const ptpEvents = ptps.map(p => ({
+      type: 'ptp',
+      id: p.ptp_id,
+      casefile_id: p.casefile_id,
+      date: p.ptp_date,
+      title: `PTP - ${p.ptp_amount}`,
+      ptp_amount: p.ptp_amount,
+      ptp_type: p.ptp_type,
+      ptp_status: p.ptp_status,
+      affirm_status: p.affirm_status,
+      is_active: p.is_active === 1,
+      is_rescheduled: p.is_rescheduled === 1,
+      overdue: p.overdue === 1,
+      casefile: {
+        id: p.casefile_internal_id,
+        cfid: p.cfid,
+        client_id: p.client_id,
+        product_id: p.product_id,
+        debt_type_id: p.debt_type_id,
+        debt_category_id: p.debt_category_id,
+        currency_id: p.currency_id,
+        held_by: p.held_by,
+        full_names: p.full_names,
+        identification: p.identification,
+        customer_id: p.customer_id,
+        account_number: p.account_number,
+        contract_no: p.contract_no,
+        phones: p.phones,
+        emails: p.emails,
+        amount: p.amount,
+        principal_amount: p.principal_amount,
+        arrears: p.arrears,
+        status: p.case_status,
+        created_at: p.case_created_at,
+        updated_at: p.case_updated_at
+      }
+    }));
+
+    // --- Combine + Sort: Overdue first, then upcoming ---
+    const calendarEvents = [...nextActionEvents, ...ptpEvents]
+      .sort((a, b) => {
+        // Overdue first
+        if (a.overdue !== b.overdue) return b.overdue - a.overdue;
+        // Then by date ascending
+        return new Date(a.date) - new Date(b.date);
+      });
+
+    res.json({ calendar: calendarEvents });
+
+  } catch (err) {
+    console.error("Error fetching calendar:", err);
+    res.status(500).json({ message: "Error fetching calendar data" });
+  }
+};
+
+
 exports.getNextCaseFile = async (req, res) => {
   const { currentCaseId } = req.params;
   const userId = req.user.id;
-  const userRole = req.user.role;  
+  const userRole = req.user.role;
 
   try {
     let query = '';
     let params = [];
 
     if (userRole === 'staff') {
-      // Staff: only cases assigned to them
       query = `
-        SELECT id, cfid FROM case_files
-        WHERE held_by = ? AND id > ?
-        ORDER BY id ASC LIMIT 1
+        SELECT cf.id, cf.cfid
+        FROM case_files cf
+        INNER JOIN casefile_next_actions cna 
+          ON cf.cfid = cna.casefile_id
+        WHERE cf.held_by = ?
+          AND cna.next_action_date <= CURDATE()
+          AND cf.cfid > ?
+        ORDER BY cf.id ASC
+        LIMIT 1
       `;
       params = [userId, currentCaseId];
     } else {
-      // Admin/Team Leader: all cases
       query = `
-        SELECT id, cfid FROM case_files
-        WHERE id > ?
-        ORDER BY id ASC LIMIT 1
+        SELECT cf.id, cf.cfid
+        FROM case_files cf
+        INNER JOIN casefile_next_actions cna 
+          ON cf.cfid = cna.casefile_id
+        WHERE cna.next_action_date <= CURDATE()
+          AND cf.cfid > ?
+        ORDER BY cf.id ASC
+        LIMIT 1
       `;
       params = [currentCaseId];
     }
@@ -1402,7 +1560,7 @@ exports.getNextCaseFile = async (req, res) => {
     const [rows] = await pool.query(query, params);
 
     if (rows.length === 0) {
-      return res.status(404).json({ message: "No more case files available" });
+      return res.status(404).json({ message: "No pending case files available" });
     }
 
     return res.json({ nextCaseId: rows[0].id, cfid: rows[0].cfid });
@@ -1412,6 +1570,68 @@ exports.getNextCaseFile = async (req, res) => {
     res.status(500).json({ message: "Error fetching next case file" });
   }
 };
+
+exports.getTaskList = async (req, res) => {
+  const userId = req.user.id;
+  const userRole = req.user.role; // 'staff', 'team_leader', 'admin'
+
+  try {
+    let query = `
+      SELECT 
+        cf.cfid,
+        cf.full_names AS debtor_name,
+        d.title AS debt_category,
+        c.name AS client,
+        p.title AS product,
+        na.title AS scheduled_action,
+        ct.title AS contact_type,
+        cs.title AS contact_status,
+        cna.next_action_date AS task_date,
+        
+        -- Balance from payments table
+        (cf.amount - COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0)) AS balance,
+
+        -- Days on task list
+        DATEDIFF(CURDATE(), cna.next_action_date) AS days_on_tl
+
+      FROM casefile_next_actions cna
+      JOIN case_files cf ON cna.casefile_id = cf.cfid
+      JOIN next_actions na ON cna.next_action_id = na.id
+      JOIN staff u ON cna.staff_id = u.id
+      LEFT JOIN clients c ON cf.client_id = c.id
+      LEFT JOIN client_products p ON cf.product_id = p.id
+      LEFT JOIN debt_categories d ON cf.debt_category_id = d.id
+      LEFT JOIN debt_types dt ON cf.debt_type_id = dt.id
+      LEFT JOIN payments pay ON cf.cfid = pay.casefile_id
+      LEFT JOIN contact_types ct ON ct.id = (SELECT contact_type_id FROM interactions WHERE casefile_id = cf.cfid ORDER BY created_at DESC LIMIT 1)
+      LEFT JOIN contact_statuses cs ON cs.id = (SELECT contact_status_id FROM interactions WHERE casefile_id = cf.cfid ORDER BY created_at DESC LIMIT 1)
+
+      WHERE cna.next_action_date <= CURDATE()
+    `;
+
+    const params = [];
+
+    // If staff, only show tasks assigned to them
+    if (userRole === 'staff') {
+      query += ` AND cna.staff_id = ?`;
+      params.push(userId);
+    }
+
+    query += `
+      GROUP BY cf.cfid, cna.next_action_date
+      ORDER BY cna.next_action_date ASC
+    `;
+
+    const [rows] = await pool.query(query, params);
+    return res.json({ tasks: rows });
+
+  } catch (err) {
+    console.error("Error fetching task list:", err);
+    return res.status(500).json({ message: "Error fetching task list" });
+  }
+};
+
+
 
 
 

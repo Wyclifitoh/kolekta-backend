@@ -30,7 +30,7 @@ exports.createCaseFile = async (req, res) => {
 
 exports.addInteraction = async (req, res) => {
   const conn = await pool.getConnection();
-  
+
   try {
     await conn.beginTransaction();
 
@@ -48,7 +48,23 @@ exports.addInteraction = async (req, res) => {
     const createdBy = req.user.id;
 
     let newPTP = null;
-    // 1. If last PTP outcome is provided, update the previous active PTP
+
+
+    // 1. Update/Insert into casefile_next_actions if next action provided
+    if (next_action_id && next_action_date) {
+      await conn.query(
+        `INSERT INTO casefile_next_actions (casefile_id, next_action_id, next_action_date, staff_id, updated_by)
+         VALUES (?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           next_action_id = VALUES(next_action_id),
+           next_action_date = VALUES(next_action_date),
+           updated_by = VALUES(updated_by),
+           updated_at = NOW()`,
+        [casefile_id, next_action_id, next_action_date, createdBy, createdBy]
+      );
+    }
+
+    // 2. If last PTP outcome is provided, update the previous active PTP
     if (last_ptp_outcome) {
       await conn.query(
         `UPDATE ptps 
@@ -59,7 +75,7 @@ exports.addInteraction = async (req, res) => {
       );
     }
 
-    // 1. If PTP is provided, insert it first
+    // 3. If PTP is provided, insert it
     if (ptp && ptp.amount && ptp.date) {
       const [result] = await conn.query(
         `INSERT INTO ptps 
@@ -78,7 +94,7 @@ exports.addInteraction = async (req, res) => {
       newPTP = ptpData[0];
     }
 
-    // 2. Log Interaction (link PTP if present)
+    // 4. Log Interaction (link PTP if present)
     const newInteraction = await logInteraction({
       casefile_id,
       created_by: createdBy,
@@ -90,6 +106,8 @@ exports.addInteraction = async (req, res) => {
       next_action_date,
       ptp_id: newPTP ? newPTP.id : null
     }, conn);
+
+    
 
     await conn.commit();
 
@@ -106,6 +124,7 @@ exports.addInteraction = async (req, res) => {
     conn.release();
   }
 };
+
 
 exports.reschedulePTP = async (req, res) => {
   const conn = await pool.getConnection();

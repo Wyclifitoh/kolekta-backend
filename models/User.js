@@ -337,8 +337,10 @@ exports.findCaseFileByID = async (id) => {
       p.title AS product_name,
       u.first_name AS held_by_name,
 
-      -- Computed Fields
+      -- Amount Repaid from confirmed payments
       COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0) AS amount_repaid,
+      
+      -- Balance = Amount - Amount Repaid
       (cf.amount - COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0)) AS balance,
 
       -- Last Payment Info
