@@ -186,6 +186,7 @@ exports.findAll = async (filters) => {
   try {
     let sql = `
       SELECT
+        cf.id,
         cf.cfid,
         cf.full_names,
         cf.identification,
@@ -214,16 +215,32 @@ exports.findAll = async (filters) => {
         dt.title AS debt_type_name,
         d.title AS debt_category_name,
         p.title AS product_name,
-        u.first_name AS held_by_name
+        u.first_name AS held_by_name,
+
+        -- Computed fields
+        COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0) AS amount_paid,
+        (cf.amount - COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0)) AS balance,
+
+        -- Last Payment Info
+        (SELECT amount_paid FROM payments 
+         WHERE casefile_id = cf.cfid AND status = 'confirmed'
+         ORDER BY date_paid DESC LIMIT 1) AS last_paid_amount,
+
+        (SELECT date_paid FROM payments 
+         WHERE casefile_id = cf.cfid AND status = 'confirmed'
+         ORDER BY date_paid DESC LIMIT 1) AS last_paid_date
+
       FROM case_files cf
       LEFT JOIN clients c ON cf.client_id = c.id
       LEFT JOIN client_products p ON cf.product_id = p.id
       LEFT JOIN staff u ON cf.held_by = u.id
       LEFT JOIN debt_categories d ON cf.debt_category_id = d.id
       LEFT JOIN debt_types dt ON cf.debt_type_id = dt.id
+      LEFT JOIN payments pay ON cf.cfid = pay.casefile_id
       WHERE 1=1
     `;
 
+    // Apply filters
     if (filters.client_id) {
       sql += ' AND cf.client_id = ?';
       values.push(filters.client_id);
@@ -245,7 +262,10 @@ exports.findAll = async (filters) => {
       values.push(filters.currency_id);
     }
 
-    sql += ' ORDER BY cf.outsource_date DESC, cf.cfid DESC';
+    sql += `
+      GROUP BY cf.id
+      ORDER BY cf.outsource_date DESC, cf.cfid DESC
+    `;
     
     // Pagination
     if (filters.limit) {
@@ -257,10 +277,10 @@ exports.findAll = async (filters) => {
     return rows;
   } catch (error) {
     console.error(`Error ${error}`)
-    throw new Error(`Error ${error.messsage}`);
-    
+    throw new Error(`Error ${error.message}`);
   }
 };
+
 
 exports.findCaseFileByID = async (id) => {
   const sql = `
