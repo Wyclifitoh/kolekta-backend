@@ -1,0 +1,1350 @@
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 11:21:43'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 11:21:43'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 11:21:43'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 11:21:43'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 11:21:43'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:34'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:34'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:34'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:34'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:34'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:39'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:39'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:39'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:39'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:39'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:42'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:42'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:42'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:42'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:42'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:45'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:45'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:45'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:45'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:45'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:52'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:52'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:52'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:52'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:52'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:56'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:56'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:56'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:56'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:49:56'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:00'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:00'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:00'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:00'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:00'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:03'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:03'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:03'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:03'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:03'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:26'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:26'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:26'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:26'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:26'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:32'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:32'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:32'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:32'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:32'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:35'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:35'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:35'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:35'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:50:35'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:51:46'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:51:46'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:51:46'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:51:46'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:51:46'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:51:48'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:51:48'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:51:48'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:51:48'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:51:48'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:06'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:06'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:06'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:06'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:06'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:10'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:10'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:10'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:10'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:10'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:29'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:29'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:29'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:29'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:29'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:32'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:32'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:32'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:32'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:32'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:39'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:39'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:39'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:39'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:39'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:49'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:49'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:49'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:49'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:49'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:52'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:52'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:52'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:52'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:52:52'
+}
+{
+  message: '::1 - - [14/Jan/2026:09:54:56 +0000] "POST /api/auth/login HTTP/1.1" 500 67 "-" "PostmanRuntime/7.49.1"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:54:56'
+}
+{
+  message: '::1 - - [14/Jan/2026:09:55:25 +0000] "POST /api/auth/login HTTP/1.1" 500 67 "-" "PostmanRuntime/7.49.1"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:55:25'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:55:51'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:55:51'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:55:51'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:55:51'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:55:51'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:02'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:02'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:02'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:02'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:02'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:06'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:06'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:06'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:06'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:06'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:08'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:09'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:09'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:09'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:09'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:11'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:11'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:11'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:11'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:11'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:14'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:14'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:14'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:14'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:14'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:15'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:15'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:15'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:15'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:15'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:38'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:38'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:38'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:38'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:38'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:42'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:42'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:42'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:42'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:42'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:44'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:44'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:44'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:44'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:44'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:48'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:48'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:48'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:48'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:48'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:59'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:59'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:59'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:59'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:59'
+}
+{
+  message: '::1 - - [14/Jan/2026:09:57:15 +0000] "POST /api/auth/login HTTP/1.1" 500 74 "-" "PostmanRuntime/7.49.1"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:57:15'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:57:40'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:57:40'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:57:40'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:57:40'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:57:40'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:30'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:30'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:30'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:30'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:30'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:33'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:33'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:33'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:33'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:33'
+}
+{
+  message: '::1 - - [14/Jan/2026:09:59:38 +0000] "POST /api/auth/login HTTP/1.1" 500 74 "-" "PostmanRuntime/7.49.1"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:59:38'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:00:44'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:00:44'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:00:44'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:00:44'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:00:44'
+}
+{
+  message: '::1 - - [14/Jan/2026:10:00:46 +0000] "POST /api/auth/login HTTP/1.1" 200 560 "-" "PostmanRuntime/7.49.1"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:00:46'
+}
+{
+  message: '::1 - - [14/Jan/2026:10:01:07 +0000] "GET /api/users/case-files HTTP/1.1" 500 46 "-" "PostmanRuntime/7.49.1"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:01:07'
+}
+{
+  message: '::1 - - [14/Jan/2026:10:01:53 +0000] "GET /api/users/case-files HTTP/1.1" 500 46 "-" "PostmanRuntime/7.49.1"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:01:53'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:02:52'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:02:52'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:02:52'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:02:52'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:02:52'
+}
+{
+  message: '::1 - - [14/Jan/2026:10:03:05 +0000] "GET /api/users/case-files HTTP/1.1" 500 46 "-" "PostmanRuntime/7.49.1"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:03:05'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:06:27'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:06:27'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:06:27'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:06:27'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:06:27'
+}
+{
+  message: '::1 - - [14/Jan/2026:10:06:30 +0000] "GET /api/users/case-files HTTP/1.1" 200 - "-" "PostmanRuntime/7.49.1"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:06:30'
+}
+{
+  message: '::1 - - [14/Jan/2026:10:08:19 +0000] "GET /api/users/case-files?client_id=2&product_id=2 HTTP/1.1" 403 28 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:08:19'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:12:56'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:12:56'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:12:56'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:12:56'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:12:56'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:31'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:31'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:31'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:31'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:31'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:34'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:34'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:34'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:34'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:34'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:46'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:46'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:46'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:46'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 13:13:46'
+}

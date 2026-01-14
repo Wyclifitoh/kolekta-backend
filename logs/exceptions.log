@@ -1,0 +1,298 @@
+{
+  error: ReferenceError: co is not defined
+      at Object.<anonymous> (/home/codeace/projects/kolekta/backend/database/connection.js:4:1)
+      at Module._compile (node:internal/modules/cjs/loader:1554:14)
+      at Object..js (node:internal/modules/cjs/loader:1706:10)
+      at Module.load (node:internal/modules/cjs/loader:1289:32)
+      at Function._load (node:internal/modules/cjs/loader:1108:12)
+      at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+      at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)
+      at Module.require (node:internal/modules/cjs/loader:1311:12)
+      at require (node:internal/modules/helpers:136:16)
+      at Object.<anonymous> (/home/codeace/projects/kolekta/backend/app.js:14:18),
+  level: 'error',
+  message: 'uncaughtException: co is not defined\n' +
+    'ReferenceError: co is not defined\n' +
+    '    at Object.<anonymous> (/home/codeace/projects/kolekta/backend/database/connection.js:4:1)\n' +
+    '    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n' +
+    '    at Object..js (node:internal/modules/cjs/loader:1706:10)\n' +
+    '    at Module.load (node:internal/modules/cjs/loader:1289:32)\n' +
+    '    at Function._load (node:internal/modules/cjs/loader:1108:12)\n' +
+    '    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n' +
+    '    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n' +
+    '    at Module.require (node:internal/modules/cjs/loader:1311:12)\n' +
+    '    at require (node:internal/modules/helpers:136:16)\n' +
+    '    at Object.<anonymous> (/home/codeace/projects/kolekta/backend/app.js:14:18)',
+  stack: 'ReferenceError: co is not defined\n' +
+    '    at Object.<anonymous> (/home/codeace/projects/kolekta/backend/database/connection.js:4:1)\n' +
+    '    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n' +
+    '    at Object..js (node:internal/modules/cjs/loader:1706:10)\n' +
+    '    at Module.load (node:internal/modules/cjs/loader:1289:32)\n' +
+    '    at Function._load (node:internal/modules/cjs/loader:1108:12)\n' +
+    '    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n' +
+    '    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n' +
+    '    at Module.require (node:internal/modules/cjs/loader:1311:12)\n' +
+    '    at require (node:internal/modules/helpers:136:16)\n' +
+    '    at Object.<anonymous> (/home/codeace/projects/kolekta/backend/app.js:14:18)',
+  exception: true,
+  date: 'Wed Jan 14 2026 12:56:30 GMT+0300 (East Africa Time)',
+  process: {
+    pid: 671071,
+    uid: 1000,
+    gid: 1000,
+    cwd: '/home/codeace/projects/kolekta/backend',
+    execPath: '/home/codeace/.nvm/versions/node/v22.14.0/bin/node',
+    version: 'v22.14.0',
+    argv: [
+      '/home/codeace/.nvm/versions/node/v22.14.0/bin/node',
+      '/home/codeace/projects/kolekta/backend/app.js'
+    ],
+    memoryUsage: {
+      rss: 75935744,
+      heapTotal: 30109696,
+      heapUsed: 15859096,
+      external: 2181453,
+      arrayBuffers: 16839
+    }
+  },
+  os: { loadavg: [ 2.57, 2.33, 2.6 ], uptime: 152201.01 },
+  trace: [
+    {
+      column: 1,
+      file: '/home/codeace/projects/kolekta/backend/database/connection.js',
+      function: null,
+      line: 4,
+      method: null,
+      native: false
+    },
+    {
+      column: 14,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'Module._compile',
+      line: 1554,
+      method: '_compile',
+      native: false
+    },
+    {
+      column: 10,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'Object..js',
+      line: 1706,
+      method: '.js',
+      native: false
+    },
+    {
+      column: 32,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'Module.load',
+      line: 1289,
+      method: 'load',
+      native: false
+    },
+    {
+      column: 12,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'Function._load',
+      line: 1108,
+      method: '_load',
+      native: false
+    },
+    {
+      column: 14,
+      file: 'node:diagnostics_channel',
+      function: 'TracingChannel.traceSync',
+      line: 322,
+      method: 'traceSync',
+      native: false
+    },
+    {
+      column: 24,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'wrapModuleLoad',
+      line: 220,
+      method: null,
+      native: false
+    },
+    {
+      column: 12,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'Module.require',
+      line: 1311,
+      method: 'require',
+      native: false
+    },
+    {
+      column: 16,
+      file: 'node:internal/modules/helpers',
+      function: 'require',
+      line: 136,
+      method: null,
+      native: false
+    },
+    {
+      column: 18,
+      file: '/home/codeace/projects/kolekta/backend/app.js',
+      function: null,
+      line: 14,
+      method: null,
+      native: false
+    }
+  ],
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:30'
+}
+{
+  error: /home/codeace/projects/kolekta/backend/database/connection.js:6
+  class Database {
+  ^^^^^
+  
+  SyntaxError: Unexpected token 'class'
+      at wrapSafe (node:internal/modules/cjs/loader:1486:18)
+      at Module._compile (node:internal/modules/cjs/loader:1528:20)
+      at Object..js (node:internal/modules/cjs/loader:1706:10)
+      at Module.load (node:internal/modules/cjs/loader:1289:32)
+      at Function._load (node:internal/modules/cjs/loader:1108:12)
+      at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+      at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)
+      at Module.require (node:internal/modules/cjs/loader:1311:12)
+      at require (node:internal/modules/helpers:136:16)
+      at Object.<anonymous> (/home/codeace/projects/kolekta/backend/app.js:14:18),
+  level: 'error',
+  message: "uncaughtException: Unexpected token 'class'\n" +
+    '/home/codeace/projects/kolekta/backend/database/connection.js:6\n' +
+    'class Database {\n' +
+    '^^^^^\n' +
+    '\n' +
+    "SyntaxError: Unexpected token 'class'\n" +
+    '    at wrapSafe (node:internal/modules/cjs/loader:1486:18)\n' +
+    '    at Module._compile (node:internal/modules/cjs/loader:1528:20)\n' +
+    '    at Object..js (node:internal/modules/cjs/loader:1706:10)\n' +
+    '    at Module.load (node:internal/modules/cjs/loader:1289:32)\n' +
+    '    at Function._load (node:internal/modules/cjs/loader:1108:12)\n' +
+    '    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n' +
+    '    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n' +
+    '    at Module.require (node:internal/modules/cjs/loader:1311:12)\n' +
+    '    at require (node:internal/modules/helpers:136:16)\n' +
+    '    at Object.<anonymous> (/home/codeace/projects/kolekta/backend/app.js:14:18)',
+  stack: '/home/codeace/projects/kolekta/backend/database/connection.js:6\n' +
+    'class Database {\n' +
+    '^^^^^\n' +
+    '\n' +
+    "SyntaxError: Unexpected token 'class'\n" +
+    '    at wrapSafe (node:internal/modules/cjs/loader:1486:18)\n' +
+    '    at Module._compile (node:internal/modules/cjs/loader:1528:20)\n' +
+    '    at Object..js (node:internal/modules/cjs/loader:1706:10)\n' +
+    '    at Module.load (node:internal/modules/cjs/loader:1289:32)\n' +
+    '    at Function._load (node:internal/modules/cjs/loader:1108:12)\n' +
+    '    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n' +
+    '    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n' +
+    '    at Module.require (node:internal/modules/cjs/loader:1311:12)\n' +
+    '    at require (node:internal/modules/helpers:136:16)\n' +
+    '    at Object.<anonymous> (/home/codeace/projects/kolekta/backend/app.js:14:18)',
+  exception: true,
+  date: 'Wed Jan 14 2026 12:56:34 GMT+0300 (East Africa Time)',
+  process: {
+    pid: 671121,
+    uid: 1000,
+    gid: 1000,
+    cwd: '/home/codeace/projects/kolekta/backend',
+    execPath: '/home/codeace/.nvm/versions/node/v22.14.0/bin/node',
+    version: 'v22.14.0',
+    argv: [
+      '/home/codeace/.nvm/versions/node/v22.14.0/bin/node',
+      '/home/codeace/projects/kolekta/backend/app.js'
+    ],
+    memoryUsage: {
+      rss: 72339456,
+      heapTotal: 20217856,
+      heapUsed: 11860968,
+      external: 2181080,
+      arrayBuffers: 16835
+    }
+  },
+  os: { loadavg: [ 2.57, 2.33, 2.6 ], uptime: 152204.48 },
+  trace: [
+    {
+      column: 18,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'wrapSafe',
+      line: 1486,
+      method: null,
+      native: false
+    },
+    {
+      column: 20,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'Module._compile',
+      line: 1528,
+      method: '_compile',
+      native: false
+    },
+    {
+      column: 10,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'Object..js',
+      line: 1706,
+      method: '.js',
+      native: false
+    },
+    {
+      column: 32,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'Module.load',
+      line: 1289,
+      method: 'load',
+      native: false
+    },
+    {
+      column: 12,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'Function._load',
+      line: 1108,
+      method: '_load',
+      native: false
+    },
+    {
+      column: 14,
+      file: 'node:diagnostics_channel',
+      function: 'TracingChannel.traceSync',
+      line: 322,
+      method: 'traceSync',
+      native: false
+    },
+    {
+      column: 24,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'wrapModuleLoad',
+      line: 220,
+      method: null,
+      native: false
+    },
+    {
+      column: 12,
+      file: 'node:internal/modules/cjs/loader',
+      function: 'Module.require',
+      line: 1311,
+      method: 'require',
+      native: false
+    },
+    {
+      column: 16,
+      file: 'node:internal/modules/helpers',
+      function: 'require',
+      line: 136,
+      method: null,
+      native: false
+    },
+    {
+      column: 18,
+      file: '/home/codeace/projects/kolekta/backend/app.js',
+      function: null,
+      line: 14,
+      method: null,
+      native: false
+    }
+  ],
+  service: 'asterisk-call-system',
+  timestamp: '2026-01-14 12:56:34'
+}

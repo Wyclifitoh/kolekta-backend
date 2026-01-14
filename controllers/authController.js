@@ -5,7 +5,8 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const validator = require('validator');
 const generateUid = require('../utils/utils');
-
+const dotenv = require('dotenv');
+dotenv.config();
 
 // Register new user
 exports.register = async (req, res) => {
