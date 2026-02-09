@@ -215,7 +215,7 @@ exports.findAll = async (filters) => {
         d.title AS debt_category_name,
         p.title AS product_name,
         u.first_name AS held_by_name,
-        ANY_VALUE(cn.note_text) AS case_note,
+        ANY_VALUE(ci.notes) AS case_note,
 
         -- Computed fields
         COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0) AS amount_repaid,
@@ -231,7 +231,7 @@ exports.findAll = async (filters) => {
          ORDER BY date_paid DESC LIMIT 1) AS last_paid_date
 
       FROM case_files cf
-      LEFT JOIN case_notes cn ON cf.cfid = cn.cfid
+      LEFT JOIN casefile_interactions ci ON cf.cfid = ci.casefile_id
       LEFT JOIN clients c ON cf.client_id = c.id
       LEFT JOIN client_products p ON cf.product_id = p.id
       LEFT JOIN staff u ON cf.held_by = u.id
