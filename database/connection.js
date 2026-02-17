@@ -1,6 +1,9 @@
 const mysql = require('mysql2/promise');
 const logger = require('../utils/logger');
 
+const dotenv = require('dotenv');
+dotenv.config();
+
 class Database {
   constructor() {
     this.pool = null;
@@ -13,7 +16,7 @@ class Database {
         port: process.env.DB_PORT || 3306,
         user: process.env.MYSQL_USER || 'root',
         password: process.env.MYSQL_PASSWORD || '',
-        database: process.env.MYSQL_DB || 'kolekta_db',
+        database: process.env.MYSQL_DB || 'kolekta',
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,

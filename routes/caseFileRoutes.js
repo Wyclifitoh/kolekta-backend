@@ -7,7 +7,8 @@ const {
   addPTP,
   addPayment,
   sendSMS,
-  sendMail} = require('../controllers/casefileController');
+  sendMail,
+  closeCases} = require('../controllers/casefileController');
 
 
 // Interactions
@@ -28,5 +29,7 @@ router.post('/mail', authenticateToken, sendMail);
 
 // Contacts
 // router.get('/contacts/:casefile_id', authenticateToken, getContacts);
+
+router.post('/close-cases', authenticateToken, closeCases);
 
 module.exports = router;

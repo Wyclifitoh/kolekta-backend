@@ -3,21 +3,21 @@ const pool = require("../config/db");
 exports.findByEmail = async (email_address) => {
   const [rows] = await pool.query(
     "SELECT * FROM staff WHERE email_address = ?",
-    [email_address],
+    [email_address]
   );
   return rows[0];
 };
 
 exports.findLatestStaffId = async () => {
   const [rows] = await pool.query(
-    "SELECT staff_id FROM staff ORDER BY staff_id DESC LIMIT 1",
+    "SELECT staff_id FROM staff ORDER BY staff_id DESC LIMIT 1"
   );
   return rows[0];
 };
 
 exports.findLatestFileId = async () => {
   const [rows] = await pool.query(
-    "SELECT cfid FROM case_files ORDER BY cfid DESC LIMIT 1",
+    "SELECT cfid FROM case_files ORDER BY cfid DESC LIMIT 1"
   );
   return rows[0];
 };
@@ -36,7 +36,7 @@ exports.createStaff = async (staffData) => {
       staffData.role,
       staffData.permission,
       staffData.password,
-    ],
+    ]
   );
   return result;
 };
@@ -92,7 +92,7 @@ exports.updateStaff = async (id, staffData) => {
   if (permission) {
     updates.push(`permission = ?`);
     values.push(
-      typeof permission === "string" ? permission : JSON.stringify(permission),
+      typeof permission === "string" ? permission : JSON.stringify(permission)
     );
   }
   if (password) {
@@ -124,7 +124,7 @@ exports.deleteStaff = async (id) => {
 exports.toggleStaffStatus = async (id, isActive) => {
   const [result] = await pool.query(
     "UPDATE staff SET is_active = ?, updated_date = NOW() WHERE id = ?",
-    [isActive ? 1 : 0, id],
+    [isActive ? 1 : 0, id]
   );
   return result;
 };
@@ -326,6 +326,20 @@ exports.caseFileBulkInsert = async (connection, records) => {
 exports.findAll = async (filters) => {
   const values = [];
   try {
+    const allowedSortFields = [
+      "cfid",
+      "full_names",
+      "principal_amount",
+      "balance",
+      "dpd",
+      "status",
+      "outsource_date",
+    ];
+    const sortField = allowedSortFields.includes(filters.sortBy)
+      ? filters.sortBy
+      : "cf.outsource_date";
+    const sortOrder = filters.order?.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
     let sql = `
       SELECT
         cf.id,
@@ -357,6 +371,7 @@ exports.findAll = async (filters) => {
         d.title AS debt_category_name,
         p.title AS product_name,
         u.first_name AS held_by_name,
+        ANY_VALUE(cs.title) AS contact_status_name,
         ANY_VALUE(ci.notes) AS case_note,
 
         -- Computed fields
@@ -374,6 +389,7 @@ exports.findAll = async (filters) => {
 
       FROM case_files cf
       LEFT JOIN casefile_interactions ci ON cf.cfid = ci.casefile_id
+      LEFT JOIN contact_statuses cs ON ci.contact_status_id = cs.id
       LEFT JOIN clients c ON cf.client_id = c.id
       LEFT JOIN client_products p ON cf.product_id = p.id
       LEFT JOIN staff u ON cf.held_by = u.id
@@ -404,10 +420,22 @@ exports.findAll = async (filters) => {
       sql += " AND cf.currency_id = ?";
       values.push(filters.currency_id);
     }
+    if (filters.status) {
+      sql += " AND cf.status = ?";
+      values.push(filters.status);
+    }
+    if (filters.held_by) {
+      sql += " AND cf.held_by = ?";
+      values.push(filters.held_by);
+    }
+    if (filters.startDate && filters.endDate) {
+      sql += " AND cf.outsource_date BETWEEN ? AND ?";
+      values.push(filters.startDate, filters.endDate);
+    }
 
     sql += `
       GROUP BY cf.id
-      ORDER BY cf.outsource_date DESC, cf.cfid DESC
+      ORDER BY ${sortField} ${sortOrder}
     `;
 
     // Pagination
