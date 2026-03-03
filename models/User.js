@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const bcrypt = require("bcryptjs");
 
 exports.findByEmail = async (email_address) => {
   const [rows] = await pool.query(

@@ -184,6 +184,104 @@ exports.deleteStaff = async (req, res) => {
   }
 };
 
+exports.bulkUploadStaff = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  try {
+    const filePath = req.file.path;
+    const workbook = xlsx.readFile(filePath);
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const data = xlsx.utils.sheet_to_json(worksheet);
+
+    const errors = [];
+    const successes = [];
+
+    for (const [index, row] of data.entries()) {
+      try {
+        // Validate required fields
+        const requiredFields = [
+          "first_name",
+          "last_name",
+          "email_address",
+          "phone_number",
+          "role",
+        ];
+        const missingFields = requiredFields.filter((field) => !row[field]);
+
+        if (missingFields.length > 0) {
+          errors.push(
+            `Row ${index + 2}: Missing required fields: ${missingFields.join(", ")}`,
+          );
+          continue;
+        }
+
+        // Check if email already exists
+        const existingStaff = await Staff.findByEmail(row.email_address);
+        if (existingStaff) {
+          errors.push(
+            `Row ${index + 2}: Email ${row.email_address} already exists`,
+          );
+          continue;
+        }
+
+        // Get next staff ID
+        const latestStaff = await Staff.findLatestStaffId();
+        let newStaffId = 1000;
+        if (latestStaff && latestStaff.staff_id) {
+          newStaffId = latestStaff.staff_id + 1;
+        }
+
+        // Hash password (generate random password if not provided)
+        const password = row.password || Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create staff
+        await Staff.createStaff({
+          staff_id: newStaffId,
+          first_name: row.first_name,
+          last_name: row.last_name,
+          email_address: row.email_address,
+          phone_number: row.phone_number,
+          dialing_id: row.dialing_id || "",
+          role: row.role,
+          permission: JSON.stringify(row.permission || ["read", "write"]),
+          password: hashedPassword,
+        });
+
+        successes.push({
+          row: index + 2,
+          name: `${row.first_name} ${row.last_name}`,
+          email: row.email_address,
+          staffId: newStaffId,
+          temporaryPassword: !row.password ? password : undefined,
+        });
+      } catch (error) {
+        errors.push(`Row ${index + 2}: ${error.message}`);
+      }
+    }
+
+    // Clean up uploaded file
+    fs.unlinkSync(filePath);
+
+    res.status(200).json({
+      message: "Bulk upload completed",
+      total: data.length,
+      successful: successes.length,
+      failed: errors.length,
+      successes: successes,
+      errors: errors,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: `Error processing bulk upload: ${error.message}`,
+    });
+  }
+};
+
 exports.toggleStaffStatus = async (req, res) => {
   const { id } = req.params;
   const { is_active } = req.body;
