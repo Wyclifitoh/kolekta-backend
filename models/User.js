@@ -4,21 +4,21 @@ const bcrypt = require("bcryptjs");
 exports.findByEmail = async (email_address) => {
   const [rows] = await pool.query(
     "SELECT * FROM staff WHERE email_address = ?",
-    [email_address]
+    [email_address],
   );
   return rows[0];
 };
 
 exports.findLatestStaffId = async () => {
   const [rows] = await pool.query(
-    "SELECT staff_id FROM staff ORDER BY staff_id DESC LIMIT 1"
+    "SELECT staff_id FROM staff ORDER BY staff_id DESC LIMIT 1",
   );
   return rows[0];
 };
 
 exports.findLatestFileId = async () => {
   const [rows] = await pool.query(
-    "SELECT cfid FROM case_files ORDER BY cfid DESC LIMIT 1"
+    "SELECT cfid FROM case_files ORDER BY cfid DESC LIMIT 1",
   );
   return rows[0];
 };
@@ -37,7 +37,7 @@ exports.createStaff = async (staffData) => {
       staffData.role,
       staffData.permission,
       staffData.password,
-    ]
+    ],
   );
   return result;
 };
@@ -93,7 +93,7 @@ exports.updateStaff = async (id, staffData) => {
   if (permission) {
     updates.push(`permission = ?`);
     values.push(
-      typeof permission === "string" ? permission : JSON.stringify(permission)
+      typeof permission === "string" ? permission : JSON.stringify(permission),
     );
   }
   if (password) {
@@ -102,7 +102,6 @@ exports.updateStaff = async (id, staffData) => {
     values.push(hashedPassword);
   }
 
-  // Always update the updated_date
   updates.push(`updated_date = NOW()`);
 
   if (updates.length === 1) {
@@ -125,7 +124,7 @@ exports.deleteStaff = async (id) => {
 exports.toggleStaffStatus = async (id, isActive) => {
   const [result] = await pool.query(
     "UPDATE staff SET is_active = ?, updated_date = NOW() WHERE id = ?",
-    [isActive ? 1 : 0, id]
+    [isActive ? 1 : 0, id],
   );
   return result;
 };
