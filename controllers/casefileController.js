@@ -1,30 +1,38 @@
-const CaseFile = require('../models/casefileModel');
-const Interactions = require('../models/interactionsModel');
-const PTPs = require('../models/ptpsModel');
-const ProgressReports = require('../models/progressModel');
-const Payments = require('../models/paymentsModel');
-const SMS = require('../services/smsService');
-const Mail = require('../services/mailService');
-const Contacts = require('../models/contactsModel');
-const { logInteraction } = require('../helpers/casefileInteractions');
-const pool = require('../config/db');
+const CaseFile = require("../models/casefileModel");
+const Interactions = require("../models/interactionsModel");
+const PTPs = require("../models/ptpsModel");
+const ProgressReports = require("../models/progressModel");
+const Payments = require("../models/paymentsModel");
+const SMS = require("../services/smsService");
+const Mail = require("../services/mailService");
+const Contacts = require("../models/contactsModel");
+const { logInteraction } = require("../helpers/casefileInteractions");
+const pool = require("../config/db");
 //  Create Case File
 exports.createCaseFile = async (req, res) => {
   try {
-    console.log('[CaseFile] Creating new case file...');
-    const caseFileData = { ...req.body, created_by: req.user.id, updated_by: req.user.id };
+    console.log("[CaseFile] Creating new case file...");
+    const caseFileData = {
+      ...req.body,
+      created_by: req.user.id,
+      updated_by: req.user.id,
+    };
     const newCaseFile = await CaseFile.create(caseFileData);
 
     await logInteraction({
       casefile_id: newCaseFile.id,
       created_by: req.user.id,
-      notes: `Case File ${newCaseFile.cfid} created`
+      notes: `Case File ${newCaseFile.cfid} created`,
     });
 
-    return res.status(201).json({ message: 'Case file created successfully', data: newCaseFile });
+    return res
+      .status(201)
+      .json({ message: "Case file created successfully", data: newCaseFile });
   } catch (error) {
-    console.error('[CaseFile] Create error:', error);
-    return res.status(500).json({ message: 'Failed to create case file', error: error.message });
+    console.error("[CaseFile] Create error:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to create case file", error: error.message });
   }
 };
 
@@ -43,12 +51,11 @@ exports.addInteraction = async (req, res) => {
       next_action_date,
       notes,
       last_ptp_outcome,
-      ptp // optional { amount, date, fullFinal }
+      ptp, // optional { amount, date, fullFinal }
     } = req.body;
     const createdBy = req.user.id;
 
     let newPTP = null;
-
 
     // 1. Update/Insert into casefile_next_actions if next action provided
     if (next_action_id && next_action_date) {
@@ -85,52 +92,62 @@ exports.addInteraction = async (req, res) => {
           casefile_id,
           ptp.date,
           ptp.amount,
-          ptp.fullFinal ? 'Full & Final' : 'Normal',
-          createdBy
+          ptp.fullFinal ? "Full & Final" : "Normal",
+          createdBy,
         ]
       );
 
-      const [ptpData] = await conn.query(`SELECT * FROM ptps WHERE id = ?`, [result.insertId]);
+      const [ptpData] = await conn.query(`SELECT * FROM ptps WHERE id = ?`, [
+        result.insertId,
+      ]);
       newPTP = ptpData[0];
     }
 
     // 4. Log Interaction (link PTP if present)
-    const newInteraction = await logInteraction({
-      casefile_id,
-      created_by: createdBy,
-      notes,
-      contact_type_id,
-      contact_status_id,
-      call_type_id,
-      next_action_id,
-      next_action_date,
-      ptp_id: newPTP ? newPTP.id : null
-    }, conn);
-
-    
+    const newInteraction = await logInteraction(
+      {
+        casefile_id,
+        created_by: createdBy,
+        notes,
+        contact_type_id,
+        contact_status_id,
+        call_type_id,
+        next_action_id,
+        next_action_date,
+        ptp_id: newPTP ? newPTP.id : null,
+      },
+      conn
+    );
 
     await conn.commit();
 
     return res.status(201).json({
-      message: 'Interaction logged successfully',
-      data: { interaction: newInteraction, ptp: newPTP }
+      message: "Interaction logged successfully",
+      data: { interaction: newInteraction, ptp: newPTP },
     });
-
   } catch (error) {
     await conn.rollback();
-    console.error('[Interaction] Add error:', error);
-    return res.status(500).json({ message: 'Failed to log interaction', error: error.message });
+    console.error("[Interaction] Add error:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to log interaction", error: error.message });
   } finally {
     conn.release();
   }
 };
 
-
 exports.reschedulePTP = async (req, res) => {
   const conn = await pool.getConnection();
   try {
     const { ptpId } = req.query;
-    const { casefile_id, newAmount, newDate, nextActionId, nextActionDate, reason } = req.body;
+    const {
+      casefile_id,
+      newAmount,
+      newDate,
+      nextActionId,
+      nextActionDate,
+      reason,
+    } = req.body;
     const createdBy = req.user.id;
 
     await conn.beginTransaction();
@@ -144,14 +161,17 @@ exports.reschedulePTP = async (req, res) => {
     );
 
     // Log interaction for reschedule
-    const newInteraction = await logInteraction({
-      casefile_id,
-      created_by: createdBy,
-      notes: reason,  
-      next_action_id: nextActionId,
-      next_action_date: nextActionDate,
-      ptp_id: ptpId
-    }, conn); 
+    const newInteraction = await logInteraction(
+      {
+        casefile_id,
+        created_by: createdBy,
+        notes: reason,
+        next_action_id: nextActionId,
+        next_action_date: nextActionDate,
+        ptp_id: ptpId,
+      },
+      conn
+    );
 
     // await logInteraction({
     //   casefile_id: req.body.casefile_id,
@@ -161,7 +181,6 @@ exports.reschedulePTP = async (req, res) => {
 
     await conn.commit();
     return res.status(200).json({ message: "PTP rescheduled successfully" });
-
   } catch (err) {
     await conn.rollback();
     console.error("[PTP Reschedule] Error:", err);
@@ -170,8 +189,6 @@ exports.reschedulePTP = async (req, res) => {
     conn.release();
   }
 };
-
-
 
 //  Add PTP
 exports.addPTP = async (req, res) => {
@@ -185,13 +202,17 @@ exports.addPTP = async (req, res) => {
       notes: `Debtor promised to pay KES ${data.ptp_amount} on ${data.ptp_date}`,
       ptp_id: newPTP.id,
       contact_status_id: data.contact_status_id,
-      call_type_id: data.call_type_id
+      call_type_id: data.call_type_id,
     });
 
-    return res.status(201).json({ message: 'PTP added successfully', data: newPTP });
+    return res
+      .status(201)
+      .json({ message: "PTP added successfully", data: newPTP });
   } catch (error) {
-    console.error('[PTP] Add error:', error);
-    return res.status(500).json({ message: 'Failed to add PTP', error: error.message });
+    console.error("[PTP] Add error:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to add PTP", error: error.message });
   }
 };
 
@@ -204,13 +225,17 @@ exports.reschedulePTPV1 = async (req, res) => {
     await logInteraction({
       casefile_id: req.body.casefile_id,
       created_by: req.user.id,
-      notes: `PTP Rescheduled: Old Amount ${req.body.old_amount}, New Amount ${req.body.new_amount}, New Date ${req.body.new_date}`
+      notes: `PTP Rescheduled: Old Amount ${req.body.old_amount}, New Amount ${req.body.new_amount}, New Date ${req.body.new_date}`,
     });
 
-    return res.status(200).json({ message: 'PTP rescheduled successfully', data: updatedPTP });
+    return res
+      .status(200)
+      .json({ message: "PTP rescheduled successfully", data: updatedPTP });
   } catch (error) {
-    console.error('[PTP] Reschedule error:', error);
-    return res.status(500).json({ message: 'Failed to reschedule PTP', error: error.message });
+    console.error("[PTP] Reschedule error:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to reschedule PTP", error: error.message });
   }
 };
 
@@ -223,13 +248,17 @@ exports.addPayment = async (req, res) => {
     await logInteraction({
       casefile_id: data.casefile_id,
       created_by: req.user.id,
-      notes: `Payment of Ksh. ${data.amount_paid} recorded on ${data.date_paid}`
+      notes: `Payment of Ksh. ${data.amount_paid} recorded on ${data.date_paid}`,
     });
 
-    return res.status(201).json({ message: 'Payment added successfully', data: newPayment });
+    return res
+      .status(201)
+      .json({ message: "Payment added successfully", data: newPayment });
   } catch (error) {
-    console.error('[Payments] Add error:', error);
-    return res.status(500).json({ message: 'Failed to add payment', error: error.message });
+    console.error("[Payments] Add error:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to add payment", error: error.message });
   }
 };
 
@@ -242,13 +271,15 @@ exports.sendSMS = async (req, res) => {
     await logInteraction({
       casefile_id,
       created_by: req.user.id,
-      notes: `SMS sent to ${phone}: ${message}`
+      notes: `SMS sent to ${phone}: ${message}`,
     });
 
-    return res.status(200).json({ message: 'SMS sent successfully' });
+    return res.status(200).json({ message: "SMS sent successfully" });
   } catch (error) {
-    console.error('[SMS] Send error:', error);
-    return res.status(500).json({ message: 'Failed to send SMS', error: error.message });
+    console.error("[SMS] Send error:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to send SMS", error: error.message });
   }
 };
 
@@ -261,12 +292,55 @@ exports.sendMail = async (req, res) => {
     await logInteraction({
       casefile_id,
       created_by: req.user.id,
-      notes: `Email sent to ${email} | Subject: ${subject}`
+      notes: `Email sent to ${email} | Subject: ${subject}`,
     });
 
-    return res.status(200).json({ message: 'Email sent successfully' });
+    return res.status(200).json({ message: "Email sent successfully" });
   } catch (error) {
-    console.error('[Mail] Send error:', error);
-    return res.status(500).json({ message: 'Failed to send email', error: error.message });
+    console.error("[Mail] Send error:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to send email", error: error.message });
+  }
+};
+
+exports.closeCases = async (req, res) => {
+  try {
+    const { casefile_ids } = req.body;
+    if (
+      !casefile_ids ||
+      !Array.isArray(casefile_ids) ||
+      casefile_ids.length === 0
+    ) {
+      return res.status(400).json({ message: "Invalid casefile IDs" });
+    }
+
+    // Update casefiles to closed status
+    const result = await CaseFile.closeCases(casefile_ids );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Case files can't be closed" });
+    }
+
+    // Log interaction for each closed case
+    // for (const casefile_id of casefile_ids) {
+    //   await logInteraction({
+    //     casefile_id,
+    //     created_by: req.user.id,
+    //     notes: `Case file closed by ${req.user.name}`
+    //   });
+    // }
+
+    return res
+      .status(200)
+      .json({
+        message: "Case files closed successfully",
+        closedCount: result.affectedRows,
+      });
+  } catch (error) {
+    console.error("[CaseFile] Close error:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to close case files", error: error.message });
   }
 };

@@ -1,4 +1,4 @@
-const pool = require('../config/db');
+const pool = require("../config/db");
 
 exports.create = async (data) => {
   const query = `
@@ -14,14 +14,48 @@ exports.create = async (data) => {
     ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
   `;
   const values = [
-    data.client_id, data.product_id, data.debt_category_id, data.debt_type_id, data.debt_sub_type_id,
-    data.cfid, data.batch_no, data.full_names, data.identification, data.customer_id, data.account_number,
-    data.contract_no, data.phones, data.emails, data.physical_address, data.postal_address, data.branch,
-    data.employer_and_address, data.nok_full_names, data.nok_relationship, data.nok_phones,
-    data.nok_address, data.nok_emails, data.gua_full_names, data.gua_phones, data.gua_emails,
-    data.gua_address, data.amount, data.principal_amount, data.amount_repaid, data.arrears,
-    data.loan_taken_date, data.loan_due_date, data.dpd, data.last_paid_amount, data.last_paid_date,
-    data.loan_counter, data.risk_category, data.outsource_date, data.status, data.created_by, data.updated_by
+    data.client_id,
+    data.product_id,
+    data.debt_category_id,
+    data.debt_type_id,
+    data.debt_sub_type_id,
+    data.cfid,
+    data.batch_no,
+    data.full_names,
+    data.identification,
+    data.customer_id,
+    data.account_number,
+    data.contract_no,
+    data.phones,
+    data.emails,
+    data.physical_address,
+    data.postal_address,
+    data.branch,
+    data.employer_and_address,
+    data.nok_full_names,
+    data.nok_relationship,
+    data.nok_phones,
+    data.nok_address,
+    data.nok_emails,
+    data.gua_full_names,
+    data.gua_phones,
+    data.gua_emails,
+    data.gua_address,
+    data.amount,
+    data.principal_amount,
+    data.amount_repaid,
+    data.arrears,
+    data.loan_taken_date,
+    data.loan_due_date,
+    data.dpd,
+    data.last_paid_amount,
+    data.last_paid_date,
+    data.loan_counter,
+    data.risk_category,
+    data.outsource_date,
+    data.status,
+    data.created_by,
+    data.updated_by,
   ];
 
   const [result] = await pool.query(query, values);
@@ -29,7 +63,9 @@ exports.create = async (data) => {
 };
 
 exports.findById = async (id) => {
-  const [rows] = await pool.query(`SELECT * FROM case_files WHERE id = ?`, [id]);
+  const [rows] = await pool.query(`SELECT * FROM case_files WHERE id = ?`, [
+    id,
+  ]);
   return rows[0];
 };
 
@@ -51,4 +87,22 @@ exports.findAll = async (filters) => {
 
   const [rows] = await pool.query(query, values);
   return rows;
+};
+
+exports.closeCases = async (casefileIds) => {
+  if (!Array.isArray(casefileIds) || casefileIds.length === 0) {
+    throw new Error("Invalid casefile IDs");
+  }
+
+  const placeholders = casefileIds.map(() => "?").join(",");
+  const query = `
+    UPDATE case_files 
+    SET status = 'closed', updated_at = NOW() 
+    WHERE cfid IN (${placeholders}) AND status != 'closed'
+  `;
+
+  const values = [...casefileIds];
+  const [result] = await pool.query(query, values);
+
+  return { affectedRows: result.affectedRows };
 };
