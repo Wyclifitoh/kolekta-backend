@@ -8866,3 +8866,453 @@
   service: 'asterisk-call-system',
   timestamp: '2026-02-17 21:05:06'
 }
+{
+  message: '::1 - - [17/Feb/2026:19:59:30 +0000] "POST /api/auth/login HTTP/1.1" 200 560 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 22:59:30'
+}
+{
+  message: '::1 - - [17/Feb/2026:19:59:30 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 22:59:30'
+}
+{
+  message: '::1 - - [17/Feb/2026:19:59:30 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 22:59:30'
+}
+{
+  message: '::1 - - [17/Feb/2026:19:59:40 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 22:59:40'
+}
+{
+  message: '::1 - - [17/Feb/2026:19:59:40 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 22:59:40'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:04:41 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:04:41'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:09:41 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:09:41'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:14:41 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:14:41'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:19:41 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:19:41'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:24:41 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:24:41'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:29:41 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:29:41'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:35:34 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:35:34'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:40:34 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:40:34'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:45:34 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:45:34'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:50:34 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:50:34'
+}
+{
+  message: '::1 - - [17/Feb/2026:20:55:34 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-02-17 23:55:34'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:32:43'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:32:43'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:32:43'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:32:43'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:32:43'
+}
+{
+  message: '::1 - - [03/Mar/2026:15:37:44 +0000] "POST /api/auth/login HTTP/1.1" 200 560 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:37:44'
+}
+{
+  message: '::1 - - [03/Mar/2026:15:37:44 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:37:44'
+}
+{
+  message: '::1 - - [03/Mar/2026:15:37:45 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:37:45'
+}
+{
+  message: '::1 - - [03/Mar/2026:15:38:04 +0000] "GET /api/users/staff HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:38:04'
+}
+{
+  message: '::1 - - [03/Mar/2026:15:38:04 +0000] "GET /api/users/staff HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:38:04'
+}
+{
+  message: '::1 - - [03/Mar/2026:15:38:05 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 200 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:38:05'
+}
+{
+  message: '::1 - - [03/Mar/2026:15:38:05 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 18:38:05'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:28:01 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:28:01'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:28:01 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:28:01'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:28:04 +0000] "GET /api/users/staff HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:28:04'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:28:04 +0000] "GET /api/users/staff HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:28:04'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:28:05 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:28:05'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:28:05 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:28:05'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:32:59 +0000] "GET /api/cases/task-list?page=1&limit=500 HTTP/1.1" 200 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:32:59'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:32:59 +0000] "GET /api/cases/task-list?page=1&limit=500 HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:32:59'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:33:04 +0000] "GET /api/users/staff HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:33:04'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:33:04 +0000] "GET /api/users/staff HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:33:04'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:33:05 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:33:05'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:33:05 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:33:05'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:41:12 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 403 28 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:41:12'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:41:12 +0000] "GET /api/users/staff HTTP/1.1" 403 28 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:41:12'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:23'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:23'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:23'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:23'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:24'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:29'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:29'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:29'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:29'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:29'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:35'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:35'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:35'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:35'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:35'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:40 +0000] "GET /api/summary HTTP/1.1" 403 28 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:40'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:40 +0000] "GET /api/summary HTTP/1.1" 403 28 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:40'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:42 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 403 28 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:42'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:42 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 403 28 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:42'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:42 +0000] "GET /api/users/staff HTTP/1.1" 403 28 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:42'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:42 +0000] "GET /api/users/staff HTTP/1.1" 403 28 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:42'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:47 +0000] "POST /api/auth/login HTTP/1.1" 200 560 "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:47'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:47 +0000] "GET /api/summary HTTP/1.1" 200 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:47'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:47 +0000] "GET /api/summary HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:47'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:50 +0000] "GET /api/users/staff HTTP/1.1" 200 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:50'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:50 +0000] "GET /api/users/staff HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:50'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:50 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 200 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:50'
+}
+{
+  message: '::1 - - [03/Mar/2026:16:45:50 +0000] "GET /api/users/case-files?page=1&limit=500&sortBy=cfid&order=desc HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:45:50'
+}
+{
+  message: 'Real-time notifier initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:46:30'
+}
+{
+  message: 'Database connection established',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:46:30'
+}
+{
+  message: 'Queue service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:46:30'
+}
+{
+  message: 'Asterisk service initialized',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:46:30'
+}
+{
+  message: 'Server running on port 4000',
+  level: 'info',
+  service: 'asterisk-call-system',
+  timestamp: '2026-03-03 19:46:30'
+}

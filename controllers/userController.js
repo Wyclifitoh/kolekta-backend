@@ -605,7 +605,7 @@ exports.getAllCaseFiles = async (req, res) => {
     } = req.query;
 
     const pageInt = parseInt(page, 10);
-    const limitInt = Math.min(parseInt(limit, 10), 100);
+    const limitInt = Math.min(parseInt(limit, 10), 1000);
     const offset = (pageInt - 1) * limitInt;
 
     const filters = {
