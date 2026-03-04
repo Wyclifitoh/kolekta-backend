@@ -4,21 +4,21 @@ const bcrypt = require("bcryptjs");
 exports.findByEmail = async (email_address) => {
   const [rows] = await pool.query(
     "SELECT * FROM staff WHERE email_address = ?",
-    [email_address],
+    [email_address]
   );
   return rows[0];
 };
 
 exports.findLatestStaffId = async () => {
   const [rows] = await pool.query(
-    "SELECT staff_id FROM staff ORDER BY staff_id DESC LIMIT 1",
+    "SELECT staff_id FROM staff ORDER BY staff_id DESC LIMIT 1"
   );
   return rows[0];
 };
 
 exports.findLatestFileId = async () => {
   const [rows] = await pool.query(
-    "SELECT cfid FROM case_files ORDER BY cfid DESC LIMIT 1",
+    "SELECT cfid FROM case_files ORDER BY cfid DESC LIMIT 1"
   );
   return rows[0];
 };
@@ -37,7 +37,7 @@ exports.createStaff = async (staffData) => {
       staffData.role,
       staffData.permission,
       staffData.password,
-    ],
+    ]
   );
   return result;
 };
@@ -93,7 +93,7 @@ exports.updateStaff = async (id, staffData) => {
   if (permission) {
     updates.push(`permission = ?`);
     values.push(
-      typeof permission === "string" ? permission : JSON.stringify(permission),
+      typeof permission === "string" ? permission : JSON.stringify(permission)
     );
   }
   if (password) {
@@ -124,7 +124,7 @@ exports.deleteStaff = async (id) => {
 exports.toggleStaffStatus = async (id, isActive) => {
   const [result] = await pool.query(
     "UPDATE staff SET is_active = ?, updated_date = NOW() WHERE id = ?",
-    [isActive ? 1 : 0, id],
+    [isActive ? 1 : 0, id]
   );
   return result;
 };
@@ -340,6 +340,8 @@ exports.findAll = async (filters) => {
       : "cf.outsource_date";
     const sortOrder = filters.order?.toUpperCase() === "ASC" ? "ASC" : "DESC";
 
+    const isAdminOrTL = ["admin", "team_leader"].includes(filters.role);
+    
     let sql = `
       SELECT
         cf.id,
@@ -424,7 +426,10 @@ exports.findAll = async (filters) => {
       sql += " AND cf.status = ?";
       values.push(filters.status);
     }
-    if (filters.held_by) {
+    if (!isAdminOrTL) {
+      sql += " AND cf.held_by = ?";
+      values.push(filters.userId);
+    } else if (filters.held_by) {
       sql += " AND cf.held_by = ?";
       values.push(filters.held_by);
     }
