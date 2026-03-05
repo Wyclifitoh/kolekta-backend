@@ -84,12 +84,10 @@ exports.addDebtCategory = async (req, res) => {
       [title, description]
     );
 
-    return res
-      .status(201)
-      .json({
-        message: "Debt category added",
-        data: { id: result.insertId, title, description },
-      });
+    return res.status(201).json({
+      message: "Debt category added",
+      data: { id: result.insertId, title, description },
+    });
   } catch (error) {
     console.error("Add Debt Category Error:", error);
     return res
@@ -129,12 +127,10 @@ exports.updateDebtCategory = async (req, res) => {
       return res.status(404).json({ message: "Debt category not found" });
     }
 
-    return res
-      .status(200)
-      .json({
-        message: "Debt category updated",
-        data: { id, title, description },
-      });
+    return res.status(200).json({
+      message: "Debt category updated",
+      data: { id, title, description },
+    });
   } catch (error) {
     console.error("Update Debt Category Error:", error);
     return res
@@ -179,12 +175,10 @@ exports.addDebtType = async (req, res) => {
       [title, description]
     );
 
-    return res
-      .status(201)
-      .json({
-        message: "Debt type added",
-        data: { id: result.insertId, title, description },
-      });
+    return res.status(201).json({
+      message: "Debt type added",
+      data: { id: result.insertId, title, description },
+    });
   } catch (error) {
     console.error("Add Debt Type Error:", error);
     return res
@@ -270,12 +264,10 @@ exports.addDebtSubType = async (req, res) => {
       debt_type_id,
       status
     );
-    res
-      .status(201)
-      .json({
-        message: "Debt sub type added successfully",
-        id: result.insertId,
-      });
+    res.status(201).json({
+      message: "Debt sub type added successfully",
+      id: result.insertId,
+    });
   } catch (err) {
     console.error("Error adding debt sub type:", err);
     res.status(500).json({ error: "Server error" });
@@ -370,14 +362,12 @@ exports.updateClientType = async (req, res) => {
       return res.status(404).json({ message: "Client type not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        id,
-        type,
-        description,
-        message: "Client type updated successfully",
-      });
+    res.status(200).json({
+      id,
+      type,
+      description,
+      message: "Client type updated successfully",
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error updating client type" });
@@ -1025,14 +1015,12 @@ exports.updateCallType = async (req, res) => {
       return res.status(404).json({ message: "Call type not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        id,
-        title,
-        description: description || null,
-        message: "Call type updated successfully",
-      });
+    res.status(200).json({
+      id,
+      title,
+      description: description || null,
+      message: "Call type updated successfully",
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error updating call type" });
@@ -1107,15 +1095,13 @@ exports.updatePtpRescheduleReason = async (req, res) => {
         .json({ message: "PTP Reschedule Reason not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        id,
-        title,
-        description: description || null,
-        status: status || "ACTIVE",
-        message: "PTP Reschedule Reason updated successfully",
-      });
+    res.status(200).json({
+      id,
+      title,
+      description: description || null,
+      status: status || "ACTIVE",
+      message: "PTP Reschedule Reason updated successfully",
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error updating PTP Reschedule Reason" });
@@ -1446,7 +1432,7 @@ exports.getSummary = async (req, res) => {
 
     // 1. Build case condition
     let caseCondition = "";
-    if (userRole === "staff") {
+    if (userRole === "account_manager") {
       caseCondition = `held_by = ${userId}`;
     } else if (userRole === "team_leader") {
       const [teamStaff] = await pool.query(
@@ -1847,10 +1833,14 @@ exports.getCalendar = async (req, res) => {
 
 exports.getNextCaseFile = async (req, res) => {
   const { currentCaseId } = req.params;
+  const { order } = req.query;
   const userId = req.user.id;
   const userRole = req.user.role;
 
   try {
+    const operator = order === "desc" ? "<" : ">";
+    const sortOrder = order === "desc" ? "DESC" : "ASC";
+
     let query = "";
     let params = [];
 
@@ -1859,33 +1849,31 @@ exports.getNextCaseFile = async (req, res) => {
         SELECT cf.id, cf.cfid
         FROM case_files cf
         WHERE cf.held_by = ?
-        AND cf.cfid < ?
-        ORDER BY cf.id DESC
+        AND cf.cfid ${operator} ?
+        ORDER BY cf.cfid ${sortOrder}
         LIMIT 1
       `;
       params = [userId, currentCaseId];
     } else {
       query = `
         SELECT cf.id, cf.cfid
-        FROM case_files cf        
-        WHERE cf.cfid > ?
-        ORDER BY cf.id ASC
+        FROM case_files cf
+        WHERE cf.cfid ${operator} ?
+        ORDER BY cf.cfid ${sortOrder}
         LIMIT 1
       `;
       params = [currentCaseId];
     }
 
-    const [rows] = await pool.query(query, params);
+    const [rows] = await pool.query(query, [userId, currentCaseId]);
 
     if (rows.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No pending case files available" });
+      return res.status(404).json({ message: "No next case file found" });
     }
 
-    return res.json({ nextCaseId: rows[0].id, cfid: rows[0].cfid });
-  } catch (err) {
-    console.error("Error fetching next case file:", err);
+    res.json(rows[0]);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error fetching next case file" });
   }
 };
