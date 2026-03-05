@@ -1,103 +1,115 @@
-const App = require('../models/App');
-const User = require('../models/User');
-const validator = require('validator');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const upload = require('../middlewares/upload');
-const crypto = require('crypto');
-const generateUid = require('../utils/utils');
-const moment = require('moment');
-const { validateDate, formatDate, DATE_FORMAT } = require('../utils/dateUtils');
-const pool = require('../config/db');
+const App = require("../models/App");
+const User = require("../models/User");
+const validator = require("validator");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const upload = require("../middlewares/upload");
+const crypto = require("crypto");
+const generateUid = require("../utils/utils");
+const moment = require("moment");
+const { validateDate, formatDate, DATE_FORMAT } = require("../utils/dateUtils");
+const pool = require("../config/db");
 const nodemailer = require("nodemailer");
-const { logInteraction } = require('../helpers/casefileInteractions');
+const { logInteraction } = require("../helpers/casefileInteractions");
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'your_email@gmail.com',
-        pass: 'your_email_password',
-    },
+  service: "gmail",
+  auth: {
+    user: "your_email@gmail.com",
+    pass: "your_email_password",
+  },
 });
 
 exports.addClient = async (req, res) => {
-    const {
-        name,
-        abbreviation,
-        client_type,
-        team_leader_id,
-        paybill,
-        general_target,
-        contacts
-    } = req.body;
+  const {
+    name,
+    abbreviation,
+    client_type,
+    team_leader_id,
+    paybill,
+    general_target,
+    contacts,
+  } = req.body;
 
-    try {
-        const userID = req.user.id;
-        if (!userID) {
-            return res.status(401).json({ message: 'User not authenticated.' });
-        }
-
-        if (!name || !client_type) {
-            return res.status(400).json({ message: 'Name and client type are required.' });
-        }
-
-        // Insert client into database
-        const [clientResult] = await pool.query(
-            'INSERT INTO clients (name, abbreviation, client_type, team_leader_id, paybill, general_target) VALUES (?, ?, ?, ?, ?, ?)',
-            [name, abbreviation, client_type, team_leader_id, paybill, general_target]
-        );
-        const clientID = clientResult.insertId;
-
-        // Insert contact persons if provided
-        if (contacts && contacts.length > 0) {
-            const contactValues = contacts.map(contact => [
-                clientID,
-                contact.name,
-                contact.designation,
-                contact.branch_department,
-                contact.phone,
-                contact.email
-            ]);
-
-            await pool.query(
-                'INSERT INTO client_contacts (client_id, name, designation, branch_department, phone, email) VALUES ?;',
-                [contactValues]
-            );
-        }
-
-        res.status(200).json({ message: 'Client created successfully', clientID });
-    } catch (error) {
-        res.status(500).json({ message: `Error creating client: ${error}` });
+  try {
+    const userID = req.user.id;
+    if (!userID) {
+      return res.status(401).json({ message: "User not authenticated." });
     }
+
+    if (!name || !client_type) {
+      return res
+        .status(400)
+        .json({ message: "Name and client type are required." });
+    }
+
+    // Insert client into database
+    const [clientResult] = await pool.query(
+      "INSERT INTO clients (name, abbreviation, client_type, team_leader_id, paybill, general_target) VALUES (?, ?, ?, ?, ?, ?)",
+      [name, abbreviation, client_type, team_leader_id, paybill, general_target]
+    );
+    const clientID = clientResult.insertId;
+
+    // Insert contact persons if provided
+    if (contacts && contacts.length > 0) {
+      const contactValues = contacts.map((contact) => [
+        clientID,
+        contact.name,
+        contact.designation,
+        contact.branch_department,
+        contact.phone,
+        contact.email,
+      ]);
+
+      await pool.query(
+        "INSERT INTO client_contacts (client_id, name, designation, branch_department, phone, email) VALUES ?;",
+        [contactValues]
+      );
+    }
+
+    res.status(200).json({ message: "Client created successfully", clientID });
+  } catch (error) {
+    res.status(500).json({ message: `Error creating client: ${error}` });
+  }
 };
 
-
- // =================== Add Debt Category ===================
+// =================== Add Debt Category ===================
 exports.addDebtCategory = async (req, res) => {
   try {
     const { title, description } = req.body;
-    if (!title) return res.status(400).json({ message: 'Title is required' });
+    if (!title) return res.status(400).json({ message: "Title is required" });
 
     const [result] = await pool.query(
-      'INSERT INTO debt_categories (title, description) VALUES (?, ?)',
+      "INSERT INTO debt_categories (title, description) VALUES (?, ?)",
       [title, description]
     );
 
-    return res.status(201).json({ message: 'Debt category added', data: { id: result.insertId, title, description } });
+    return res
+      .status(201)
+      .json({
+        message: "Debt category added",
+        data: { id: result.insertId, title, description },
+      });
   } catch (error) {
-    console.error('Add Debt Category Error:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Add Debt Category Error:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
 // =================== Get All Debt Categories ===================
 exports.getAllDebtCategory = async (req, res) => {
   try {
-    const [categories] = await pool.query('SELECT * FROM debt_categories ORDER BY id ASC'); 
+    const [categories] = await pool.query(
+      "SELECT * FROM debt_categories ORDER BY id ASC"
+    );
     return res.status(200).json(categories);
   } catch (error) {
-    console.error('Get Debt Categories Error:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Get Debt Categories Error:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
@@ -106,21 +118,28 @@ exports.updateDebtCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description } = req.body;
-    if (!title) return res.status(400).json({ message: 'Title is required' });
+    if (!title) return res.status(400).json({ message: "Title is required" });
 
     const [result] = await pool.query(
-      'UPDATE debt_categories SET title = ?, description = ? WHERE id = ?',
+      "UPDATE debt_categories SET title = ?, description = ? WHERE id = ?",
       [title, description, id]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Debt category not found' });
+      return res.status(404).json({ message: "Debt category not found" });
     }
 
-    return res.status(200).json({ message: 'Debt category updated', data: { id, title, description } });
+    return res
+      .status(200)
+      .json({
+        message: "Debt category updated",
+        data: { id, title, description },
+      });
   } catch (error) {
-    console.error('Update Debt Category Error:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Update Debt Category Error:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
@@ -129,46 +148,61 @@ exports.deleteDebtCategory = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await pool.query('DELETE FROM debt_categories WHERE id = ?', [id]);
+    const [result] = await pool.query(
+      "DELETE FROM debt_categories WHERE id = ?",
+      [id]
+    );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Debt category not found' });
+      return res.status(404).json({ message: "Debt category not found" });
     }
 
-    return res.status(200).json({ message: 'Debt category deleted successfully' });
+    return res
+      .status(200)
+      .json({ message: "Debt category deleted successfully" });
   } catch (error) {
-    console.error('Delete Debt Category Error:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Delete Debt Category Error:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
-
 
 // =================== Add Debt Type ===================
 exports.addDebtType = async (req, res) => {
   try {
     const { title, description } = req.body;
-    if (!title) return res.status(400).json({ message: 'Title is required' });
+    if (!title) return res.status(400).json({ message: "Title is required" });
 
     const [result] = await pool.query(
-      'INSERT INTO debt_types (title, description) VALUES (?, ?)',
+      "INSERT INTO debt_types (title, description) VALUES (?, ?)",
       [title, description]
     );
 
-    return res.status(201).json({ message: 'Debt type added', data: { id: result.insertId, title, description } });
+    return res
+      .status(201)
+      .json({
+        message: "Debt type added",
+        data: { id: result.insertId, title, description },
+      });
   } catch (error) {
-    console.error('Add Debt Type Error:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Add Debt Type Error:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
 // =================== Get All Debt Types ===================
 exports.getAllDebtTypes = async (req, res) => {
   try {
-    const [result] = await pool.query('SELECT * FROM debt_types ORDER BY id ASC');
+    const [result] = await pool.query(
+      "SELECT * FROM debt_types ORDER BY id ASC"
+    );
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Get Debt Types Error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    console.error("Get Debt Types Error:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -177,21 +211,25 @@ exports.updateDebtType = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description } = req.body;
-    if (!title) return res.status(400).json({ message: 'Title is required' });
+    if (!title) return res.status(400).json({ message: "Title is required" });
 
     const [result] = await pool.query(
-      'UPDATE debt_types SET title = ?, description = ? WHERE id = ?',
+      "UPDATE debt_types SET title = ?, description = ? WHERE id = ?",
       [title, description, id]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Debt type not found' });
+      return res.status(404).json({ message: "Debt type not found" });
     }
 
-    return res.status(200).json({ message: 'Debt type updated', data: { id, title, description } });
+    return res
+      .status(200)
+      .json({ message: "Debt type updated", data: { id, title, description } });
   } catch (error) {
-    console.error('Update Debt Type Error:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Update Debt Type Error:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
@@ -200,32 +238,47 @@ exports.deleteDebtType = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await pool.query('DELETE FROM debt_types WHERE id = ?', [id]);
+    const [result] = await pool.query("DELETE FROM debt_types WHERE id = ?", [
+      id,
+    ]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Debt type not found' });
+      return res.status(404).json({ message: "Debt type not found" });
     }
 
-    return res.status(200).json({ message: 'Debt type deleted successfully' });
+    return res.status(200).json({ message: "Debt type deleted successfully" });
   } catch (error) {
-    console.error('Delete Debt Type Error:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Delete Debt Type Error:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
-
 
 exports.addDebtSubType = async (req, res) => {
   try {
     const { title, description, debt_type_id, status } = req.body;
     if (!title || !debt_type_id) {
-      return res.status(400).json({ error: 'Title and Debt Type ID are required' });
+      return res
+        .status(400)
+        .json({ error: "Title and Debt Type ID are required" });
     }
 
-    const result = await App.addDebtSubType(title, description, debt_type_id, status);
-    res.status(201).json({ message: 'Debt sub type added successfully', id: result.insertId });
+    const result = await App.addDebtSubType(
+      title,
+      description,
+      debt_type_id,
+      status
+    );
+    res
+      .status(201)
+      .json({
+        message: "Debt sub type added successfully",
+        id: result.insertId,
+      });
   } catch (err) {
-    console.error('Error adding debt sub type:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error adding debt sub type:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -235,8 +288,8 @@ exports.getAllDebtSubTypes = async (req, res) => {
     const subTypes = await App.getAllDebtSubTypes();
     res.json({ subTypes });
   } catch (err) {
-    console.error('Error fetching debt sub types:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error fetching debt sub types:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -244,13 +297,16 @@ exports.getAllDebtSubTypes = async (req, res) => {
 exports.addCurrency = async (req, res) => {
   try {
     const { code, name, symbol } = req.body;
-    if (!code || !name || !symbol) return res.status(400).json({ message: 'Name and symbol are required' });
+    if (!code || !name || !symbol)
+      return res.status(400).json({ message: "Name and symbol are required" });
 
     const newCurrency = await App.addCurrency({ code, name, symbol });
-    return res.status(201).json({ message: 'Currency added', data: newCurrency });
+    return res
+      .status(201)
+      .json({ message: "Currency added", data: newCurrency });
   } catch (error) {
-    console.error('Add Currency Error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    console.error("Add Currency Error:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -259,8 +315,8 @@ exports.getAllCurrencies = async (req, res) => {
     const currencies = await App.getAllCurrencies();
     return res.status(200).json(currencies);
   } catch (error) {
-    console.error('Get Currencies Error:', error);
-    return res.status(500).json({ message: 'Server error' });
+    console.error("Get Currencies Error:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -268,8 +324,8 @@ exports.getAllCurrencies = async (req, res) => {
 exports.addClientType = async (req, res) => {
   const { type, description } = req.body;
   try {
-    if(!type) {
-      res.status(401).json({ message: 'Client type required' });
+    if (!type) {
+      res.status(401).json({ message: "Client type required" });
     }
     const [result] = await pool.query(
       `INSERT INTO client_types (type, description) VALUES (?, ?)`,
@@ -278,18 +334,20 @@ exports.addClientType = async (req, res) => {
     res.status(201).json({ id: result.insertId, type, description });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error adding client type' });
+    res.status(500).json({ message: "Error adding client type" });
   }
 };
 
 // =================== Get All Client Types ===================
 exports.getAllClientTypes = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT * FROM client_types ORDER BY id DESC`);
+    const [rows] = await pool.query(
+      `SELECT * FROM client_types ORDER BY id DESC`
+    );
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching client types' });
+    res.status(500).json({ message: "Error fetching client types" });
   }
 };
 
@@ -299,8 +357,8 @@ exports.updateClientType = async (req, res) => {
   const { type, description } = req.body;
 
   try {
-    if(!type) {
-      res.status(401).json({ message: 'Client type required' });
+    if (!type) {
+      res.status(401).json({ message: "Client type required" });
     }
 
     const [result] = await pool.query(
@@ -309,13 +367,20 @@ exports.updateClientType = async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Client type not found' });
+      return res.status(404).json({ message: "Client type not found" });
     }
 
-    res.status(200).json({ id, type, description, message: 'Client type updated successfully' });
+    res
+      .status(200)
+      .json({
+        id,
+        type,
+        description,
+        message: "Client type updated successfully",
+      });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error updating client type' });
+    res.status(500).json({ message: "Error updating client type" });
   }
 };
 
@@ -324,91 +389,114 @@ exports.deleteClientType = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query(`DELETE FROM client_types WHERE id = ?`, [id]);
+    const [result] = await pool.query(`DELETE FROM client_types WHERE id = ?`, [
+      id,
+    ]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Client type not found' });
+      return res.status(404).json({ message: "Client type not found" });
     }
 
-    res.status(200).json({ message: 'Client type deleted successfully' });
+    res.status(200).json({ message: "Client type deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error deleting client type' });
+    res.status(500).json({ message: "Error deleting client type" });
   }
 };
 
- 
-
 // ---------- Client Products ----------
 exports.addClientProduct = async (req, res) => {
-  const { client_id, title, description, general_target, paybill, status } = req.body;
+  const { client_id, title, description, general_target, paybill, status } =
+    req.body;
 
   try {
     // --- Validate Required Fields ---
     if (!client_id) {
-      return res.status(400).json({ message: 'Client ID is required' });
+      return res.status(400).json({ message: "Client ID is required" });
     }
 
-    if (!title || title.trim() === '') {
-      return res.status(400).json({ message: 'Product title is required' });
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "Product title is required" });
     }
 
     // Optional: Ensure general_target is a valid number
     if (general_target && isNaN(Number(general_target))) {
-      return res.status(400).json({ message: 'General target must be a number' });
+      return res
+        .status(400)
+        .json({ message: "General target must be a number" });
     }
 
     // --- Insert into Database ---
     const [result] = await pool.query(
       `INSERT INTO client_products (client_id, title, description, general_target, paybill, status) 
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [client_id, title, description || null, general_target || 0, paybill || null, status || 'active']
+      [
+        client_id,
+        title,
+        description || null,
+        general_target || 0,
+        paybill || null,
+        status || "active",
+      ]
     );
 
-    res.status(201).json({ 
-      id: result.insertId, 
-      client_id, 
-      title, 
-      description, 
-      general_target: general_target || 0, 
-      paybill, 
-      status: status || 'active',
-      message: "Product added successfully"
+    res.status(201).json({
+      id: result.insertId,
+      client_id,
+      title,
+      description,
+      general_target: general_target || 0,
+      paybill,
+      status: status || "active",
+      message: "Product added successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error adding client product' });
+    res.status(500).json({ message: "Error adding client product" });
   }
 };
 
 exports.getAllClientProducts = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT * FROM client_products ORDER BY id DESC`);
+    const [rows] = await pool.query(
+      `SELECT * FROM client_products ORDER BY id DESC`
+    );
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching client products' });
+    res.status(500).json({ message: "Error fetching client products" });
   }
 };
 
 // =================== Update Client Product ===================
 exports.updateClientProduct = async (req, res) => {
   const { id } = req.params;
-  const { client_id, title, description, general_target, paybill, status } = req.body;
+  const { client_id, title, description, general_target, paybill, status } =
+    req.body;
 
   try {
-    if (!client_id) return res.status(400).json({ message: 'Client ID is required' });
-    if (!title || title.trim() === '') return res.status(400).json({ message: 'Product title is required' });
+    if (!client_id)
+      return res.status(400).json({ message: "Client ID is required" });
+    if (!title || title.trim() === "")
+      return res.status(400).json({ message: "Product title is required" });
 
     const [result] = await pool.query(
       `UPDATE client_products 
        SET client_id = ?, title = ?, description = ?, general_target = ?, paybill = ?, status = ?
        WHERE id = ?`,
-      [client_id, title, description || null, general_target || 0, paybill || null, status || 'active', id]
+      [
+        client_id,
+        title,
+        description || null,
+        general_target || 0,
+        paybill || null,
+        status || "active",
+        id,
+      ]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: "Product not found" });
     }
 
     res.status(200).json({
@@ -418,12 +506,12 @@ exports.updateClientProduct = async (req, res) => {
       description,
       general_target: general_target || 0,
       paybill,
-      status: status || 'active',
-      message: "Product updated successfully"
+      status: status || "active",
+      message: "Product updated successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error updating client product' });
+    res.status(500).json({ message: "Error updating client product" });
   }
 };
 
@@ -432,20 +520,21 @@ exports.deleteClientProduct = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query('DELETE FROM client_products WHERE id = ?', [id]);
+    const [result] = await pool.query(
+      "DELETE FROM client_products WHERE id = ?",
+      [id]
+    );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    res.status(200).json({ message: 'Product deleted successfully' });
+    res.status(200).json({ message: "Product deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error deleting client product' });
+    res.status(500).json({ message: "Error deleting client product" });
   }
 };
-
-
 
 // ---------- Contactability ----------
 exports.addContactability = async (req, res) => {
@@ -453,22 +542,24 @@ exports.addContactability = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO contactability (title, description, status) VALUES (?, ?, ?)`,
-      [title, description, status || 'ACTIVE']
+      [title, description, status || "ACTIVE"]
     );
     res.status(201).json({ id: result.insertId, title, description, status });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error adding contactability' });
+    res.status(500).json({ message: "Error adding contactability" });
   }
 };
 
 exports.getAllContactability = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT * FROM contactability ORDER BY id DESC`);
+    const [rows] = await pool.query(
+      `SELECT * FROM contactability ORDER BY id DESC`
+    );
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching contactability' });
+    res.status(500).json({ message: "Error fetching contactability" });
   }
 };
 
@@ -478,31 +569,31 @@ exports.updateContactability = async (req, res) => {
   const { title, description, status } = req.body;
 
   try {
-    if (!title || title.trim() === '') {
-      return res.status(400).json({ message: 'Title is required' });
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "Title is required" });
     }
 
     const [result] = await pool.query(
       `UPDATE contactability 
        SET title = ?, description = ?, status = ?
        WHERE id = ?`,
-      [title, description || null, status || 'ACTIVE', id]
+      [title, description || null, status || "ACTIVE", id]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Contactability not found' });
+      return res.status(404).json({ message: "Contactability not found" });
     }
 
     res.status(200).json({
       id,
       title,
       description,
-      status: status || 'ACTIVE',
-      message: "Contactability updated successfully"
+      status: status || "ACTIVE",
+      message: "Contactability updated successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error updating contactability' });
+    res.status(500).json({ message: "Error updating contactability" });
   }
 };
 
@@ -511,20 +602,21 @@ exports.deleteContactability = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query('DELETE FROM contactability WHERE id = ?', [id]);
+    const [result] = await pool.query(
+      "DELETE FROM contactability WHERE id = ?",
+      [id]
+    );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Contactability not found' });
+      return res.status(404).json({ message: "Contactability not found" });
     }
 
-    res.status(200).json({ message: 'Contactability deleted successfully' });
+    res.status(200).json({ message: "Contactability deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error deleting contactability' });
+    res.status(500).json({ message: "Error deleting contactability" });
   }
 };
-
-
 
 // ---------- Contact Types ----------
 exports.addContactType = async (req, res) => {
@@ -534,10 +626,12 @@ exports.addContactType = async (req, res) => {
       `INSERT INTO contact_types (title, contactability_id, abbreviation) VALUES (?, ?, ?)`,
       [title, contactability_id, abbreviation]
     );
-    res.status(201).json({ id: result.insertId, title, contactability_id, abbreviation });
+    res
+      .status(201)
+      .json({ id: result.insertId, title, contactability_id, abbreviation });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error adding contact type' });
+    res.status(500).json({ message: "Error adding contact type" });
   }
 };
 
@@ -551,14 +645,13 @@ exports.getAllContactTypes = async (req, res) => {
       LEFT JOIN contactability c ON ct.contactability_id = c.id
       ORDER BY ct.id DESC
     `);
-    
+
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching contact types' });
+    res.status(500).json({ message: "Error fetching contact types" });
   }
 };
-
 
 // =================== Update Contact Type ===================
 exports.updateContactType = async (req, res) => {
@@ -566,8 +659,8 @@ exports.updateContactType = async (req, res) => {
   const { title, contactability_id, abbreviation } = req.body;
 
   try {
-    if (!title || title.trim() === '') {
-      return res.status(400).json({ message: 'Title is required' });
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "Title is required" });
     }
 
     const [result] = await pool.query(
@@ -578,7 +671,7 @@ exports.updateContactType = async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Contact type not found' });
+      return res.status(404).json({ message: "Contact type not found" });
     }
 
     res.status(200).json({
@@ -586,11 +679,11 @@ exports.updateContactType = async (req, res) => {
       title,
       contactability_id: contactability_id || null,
       abbreviation: abbreviation || null,
-      message: "Contact type updated successfully"
+      message: "Contact type updated successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error updating contact type' });
+    res.status(500).json({ message: "Error updating contact type" });
   }
 };
 
@@ -599,22 +692,26 @@ exports.deleteContactType = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query('DELETE FROM contact_types WHERE id = ?', [id]);
+    const [result] = await pool.query(
+      "DELETE FROM contact_types WHERE id = ?",
+      [id]
+    );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Contact type not found' });
+      return res.status(404).json({ message: "Contact type not found" });
     }
 
-    res.status(200).json({ message: 'Contact type deleted successfully' });
+    res.status(200).json({ message: "Contact type deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error deleting contact type' });
+    res.status(500).json({ message: "Error deleting contact type" });
   }
 };
 
 // ---------- Contact Statuses ----------
 exports.addContactStatus = async (req, res) => {
-  const { title, contact_type_id, abbreviation, max_days, dialing_priority } = req.body;
+  const { title, contact_type_id, abbreviation, max_days, dialing_priority } =
+    req.body;
   try {
     const [result] = await pool.query(
       `INSERT INTO contact_statuses (title, contact_type_id, abbreviation, max_days, dialing_priority) 
@@ -624,7 +721,7 @@ exports.addContactStatus = async (req, res) => {
     res.status(201).json({ id: result.insertId, title, contact_type_id });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error adding contact status' });
+    res.status(500).json({ message: "Error adding contact status" });
   }
 };
 
@@ -644,29 +741,37 @@ exports.getAllContactStatuses = async (req, res) => {
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching contact statuses' });
+    res.status(500).json({ message: "Error fetching contact statuses" });
   }
 };
 
 // =================== Update Contact Status ===================
 exports.updateContactStatus = async (req, res) => {
   const { id } = req.params;
-  const { title, contact_type_id, abbreviation, max_days, dialing_priority } = req.body;
+  const { title, contact_type_id, abbreviation, max_days, dialing_priority } =
+    req.body;
 
   try {
-    if (!title || title.trim() === '') {
-      return res.status(400).json({ message: 'Title is required' });
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "Title is required" });
     }
 
     const [result] = await pool.query(
       `UPDATE contact_statuses 
        SET title = ?, contact_type_id = ?, abbreviation = ?, max_days = ?, dialing_priority = ?
        WHERE id = ?`,
-      [title, contact_type_id || null, abbreviation || null, max_days || 0, dialing_priority || 0, id]
+      [
+        title,
+        contact_type_id || null,
+        abbreviation || null,
+        max_days || 0,
+        dialing_priority || 0,
+        id,
+      ]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Contact status not found' });
+      return res.status(404).json({ message: "Contact status not found" });
     }
 
     res.status(200).json({
@@ -676,11 +781,11 @@ exports.updateContactStatus = async (req, res) => {
       abbreviation: abbreviation || null,
       max_days: max_days || 0,
       dialing_priority: dialing_priority || 0,
-      message: "Contact status updated successfully"
+      message: "Contact status updated successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error updating contact status' });
+    res.status(500).json({ message: "Error updating contact status" });
   }
 };
 
@@ -689,16 +794,19 @@ exports.deleteContactStatus = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query('DELETE FROM contact_statuses WHERE id = ?', [id]);
+    const [result] = await pool.query(
+      "DELETE FROM contact_statuses WHERE id = ?",
+      [id]
+    );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Contact status not found' });
+      return res.status(404).json({ message: "Contact status not found" });
     }
 
-    res.status(200).json({ message: 'Contact status deleted successfully' });
+    res.status(200).json({ message: "Contact status deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error deleting contact status' });
+    res.status(500).json({ message: "Error deleting contact status" });
   }
 };
 
@@ -708,22 +816,26 @@ exports.addClosureReason = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO closure_reasons (title, description, abbreviation, status) VALUES (?, ?, ?, ?)`,
-      [title, description, abbreviation, status || 'ACTIVE']
+      [title, description, abbreviation, status || "ACTIVE"]
     );
-    res.status(201).json({ id: result.insertId, title, description, abbreviation, status });
+    res
+      .status(201)
+      .json({ id: result.insertId, title, description, abbreviation, status });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error adding closure reason' });
+    res.status(500).json({ message: "Error adding closure reason" });
   }
 };
 
 exports.getAllClosureReasons = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT * FROM closure_reasons ORDER BY id DESC`);
+    const [rows] = await pool.query(
+      `SELECT * FROM closure_reasons ORDER BY id DESC`
+    );
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching closure reasons' });
+    res.status(500).json({ message: "Error fetching closure reasons" });
   }
 };
 
@@ -733,19 +845,19 @@ exports.updateClosureReason = async (req, res) => {
   const { title, description, abbreviation, status } = req.body;
 
   try {
-    if (!title || title.trim() === '') {
-      return res.status(400).json({ message: 'Title is required' });
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "Title is required" });
     }
 
     const [result] = await pool.query(
       `UPDATE closure_reasons
        SET title = ?, description = ?, abbreviation = ?, status = ?
        WHERE id = ?`,
-      [title, description || null, abbreviation || null, status || 'ACTIVE', id]
+      [title, description || null, abbreviation || null, status || "ACTIVE", id]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Closure reason not found' });
+      return res.status(404).json({ message: "Closure reason not found" });
     }
 
     res.status(200).json({
@@ -753,12 +865,12 @@ exports.updateClosureReason = async (req, res) => {
       title,
       description: description || null,
       abbreviation: abbreviation || null,
-      status: status || 'ACTIVE',
-      message: 'Closure reason updated successfully'
+      status: status || "ACTIVE",
+      message: "Closure reason updated successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error updating closure reason' });
+    res.status(500).json({ message: "Error updating closure reason" });
   }
 };
 
@@ -767,20 +879,21 @@ exports.deleteClosureReason = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query('DELETE FROM closure_reasons WHERE id = ?', [id]);
+    const [result] = await pool.query(
+      "DELETE FROM closure_reasons WHERE id = ?",
+      [id]
+    );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Closure reason not found' });
+      return res.status(404).json({ message: "Closure reason not found" });
     }
 
-    res.status(200).json({ message: 'Closure reason deleted successfully' });
+    res.status(200).json({ message: "Closure reason deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error deleting closure reason' });
+    res.status(500).json({ message: "Error deleting closure reason" });
   }
 };
-
-
 
 // ---------- Next Actions ----------
 exports.addNextAction = async (req, res) => {
@@ -788,22 +901,26 @@ exports.addNextAction = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO next_actions (title, description, abbreviation, status) VALUES (?, ?, ?, ?)`,
-      [title, description, abbreviation, status || 'ACTIVE']
+      [title, description, abbreviation, status || "ACTIVE"]
     );
-    res.status(201).json({ id: result.insertId, title, description, abbreviation, status });
+    res
+      .status(201)
+      .json({ id: result.insertId, title, description, abbreviation, status });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error adding next action' });
+    res.status(500).json({ message: "Error adding next action" });
   }
 };
 
 exports.getAllNextActions = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT * FROM next_actions ORDER BY id DESC`);
+    const [rows] = await pool.query(
+      `SELECT * FROM next_actions ORDER BY id DESC`
+    );
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching next actions' });
+    res.status(500).json({ message: "Error fetching next actions" });
   }
 };
 
@@ -813,19 +930,19 @@ exports.updateNextAction = async (req, res) => {
   const { title, description, abbreviation, status } = req.body;
 
   try {
-    if (!title || title.trim() === '') {
-      return res.status(400).json({ message: 'Title is required' });
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "Title is required" });
     }
 
     const [result] = await pool.query(
       `UPDATE next_actions
        SET title = ?, description = ?, abbreviation = ?, status = ?
        WHERE id = ?`,
-      [title, description || null, abbreviation || null, status || 'ACTIVE', id]
+      [title, description || null, abbreviation || null, status || "ACTIVE", id]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Next action not found' });
+      return res.status(404).json({ message: "Next action not found" });
     }
 
     res.status(200).json({
@@ -833,12 +950,12 @@ exports.updateNextAction = async (req, res) => {
       title,
       description: description || null,
       abbreviation: abbreviation || null,
-      status: status || 'ACTIVE',
-      message: 'Next action updated successfully'
+      status: status || "ACTIVE",
+      message: "Next action updated successfully",
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error updating next action' });
+    res.status(500).json({ message: "Error updating next action" });
   }
 };
 
@@ -847,19 +964,20 @@ exports.deleteNextAction = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query('DELETE FROM next_actions WHERE id = ?', [id]);
+    const [result] = await pool.query("DELETE FROM next_actions WHERE id = ?", [
+      id,
+    ]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Next action not found' });
+      return res.status(404).json({ message: "Next action not found" });
     }
 
-    res.status(200).json({ message: 'Next action deleted successfully' });
+    res.status(200).json({ message: "Next action deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error deleting next action' });
+    res.status(500).json({ message: "Error deleting next action" });
   }
 };
-
 
 // ---------- Call Types ----------
 exports.addCallType = async (req, res) => {
@@ -872,17 +990,19 @@ exports.addCallType = async (req, res) => {
     res.status(201).json({ id: result.insertId, title, description });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error adding call type' });
+    res.status(500).json({ message: "Error adding call type" });
   }
 };
 
 exports.getAllCallTypes = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT * FROM call_types ORDER BY id DESC`);
+    const [rows] = await pool.query(
+      `SELECT * FROM call_types ORDER BY id DESC`
+    );
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching call types' });
+    res.status(500).json({ message: "Error fetching call types" });
   }
 };
 
@@ -892,8 +1012,8 @@ exports.updateCallType = async (req, res) => {
   const { title, description } = req.body;
 
   try {
-    if (!title || title.trim() === '') {
-      return res.status(400).json({ message: 'Title is required' });
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "Title is required" });
     }
 
     const [result] = await pool.query(
@@ -902,13 +1022,20 @@ exports.updateCallType = async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Call type not found' });
+      return res.status(404).json({ message: "Call type not found" });
     }
 
-    res.status(200).json({ id, title, description: description || null, message: 'Call type updated successfully' });
+    res
+      .status(200)
+      .json({
+        id,
+        title,
+        description: description || null,
+        message: "Call type updated successfully",
+      });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error updating call type' });
+    res.status(500).json({ message: "Error updating call type" });
   }
 };
 
@@ -917,16 +1044,18 @@ exports.deleteCallType = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query('DELETE FROM call_types WHERE id = ?', [id]);
+    const [result] = await pool.query("DELETE FROM call_types WHERE id = ?", [
+      id,
+    ]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Call type not found' });
+      return res.status(404).json({ message: "Call type not found" });
     }
 
-    res.status(200).json({ message: 'Call type deleted successfully' });
+    res.status(200).json({ message: "Call type deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error deleting call type' });
+    res.status(500).json({ message: "Error deleting call type" });
   }
 };
 
@@ -936,22 +1065,24 @@ exports.addPtpRescheduleReason = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO ptp_reschedule_reasons (title, description, status) VALUES (?, ?, ?)`,
-      [title, description, status || 'ACTIVE']
+      [title, description, status || "ACTIVE"]
     );
     res.status(201).json({ id: result.insertId, title, description, status });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error adding ptp reschedule reason' });
+    res.status(500).json({ message: "Error adding ptp reschedule reason" });
   }
 };
 
 exports.getAllPtpRescheduleReasons = async (req, res) => {
   try {
-    const [rows] = await pool.query(`SELECT * FROM ptp_reschedule_reasons ORDER BY id DESC`);
+    const [rows] = await pool.query(
+      `SELECT * FROM ptp_reschedule_reasons ORDER BY id DESC`
+    );
     res.status(200).json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching ptp reschedule reasons' });
+    res.status(500).json({ message: "Error fetching ptp reschedule reasons" });
   }
 };
 
@@ -961,23 +1092,33 @@ exports.updatePtpRescheduleReason = async (req, res) => {
   const { title, description, status } = req.body;
 
   try {
-    if (!title || title.trim() === '') {
-      return res.status(400).json({ message: 'Title is required' });
+    if (!title || title.trim() === "") {
+      return res.status(400).json({ message: "Title is required" });
     }
 
     const [result] = await pool.query(
       `UPDATE ptp_reschedule_reasons SET title = ?, description = ?, status = ? WHERE id = ?`,
-      [title, description || null, status || 'ACTIVE', id]
+      [title, description || null, status || "ACTIVE", id]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'PTP Reschedule Reason not found' });
+      return res
+        .status(404)
+        .json({ message: "PTP Reschedule Reason not found" });
     }
 
-    res.status(200).json({ id, title, description: description || null, status: status || 'ACTIVE', message: 'PTP Reschedule Reason updated successfully' });
+    res
+      .status(200)
+      .json({
+        id,
+        title,
+        description: description || null,
+        status: status || "ACTIVE",
+        message: "PTP Reschedule Reason updated successfully",
+      });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error updating PTP Reschedule Reason' });
+    res.status(500).json({ message: "Error updating PTP Reschedule Reason" });
   }
 };
 
@@ -992,13 +1133,17 @@ exports.deletePtpRescheduleReason = async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'PTP Reschedule Reason not found' });
+      return res
+        .status(404)
+        .json({ message: "PTP Reschedule Reason not found" });
     }
 
-    res.status(200).json({ message: 'PTP Reschedule Reason deleted successfully' });
+    res
+      .status(200)
+      .json({ message: "PTP Reschedule Reason deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error deleting PTP Reschedule Reason' });
+    res.status(500).json({ message: "Error deleting PTP Reschedule Reason" });
   }
 };
 
@@ -1008,32 +1153,38 @@ exports.getSummaryV1 = async (req, res) => {
     const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
 
     // Step 1: Build a reusable CASE filter condition
-    let caseCondition = '';
-    if (userRole === 'staff') {
+    let caseCondition = "";
+    if (userRole === "staff") {
       caseCondition = `held_by = ${userId}`;
-    } else if (userRole === 'team_leader') {
+    } else if (userRole === "team_leader") {
       // For team leader, get all staff IDs under them
-      const [teamStaff] = await pool.query(`SELECT id FROM staff WHERE manager_id = ${userId}`);
-      const staffIds = teamStaff.map(s => s.id);
+      const [teamStaff] = await pool.query(
+        `SELECT id FROM staff WHERE manager_id = ${userId}`
+      );
+      const staffIds = teamStaff.map((s) => s.id);
       if (staffIds.length > 0) {
-        caseCondition = `held_by IN (${staffIds.join(',')})`;
+        caseCondition = `held_by IN (${staffIds.join(",")})`;
       } else {
-        caseCondition = '1=0'; // No team members
+        caseCondition = "1=0"; // No team members
       }
     } else {
-      caseCondition = '1=1'; // Admin sees all
+      caseCondition = "1=1"; // Admin sees all
     }
 
     // We'll use this in all queries as a WHERE condition
     const caseFilter = `WHERE ${caseCondition}`;
 
     // Step 2: Total Cases
-    const [cases] = await pool.query(`SELECT COUNT(*) as total FROM case_files ${caseFilter}`);
+    const [cases] = await pool.query(
+      `SELECT COUNT(*) as total FROM case_files ${caseFilter}`
+    );
 
     // Step 3: Active Staff (only admins/team_leaders)
     let activeStaffCount = 0;
-    if (userRole !== 'staff') {
-      const [activeStaff] = await pool.query(`SELECT COUNT(*) as total FROM staff WHERE is_active = 1`);
+    if (userRole !== "staff") {
+      const [activeStaff] = await pool.query(
+        `SELECT COUNT(*) as total FROM staff WHERE is_active = 1`
+      );
       activeStaffCount = activeStaff[0].total;
     }
 
@@ -1065,13 +1216,14 @@ exports.getSummaryV1 = async (req, res) => {
       ${caseFilter}
     `);
 
-    const recoveryRate = totalDebt[0].total > 0
-      ? ((recovered[0].total / totalDebt[0].total) * 100).toFixed(2)
-      : 0;
+    const recoveryRate =
+      totalDebt[0].total > 0
+        ? ((recovered[0].total / totalDebt[0].total) * 100).toFixed(2)
+        : 0;
 
     // Step 8: Staff Performance (only admins/team leaders)
     let staffPerformance = [];
-    if (userRole !== 'staff') {
+    if (userRole !== "staff") {
       [staffPerformance] = await pool.query(`
         SELECT u.first_name, u.last_name, SUM(p.amount_paid) as total
         FROM payments p
@@ -1133,11 +1285,11 @@ exports.getSummaryV1 = async (req, res) => {
       LIMIT 10
     `);
 
-    const formattedActivity = interactions.map(interaction => ({
+    const formattedActivity = interactions.map((interaction) => ({
       id: interaction.id,
       date: interaction.date,
       created_by: interaction.created_by,
-      notes: formatInteractionNotes(interaction)
+      notes: formatInteractionNotes(interaction),
     }));
 
     // Step 11: Return Response
@@ -1149,15 +1301,14 @@ exports.getSummaryV1 = async (req, res) => {
         recoveryRate,
         overdueCases: overdueCases[0].total,
         todaysCollections: todaysCollections[0].total || 0,
-        staffPerformance
+        staffPerformance,
       },
       charts: { monthlyRecoveries },
-      recentActivity: formattedActivity
+      recentActivity: formattedActivity,
     });
-
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching dashboard summary' });
+    res.status(500).json({ message: "Error fetching dashboard summary" });
   }
 };
 
@@ -1167,23 +1318,31 @@ exports.getSummaryV1 = async (req, res) => {
     const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
 
     // Build reusable case condition
-    let caseCondition = '';
-    if (userRole === 'staff') {
+    let caseCondition = "";
+    if (userRole === "staff") {
       caseCondition = `held_by = ${userId}`;
-    } else if (userRole === 'team_leader') {
-      const [teamStaff] = await pool.query(`SELECT id FROM staff WHERE manager_id = ${userId}`);
-      const staffIds = teamStaff.map(s => s.id);
-      caseCondition = staffIds.length > 0 ? `held_by IN (${staffIds.join(',')})` : '1=0';
+    } else if (userRole === "team_leader") {
+      const [teamStaff] = await pool.query(
+        `SELECT id FROM staff WHERE manager_id = ${userId}`
+      );
+      const staffIds = teamStaff.map((s) => s.id);
+      caseCondition =
+        staffIds.length > 0 ? `held_by IN (${staffIds.join(",")})` : "1=0";
     } else {
-      caseCondition = '1=1';
+      caseCondition = "1=1";
     }
     const caseFilter = `WHERE ${caseCondition}`;
 
     // Current totals
-    const [[cases]] = await pool.query(`SELECT COUNT(*) as total FROM case_files ${caseFilter}`);
-    const [[activeStaff]] = userRole !== 'staff'
-      ? await pool.query(`SELECT COUNT(*) as total FROM staff WHERE is_active = 1`)
-      : [[{ total: 0 }]];
+    const [[cases]] = await pool.query(
+      `SELECT COUNT(*) as total FROM case_files ${caseFilter}`
+    );
+    const [[activeStaff]] =
+      userRole !== "staff"
+        ? await pool.query(
+            `SELECT COUNT(*) as total FROM staff WHERE is_active = 1`
+          )
+        : [[{ total: 0 }]];
     const [[recovered]] = await pool.query(`
       SELECT IFNULL(SUM(amount_paid), 0) as total
       FROM payments
@@ -1204,13 +1363,14 @@ exports.getSummaryV1 = async (req, res) => {
       FROM case_files ${caseFilter}
     `);
 
-    const recoveryRate = totalDebt.total > 0
-      ? ((recovered.total / totalDebt.total) * 100).toFixed(2)
-      : 0;
+    const recoveryRate =
+      totalDebt.total > 0
+        ? ((recovered.total / totalDebt.total) * 100).toFixed(2)
+        : 0;
 
     // Staff performance
     let staffPerformance = [];
-    if (userRole !== 'staff') {
+    if (userRole !== "staff") {
       [staffPerformance] = await pool.query(`
         SELECT u.first_name, u.last_name, SUM(p.amount_paid) as total
         FROM payments p
@@ -1262,21 +1422,20 @@ exports.getSummaryV1 = async (req, res) => {
         priorityOverdueCases: overdueCases.total,
         todaysCollectionsAmount: todaysCollections.total,
         topStaffCount: staffPerformance.length,
-        staffPerformance
+        staffPerformance,
       },
       charts: { monthlyRecoveries },
-      recentActivity: interactions.map(i => ({
+      recentActivity: interactions.map((i) => ({
         id: i.id,
         type: i.type,
         description: i.description,
         timestamp: i.timestamp,
-        user: i.user
-      }))
+        user: i.user,
+      })),
     });
-
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching dashboard summary' });
+    res.status(500).json({ message: "Error fetching dashboard summary" });
   }
 };
 
@@ -1286,24 +1445,33 @@ exports.getSummary = async (req, res) => {
     const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
 
     // 1. Build case condition
-    let caseCondition = '';
-    if (userRole === 'staff') {
+    let caseCondition = "";
+    if (userRole === "staff") {
       caseCondition = `held_by = ${userId}`;
-    } else if (userRole === 'team_leader') {
-      const [teamStaff] = await pool.query(`SELECT id FROM staff WHERE manager_id = ?`, [userId]);
-      const staffIds = teamStaff.map(s => s.id);
-      caseCondition = staffIds.length > 0 ? `held_by IN (${staffIds.join(',')})` : '1=0';
+    } else if (userRole === "team_leader") {
+      const [teamStaff] = await pool.query(
+        `SELECT id FROM staff WHERE manager_id = ?`,
+        [userId]
+      );
+      const staffIds = teamStaff.map((s) => s.id);
+      caseCondition =
+        staffIds.length > 0 ? `held_by IN (${staffIds.join(",")})` : "1=0";
     } else {
-      caseCondition = '1=1';
+      caseCondition = "1=1";
     }
     const caseFilter = `WHERE ${caseCondition}`;
 
     // 2. Totals
-    const [[cases]] = await pool.query(`SELECT COUNT(*) AS total FROM case_files ${caseFilter}`);
+    const [[cases]] = await pool.query(
+      `SELECT COUNT(*) AS total FROM case_files ${caseFilter}`
+    );
 
-    const [[activeStaff]] = userRole !== 'staff'
-      ? await pool.query(`SELECT COUNT(*) AS total FROM staff WHERE is_active = 1`)
-      : [[{ total: 0 }]];
+    const [[activeStaff]] =
+      userRole !== "staff"
+        ? await pool.query(
+            `SELECT COUNT(*) AS total FROM staff WHERE is_active = 1`
+          )
+        : [[{ total: 0 }]];
 
     const [[recovered]] = await pool.query(`
       SELECT IFNULL(SUM(amount_paid), 0) AS total
@@ -1328,13 +1496,14 @@ exports.getSummary = async (req, res) => {
       FROM case_files ${caseFilter}
     `);
 
-    const recoveryRate = totalDebt.total > 0
-      ? ((recovered.total / totalDebt.total) * 100).toFixed(2)
-      : 0;
+    const recoveryRate =
+      totalDebt.total > 0
+        ? ((recovered.total / totalDebt.total) * 100).toFixed(2)
+        : 0;
 
     // 3. Staff Performance
     let staffPerformance = [];
-    if (userRole !== 'staff') {
+    if (userRole !== "staff") {
       [staffPerformance] = await pool.query(`
         SELECT s.first_name, s.last_name, CAST(IFNULL(SUM(p.amount_paid), 0) AS DECIMAL(15,2)) AS total
         FROM payments p
@@ -1362,13 +1531,26 @@ exports.getSummary = async (req, res) => {
     `);
 
     // Generate all 12 months even if empty
-    const allMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const monthlyRecoveries = allMonths.map(m => {
-      const found = monthlyData.find(x => x.month === m);
+    const allMonths = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const monthlyRecoveries = allMonths.map((m) => {
+      const found = monthlyData.find((x) => x.month === m);
       return {
         month: m,
         amount: found ? Number(found.amount) : 0,
-        cases: found ? Number(found.cases) : 0
+        cases: found ? Number(found.cases) : 0,
       };
     });
 
@@ -1402,24 +1584,22 @@ exports.getSummary = async (req, res) => {
         priorityOverdueCases: overdueCases.total,
         todaysCollectionsAmount: Number(todaysCollections.total),
         topStaffCount: staffPerformance.length,
-        staffPerformance
+        staffPerformance,
       },
       charts: { monthlyRecoveries },
-      recentActivity: interactions.map(i => ({
+      recentActivity: interactions.map((i) => ({
         id: i.id,
         type: i.type,
         description: i.description,
         timestamp: i.timestamp,
-        user: i.user
-      }))
+        user: i.user,
+      })),
     });
-
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching dashboard summary' });
+    res.status(500).json({ message: "Error fetching dashboard summary" });
   }
 };
-
 
 exports.getCalendarV1 = async (req, res) => {
   try {
@@ -1427,15 +1607,18 @@ exports.getCalendarV1 = async (req, res) => {
     const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
 
     // --- Role-based filter ---
-    let caseCondition = '';
-    if (userRole === 'staff') {
+    let caseCondition = "";
+    if (userRole === "staff") {
       caseCondition = `c.held_by = ${userId}`;
-    } else if (userRole === 'team_leader') {
-      const [teamStaff] = await pool.query(`SELECT id FROM staff WHERE manager_id = ${userId}`);
-      const staffIds = teamStaff.map(s => s.id);
-      caseCondition = staffIds.length > 0 ? `c.held_by IN (${staffIds.join(',')})` : '1=0';
+    } else if (userRole === "team_leader") {
+      const [teamStaff] = await pool.query(
+        `SELECT id FROM staff WHERE manager_id = ${userId}`
+      );
+      const staffIds = teamStaff.map((s) => s.id);
+      caseCondition =
+        staffIds.length > 0 ? `c.held_by IN (${staffIds.join(",")})` : "1=0";
     } else {
-      caseCondition = '1=1'; // admin sees all
+      caseCondition = "1=1"; // admin sees all
     }
 
     // --- Get Case Files ---
@@ -1463,7 +1646,7 @@ exports.getCalendarV1 = async (req, res) => {
     `);
 
     // --- Build Final Response ---
-    const ptpsWithCaseFiles = ptps.map(p => ({
+    const ptpsWithCaseFiles = ptps.map((p) => ({
       id: p.id,
       casefile_id: p.casefile_id,
       ptp_date: p.ptp_date,
@@ -1499,15 +1682,14 @@ exports.getCalendarV1 = async (req, res) => {
         arrears: p.arrears,
         status: p.case_status,
         created_at: p.case_created_at,
-        updated_at: p.case_updated_at
-      }
+        updated_at: p.case_updated_at,
+      },
     }));
 
     res.json({
       caseFiles: caseFiles,
-      ptps: ptpsWithCaseFiles
+      ptps: ptpsWithCaseFiles,
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error fetching calendar data" });
@@ -1520,15 +1702,18 @@ exports.getCalendar = async (req, res) => {
     const userRole = req.user.role; // 'admin', 'team_leader', 'staff'
 
     // --- Role-based filter for casefiles ---
-    let caseCondition = '';
-    if (userRole === 'staff') {
+    let caseCondition = "";
+    if (userRole === "staff") {
       caseCondition = `c.held_by = ${userId}`;
-    } else if (userRole === 'team_leader') {
-      const [teamStaff] = await pool.query(`SELECT id FROM staff WHERE manager_id = ${userId}`);
-      const staffIds = teamStaff.map(s => s.id);
-      caseCondition = staffIds.length > 0 ? `c.held_by IN (${staffIds.join(',')})` : '1=0';
+    } else if (userRole === "team_leader") {
+      const [teamStaff] = await pool.query(
+        `SELECT id FROM staff WHERE manager_id = ${userId}`
+      );
+      const staffIds = teamStaff.map((s) => s.id);
+      caseCondition =
+        staffIds.length > 0 ? `c.held_by IN (${staffIds.join(",")})` : "1=0";
     } else {
-      caseCondition = '1=1'; // admin sees all
+      caseCondition = "1=1"; // admin sees all
     }
 
     // --- 1. Casefile Next Actions ---
@@ -1574,8 +1759,8 @@ exports.getCalendar = async (req, res) => {
     `);
 
     // --- Format Next Actions ---
-    const nextActionEvents = nextActions.map(a => ({
-      type: 'next_action',
+    const nextActionEvents = nextActions.map((a) => ({
+      type: "next_action",
       id: a.next_action_record_id,
       casefile_id: a.casefile_id,
       date: a.next_action_date,
@@ -1602,13 +1787,13 @@ exports.getCalendar = async (req, res) => {
         arrears: a.arrears,
         status: a.case_status,
         created_at: a.case_created_at,
-        updated_at: a.case_updated_at
-      }
+        updated_at: a.case_updated_at,
+      },
     }));
 
     // --- Format PTP Events ---
-    const ptpEvents = ptps.map(p => ({
-      type: 'ptp',
+    const ptpEvents = ptps.map((p) => ({
+      type: "ptp",
       id: p.ptp_id,
       casefile_id: p.casefile_id,
       date: p.ptp_date,
@@ -1641,21 +1826,19 @@ exports.getCalendar = async (req, res) => {
         arrears: p.arrears,
         status: p.case_status,
         created_at: p.case_created_at,
-        updated_at: p.case_updated_at
-      }
+        updated_at: p.case_updated_at,
+      },
     }));
 
     // --- Combine + Sort: Overdue first, then upcoming ---
-    const calendarEvents = [...nextActionEvents, ...ptpEvents]
-      .sort((a, b) => {
-        // Overdue first
-        if (a.overdue !== b.overdue) return b.overdue - a.overdue;
-        // Then by date ascending
-        return new Date(a.date) - new Date(b.date);
-      });
+    const calendarEvents = [...nextActionEvents, ...ptpEvents].sort((a, b) => {
+      // Overdue first
+      if (a.overdue !== b.overdue) return b.overdue - a.overdue;
+      // Then by date ascending
+      return new Date(a.date) - new Date(b.date);
+    });
 
     res.json({ calendar: calendarEvents });
-
   } catch (err) {
     console.error("Error fetching calendar:", err);
     res.status(500).json({ message: "Error fetching calendar data" });
@@ -1668,30 +1851,24 @@ exports.getNextCaseFile = async (req, res) => {
   const userRole = req.user.role;
 
   try {
-    let query = '';
+    let query = "";
     let params = [];
 
-    if (userRole === 'staff') {
+    if (userRole === "account_manager") {
       query = `
         SELECT cf.id, cf.cfid
         FROM case_files cf
-        INNER JOIN casefile_next_actions cna 
-          ON cf.cfid = cna.casefile_id
         WHERE cf.held_by = ?
-          AND cna.next_action_date <= CURDATE()
-          AND cf.cfid > ?
-        ORDER BY cf.id ASC
+        AND cf.cfid < ?
+        ORDER BY cf.id DESC
         LIMIT 1
       `;
       params = [userId, currentCaseId];
     } else {
       query = `
         SELECT cf.id, cf.cfid
-        FROM case_files cf
-        INNER JOIN casefile_next_actions cna 
-          ON cf.cfid = cna.casefile_id
-        WHERE cna.next_action_date <= CURDATE()
-          AND cf.cfid > ?
+        FROM case_files cf        
+        WHERE cf.cfid > ?
         ORDER BY cf.id ASC
         LIMIT 1
       `;
@@ -1701,11 +1878,12 @@ exports.getNextCaseFile = async (req, res) => {
     const [rows] = await pool.query(query, params);
 
     if (rows.length === 0) {
-      return res.status(404).json({ message: "No pending case files available" });
+      return res
+        .status(404)
+        .json({ message: "No pending case files available" });
     }
 
     return res.json({ nextCaseId: rows[0].id, cfid: rows[0].cfid });
-
   } catch (err) {
     console.error("Error fetching next case file:", err);
     res.status(500).json({ message: "Error fetching next case file" });
@@ -1753,7 +1931,7 @@ exports.getTaskListV1 = async (req, res) => {
     const params = [];
 
     // If staff, only show tasks assigned to them
-    if (userRole === 'staff') {
+    if (userRole === "staff") {
       query += ` AND cna.staff_id = ?`;
       params.push(userId);
     }
@@ -1765,7 +1943,6 @@ exports.getTaskListV1 = async (req, res) => {
 
     const [rows] = await pool.query(query, params);
     return res.json({ tasks: rows });
-
   } catch (err) {
     console.error("Error fetching task list:", err);
     return res.status(500).json({ message: "Error fetching task list" });
@@ -1825,7 +2002,7 @@ exports.getTaskList = async (req, res) => {
     const params = [];
 
     // If staff, only show tasks assigned to them
-    if (userRole === 'staff') {
+    if (userRole === "staff") {
       query += ` AND cna.staff_id = ?`;
       params.push(userId);
     }
@@ -1838,19 +2015,16 @@ exports.getTaskList = async (req, res) => {
 
     const [rows] = await pool.query(query, params);
     return res.json({ tasks: rows });
-
   } catch (err) {
     console.error("Error fetching task list:", err);
     return res.status(500).json({ message: "Error fetching task list" });
   }
 };
 
-
 exports.allocateCasesV1 = async (req, res) => {
   const { case_ids, user_id } = req.body;
   const userRole = req.user.role;
-  if (userRole !== 'admin') {
-
+  if (userRole !== "admin") {
   }
   if (!Array.isArray(case_ids) || case_ids.length === 0 || !user_id) {
     return res.status(400).json({ message: "Invalid request data" });
@@ -1880,23 +2054,44 @@ exports.deleteCasesV1 = async (req, res) => {
 
   const conn = await pool.getConnection();
   try {
-    await conn.beginTransaction(); 
+    await conn.beginTransaction();
 
     // Delete from child tables first
-    await conn.query(`DELETE FROM payments WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(`DELETE FROM payments WHERE casefile_id IN (?)`, [
+      case_ids,
+    ]);
     await conn.query(`DELETE FROM ptps WHERE casefile_id IN (?)`, [case_ids]);
-    await conn.query(`DELETE FROM casefile_interactions WHERE casefile_id IN (?)`, [case_ids]);
-    await conn.query(`DELETE FROM casefile_next_actions WHERE casefile_id IN (?)`, [case_ids]); 
-    await conn.query(`DELETE FROM casefile_contacts WHERE casefile_id IN (?)`, [case_ids]); 
-    await conn.query(`DELETE FROM progress_reports WHERE casefile_id IN (?)`, [case_ids]);
-    await conn.query(`DELETE FROM sms_logs WHERE casefile_id IN (?)`, [case_ids]);
-    await conn.query(`DELETE FROM mail_logs WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(
+      `DELETE FROM casefile_interactions WHERE casefile_id IN (?)`,
+      [case_ids]
+    );
+    await conn.query(
+      `DELETE FROM casefile_next_actions WHERE casefile_id IN (?)`,
+      [case_ids]
+    );
+    await conn.query(`DELETE FROM casefile_contacts WHERE casefile_id IN (?)`, [
+      case_ids,
+    ]);
+    await conn.query(`DELETE FROM progress_reports WHERE casefile_id IN (?)`, [
+      case_ids,
+    ]);
+    await conn.query(`DELETE FROM sms_logs WHERE casefile_id IN (?)`, [
+      case_ids,
+    ]);
+    await conn.query(`DELETE FROM mail_logs WHERE casefile_id IN (?)`, [
+      case_ids,
+    ]);
 
     // Finally delete case_files
-    const [result] = await conn.query(`DELETE FROM case_files WHERE cfid IN (?)`, [case_ids]);
+    const [result] = await conn.query(
+      `DELETE FROM case_files WHERE cfid IN (?)`,
+      [case_ids]
+    );
 
     await conn.commit();
-    return res.json({ message: `Deleted ${result.affectedRows} case(s) and all linked data` });
+    return res.json({
+      message: `Deleted ${result.affectedRows} case(s) and all linked data`,
+    });
   } catch (err) {
     await conn.rollback();
     console.error("Error deleting cases:", err);
@@ -1913,7 +2108,9 @@ exports.allocateCases = async (req, res) => {
 
   // Role restriction
   if (userRole === "staff") {
-    return res.status(403).json({ message: "Staff are not allowed to allocate cases." });
+    return res
+      .status(403)
+      .json({ message: "Staff are not allowed to allocate cases." });
   }
 
   if (!Array.isArray(case_ids) || case_ids.length === 0 || !user_id) {
@@ -1928,11 +2125,19 @@ exports.allocateCases = async (req, res) => {
     );
 
     // Fetch names for logging
-    const [[allocatedTo]] = await pool.query(`SELECT first_name, last_name FROM staff WHERE id = ?`, [user_id]);
-    const [[allocatedBy]] = await pool.query(`SELECT first_name, last_name FROM staff WHERE id = ?`, [performedBy]);
+    const [[allocatedTo]] = await pool.query(
+      `SELECT first_name, last_name FROM staff WHERE id = ?`,
+      [user_id]
+    );
+    const [[allocatedBy]] = await pool.query(
+      `SELECT first_name, last_name FROM staff WHERE id = ?`,
+      [performedBy]
+    );
 
-    const allocatedToName = allocatedTo?.first_name +' '+ allocatedTo?.last_name || "Unknown User";
-    const allocatedByName = allocatedBy?.first_name +' '+ allocatedBy?.last_name || "Unknown User";
+    const allocatedToName =
+      allocatedTo?.first_name + " " + allocatedTo?.last_name || "Unknown User";
+    const allocatedByName =
+      allocatedBy?.first_name + " " + allocatedBy?.last_name || "Unknown User";
 
     // Log interaction for each case file
     for (const caseId of case_ids) {
@@ -1958,7 +2163,9 @@ exports.deleteCases = async (req, res) => {
 
   // Role restriction
   if (userRole === "staff") {
-    return res.status(403).json({ message: "Staff are not allowed to delete cases." });
+    return res
+      .status(403)
+      .json({ message: "Staff are not allowed to delete cases." });
   }
 
   if (!Array.isArray(case_ids) || case_ids.length === 0) {
@@ -1974,29 +2181,52 @@ exports.deleteCases = async (req, res) => {
     );
 
     if (payments.length > 0) {
-      const blockedCases = payments.map(p => p.casefile_id);
+      const blockedCases = payments.map((p) => p.casefile_id);
       return res.status(400).json({
-        message: `Cannot delete case(s) with confirmed payments: ${blockedCases.join(", ")}`
+        message: `Cannot delete case(s) with confirmed payments: ${blockedCases.join(
+          ", "
+        )}`,
       });
     }
 
     await conn.beginTransaction();
 
-     // Delete from child tables first
-    await conn.query(`DELETE FROM payments WHERE casefile_id IN (?)`, [case_ids]);
+    // Delete from child tables first
+    await conn.query(`DELETE FROM payments WHERE casefile_id IN (?)`, [
+      case_ids,
+    ]);
     await conn.query(`DELETE FROM ptps WHERE casefile_id IN (?)`, [case_ids]);
-    await conn.query(`DELETE FROM casefile_interactions WHERE casefile_id IN (?)`, [case_ids]);
-    await conn.query(`DELETE FROM casefile_next_actions WHERE casefile_id IN (?)`, [case_ids]); 
-    await conn.query(`DELETE FROM casefile_contacts WHERE casefile_id IN (?)`, [case_ids]); 
-    await conn.query(`DELETE FROM progress_reports WHERE casefile_id IN (?)`, [case_ids]);
-    await conn.query(`DELETE FROM sms_logs WHERE casefile_id IN (?)`, [case_ids]);
-    await conn.query(`DELETE FROM mail_logs WHERE casefile_id IN (?)`, [case_ids]);
+    await conn.query(
+      `DELETE FROM casefile_interactions WHERE casefile_id IN (?)`,
+      [case_ids]
+    );
+    await conn.query(
+      `DELETE FROM casefile_next_actions WHERE casefile_id IN (?)`,
+      [case_ids]
+    );
+    await conn.query(`DELETE FROM casefile_contacts WHERE casefile_id IN (?)`, [
+      case_ids,
+    ]);
+    await conn.query(`DELETE FROM progress_reports WHERE casefile_id IN (?)`, [
+      case_ids,
+    ]);
+    await conn.query(`DELETE FROM sms_logs WHERE casefile_id IN (?)`, [
+      case_ids,
+    ]);
+    await conn.query(`DELETE FROM mail_logs WHERE casefile_id IN (?)`, [
+      case_ids,
+    ]);
 
     // Finally delete case_files
-    const [result] = await conn.query(`DELETE FROM case_files WHERE cfid IN (?)`, [case_ids]);
+    const [result] = await conn.query(
+      `DELETE FROM case_files WHERE cfid IN (?)`,
+      [case_ids]
+    );
 
     await conn.commit();
-    return res.json({ message: `Deleted ${result.affectedRows} case(s) and all linked data` });
+    return res.json({
+      message: `Deleted ${result.affectedRows} case(s) and all linked data`,
+    });
   } catch (err) {
     await conn.rollback();
     console.error("Error deleting cases:", err);
@@ -2005,12 +2235,3 @@ exports.deleteCases = async (req, res) => {
     conn.release();
   }
 };
-
-
-
-
-
-
-
-
-
