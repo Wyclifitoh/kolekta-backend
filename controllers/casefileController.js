@@ -262,6 +262,32 @@ exports.addPayment = async (req, res) => {
   }
 };
 
+exports.getPayments = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const payments = await CaseFile.findPayments(status);
+    res.status(200).json({ payments });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: `Error fetching payments: ${error.message}` });
+  }
+};
+
+exports.confirmPayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await CaseFile.confirmPayment(id);
+    return res.status(200).json({ message: "Payment confirmed successfully" });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: `Error confirming payment: ${error.message}` });
+  }
+};
+
 //  Send SMS
 exports.sendSMS = async (req, res) => {
   try {
@@ -316,7 +342,7 @@ exports.closeCases = async (req, res) => {
     }
 
     // Update casefiles to closed status
-    const result = await CaseFile.closeCases(casefile_ids );
+    const result = await CaseFile.closeCases(casefile_ids);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Case files can't be closed" });
@@ -331,12 +357,10 @@ exports.closeCases = async (req, res) => {
     //   });
     // }
 
-    return res
-      .status(200)
-      .json({
-        message: "Case files closed successfully",
-        closedCount: result.affectedRows,
-      });
+    return res.status(200).json({
+      message: "Case files closed successfully",
+      closedCount: result.affectedRows,
+    });
   } catch (error) {
     console.error("[CaseFile] Close error:", error);
     return res

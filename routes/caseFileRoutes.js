@@ -8,7 +8,9 @@ const {
   addPayment,
   sendSMS,
   sendMail,
-  closeCases} = require('../controllers/casefileController');
+  getPayments,
+  closeCases,
+  confirmPayment} = require('../controllers/casefileController');
 
 
 // Interactions
@@ -20,6 +22,8 @@ router.put('/ptp/reschedule', authenticateToken, reschedulePTP);
 
 // Payments
 router.post('/payments', authenticateToken, addPayment);
+router.get('/payments', authenticateToken, getPayments)
+router.put('/payments/:id/confirm', authenticateToken, confirmPayment)
 
 // SMS
 router.post('/sms', authenticateToken, sendSMS);

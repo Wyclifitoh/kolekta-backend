@@ -106,3 +106,34 @@ exports.closeCases = async (casefileIds) => {
 
   return { affectedRows: result.affectedRows };
 };
+
+exports.findPayments = async (status) => {
+  const [rows] = await pool.query(
+    `SELECT 
+        p.id,
+        p.amount_paid,
+        p.date_paid,
+        p.receipt_no,
+        p.payment_channel,
+        p.comment,
+        p.status,
+        s.first_name AS staff,
+        cf.full_names AS debtorName,
+        c.name AS client
+      FROM payments p 
+      JOIN staff s ON p.posted_by = s.id
+      JOIN case_files cf ON p.casefile_id = cf.cfid
+      JOIN clients c on c.id = cf.client_id
+      WHERE p.status = ? 
+      ORDER BY p.id DESC`,
+    [status]
+  );
+  return rows;
+};
+
+exports.confirmPayment = async (id) => {
+  if(!id){
+    throw new Error("paymentId id required");
+  }
+  await pool.query(`UPDATE payments SET status = 'confirmed' WHERE id = ?`, [id])
+}
