@@ -373,8 +373,8 @@ exports.findAll = async (filters) => {
         d.title AS debt_category_name,
         p.title AS product_name,
         u.first_name AS held_by_name,
-        ANY_VALUE(cs.title) AS contact_status_name,
         ANY_VALUE(ci.notes) AS case_note,
+        ANY_VALUE(cs.title) AS contact_status_name,
 
         -- Computed fields
         COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0) AS amount_repaid,
@@ -390,7 +390,16 @@ exports.findAll = async (filters) => {
          ORDER BY date_paid DESC LIMIT 1) AS last_paid_date
 
       FROM case_files cf
-      LEFT JOIN casefile_interactions ci ON cf.cfid = ci.casefile_id
+      LEFT JOIN (
+        SELECT ci1.*
+        FROM casefile_interactions ci1
+        INNER JOIN (
+            SELECT casefile_id, MAX(id) AS latest_id
+            FROM casefile_interactions
+            GROUP BY casefile_id
+        ) ci2
+        ON ci1.id = ci2.latest_id
+      ) ci ON cf.cfid = ci.casefile_id
       LEFT JOIN contact_statuses cs ON ci.contact_status_id = cs.id
       LEFT JOIN clients c ON cf.client_id = c.id
       LEFT JOIN client_products p ON cf.product_id = p.id
