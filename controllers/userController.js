@@ -11,7 +11,8 @@ const path = require("path");
 const pool = require("../config/db");
 const fs = require("fs");
 const { logInteraction } = require("../helpers/casefileInteractions");
-const XLSX = require('xlsx');
+const XLSX = require("xlsx");
+const { cleanBalance } = require("../utils/cleanBalance");
 
 exports.createStaff = async (req, res) => {
   const {
@@ -1250,26 +1251,22 @@ exports.updateBalance = async (req, res) => {
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
 
-    // Convert to array of objects
-    const data = XLSX.utils.sheet_to_json(worksheet);
+    const rawData = XLSX.utils.sheet_to_json(worksheet);
 
-    if (data.length === 0) {
-      return res.status(400).json({ message: "Excel file is empty" });
-    }
+    const updates = rawData
+      .map((row) => {
+        const cfid = row.CFID || row.cfid || row["CFID"] || row[0];
+        const balanceRaw =
+          row.BALANCE || row.balance || row["BALANCE"] || row[1];
 
-    const updates = [];
-    for (const row of data) {
-      const cfid = row.CFID || row.cfid || row["CFID"];
-      let balance = row.BALANCE || row.balance || row["BALANCE"];
+        if (!cfid) return null;
 
-      if (!cfid) continue;
-
-      // Convert balance to number
-      balance = parseFloat(balance);
-      if (isNaN(balance)) balance = 0;
-
-      updates.push({ cfid: String(cfid).trim(), balance });
-    }
+        return {
+          cfid: String(cfid).trim(),
+          balance: cleanBalance(balanceRaw),
+        };
+      })
+      .filter((item) => item !== null);
 
     if (updates.length === 0) {
       return res

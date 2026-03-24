@@ -369,6 +369,7 @@ exports.findAll = async (filters) => {
         cf.debt_category_id,
         cf.currency_id,
         c.name AS client_name,
+        cf.balance AS bal,
         dt.title AS debt_type_name,
         d.title AS debt_category_name,
         p.title AS product_name,
@@ -573,7 +574,7 @@ exports.updateBalances = async (updates) => {
         caseParams.push(cfid, balance);
         idParams.push(cfid);
       });
-      
+
       const totalParams = [...caseParams, ...idParams];
 
       const sql = `
