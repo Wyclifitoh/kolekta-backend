@@ -577,7 +577,7 @@ exports.updateBalances = async (updates) => {
         UPDATE case_files 
         SET 
           balance = CASE ${caseSql} END,
-          updated_at = NOW(),
+          updated_at = NOW()
         WHERE cfid IN (${chunk.map(() => "?").join(",")})
       `;
 
