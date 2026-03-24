@@ -554,7 +554,7 @@ exports.uploadCaseFile = async (req, res) => {
     }));
 
     console.log(
-      `[Processing] Prepared ${caseRecords.length} records for insert.`
+      `[Processing] Prepared ${caseRecords.length} records for insert.`,
     );
 
     await connection.beginTransaction();
@@ -743,7 +743,7 @@ exports.getNotesByCaseFile = async (req, res) => {
       WHERE cn.cfid = ?
       ORDER BY cn.created_at DESC
     `,
-      [cfid]
+      [cfid],
     );
 
     res.status(200).json({ notes });
@@ -778,7 +778,7 @@ exports.addNoteV1 = async (req, res) => {
         contact_type_id,
         contact_status_id,
         created_by,
-      ]
+      ],
     );
 
     res.status(201).json({ message: "Note added successfully" });
@@ -815,7 +815,7 @@ exports.addNote = async (req, res) => {
     // Check if the contact status means "Promise To Pay"
     const [statusRes] = await connection.query(
       `SELECT title FROM contact_statuses WHERE id = ? LIMIT 1`,
-      [contact_status_id]
+      [contact_status_id],
     );
     const contactStatusName = statusRes[0]?.title;
 
@@ -847,7 +847,7 @@ exports.addNote = async (req, res) => {
         contact_type_id || null,
         contact_status_id || null,
         created_by || null,
-      ]
+      ],
     );
 
     // Insert PTP only if status is "Promise To Pay"
@@ -873,7 +873,7 @@ exports.addNote = async (req, res) => {
           ptp_type || null,
           ptp_status || "Pending",
           full_final || "No",
-        ]
+        ],
       );
     }
 
@@ -900,7 +900,7 @@ exports.getPhoneContacts = async (req, res) => {
   try {
     const [contacts] = await pool.query(
       `SELECT * FROM phone_contacts WHERE cfid = ?`,
-      [cfid]
+      [cfid],
     );
     res.status(200).json({ contacts });
   } catch (err) {
@@ -914,7 +914,7 @@ exports.addPhoneContact = async (req, res) => {
   try {
     await pool.query(
       `INSERT INTO phone_contacts (cfid, phone, type, status) VALUES (?, ?, ?, ?)`,
-      [cfid, phone, type, status]
+      [cfid, phone, type, status],
     );
     res.status(201).json({ message: "Contact added successfully" });
   } catch (err) {
@@ -934,7 +934,7 @@ exports.getCaseProgress = async (req, res) => {
       WHERE cp.cfid = ?
       ORDER BY cp.date_updated DESC
     `,
-      [cfid]
+      [cfid],
     );
     res.status(200).json({ progress });
   } catch (err) {
@@ -953,7 +953,7 @@ exports.addProgressReport = async (req, res) => {
     const [result] = await conn.query(
       `INSERT INTO progress_reports (casefile_id, contact_status_id, report, updated_by) 
        VALUES (?, ?, ?, ?)`,
-      [casefile_id, contact_status_id, report, updated_by]
+      [casefile_id, contact_status_id, report, updated_by],
     );
 
     const newInteraction = await logInteraction(
@@ -963,7 +963,7 @@ exports.addProgressReport = async (req, res) => {
         notes: report,
         contact_status_id,
       },
-      conn
+      conn,
     );
 
     // Fetch full details for the newly created report
@@ -973,7 +973,7 @@ exports.addProgressReport = async (req, res) => {
        LEFT JOIN contact_statuses cs ON pr.contact_status_id = cs.id
        LEFT JOIN staff u ON pr.updated_by = u.id
        WHERE pr.id = ?`,
-      [result.insertId]
+      [result.insertId],
     );
 
     return res.status(201).json(newReport[0]);
@@ -992,7 +992,7 @@ exports.getSmsData = async (req, res) => {
   try {
     const [sms] = await pool.query(
       `SELECT * FROM case_sms WHERE cfid = ? ORDER BY date_sent DESC`,
-      [cfid]
+      [cfid],
     );
     res.status(200).json({ sms });
   } catch (err) {
@@ -1006,7 +1006,7 @@ exports.addSms = async (req, res) => {
   try {
     await pool.query(
       `INSERT INTO case_sms (cfid, message, date, status, sent_by) VALUES (?, ?, ?, ?, ?)`,
-      [cfid, message, date, status, sent_by]
+      [cfid, message, date, status, sent_by],
     );
     res.status(201).json({ message: "SMS saved successfully" });
   } catch (err) {
@@ -1060,7 +1060,7 @@ exports.addPTP = async (req, res) => {
       INSERT INTO promise_to_pay (cfid, ptp_date, ptp_amount, ptp_by, ptp_type, ptp_status, affirm_status)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
-      [cfid, ptp_date, ptp_amount, ptp_by, ptp_type, ptp_status, affirm_status]
+      [cfid, ptp_date, ptp_amount, ptp_by, ptp_type, ptp_status, affirm_status],
     );
 
     res.status(201).json({ message: "PTP added successfully" });
@@ -1075,7 +1075,7 @@ exports.getPaymentsData = async (req, res) => {
   try {
     const [payments] = await pool.query(
       `SELECT * FROM case_payments WHERE cfid = ? ORDER BY payment_date DESC`,
-      [cfid]
+      [cfid],
     );
     res.status(200).json({ payments });
   } catch (err) {
@@ -1087,7 +1087,7 @@ exports.getPaymentsData = async (req, res) => {
 exports.getCallTypes = async (req, res) => {
   try {
     const [callTypes] = await pool.query(
-      `SELECT * FROM call_types ORDER BY id DESC`
+      `SELECT * FROM call_types ORDER BY id DESC`,
     );
     res.status(200).json({ callTypes });
   } catch (err) {
@@ -1110,7 +1110,7 @@ exports.addCallType = async (req, res) => {
 exports.getContactTypes = async (req, res) => {
   try {
     const [contactTypes] = await pool.query(
-      `SELECT * FROM contact_types ORDER BY id DESC`
+      `SELECT * FROM contact_types ORDER BY id DESC`,
     );
     res.status(200).json({ contactTypes });
   } catch (err) {
@@ -1133,7 +1133,7 @@ exports.addContactType = async (req, res) => {
 exports.getContactStatuses = async (req, res) => {
   try {
     const [contactStatuses] = await pool.query(
-      `SELECT * FROM contact_statuses ORDER BY id DESC`
+      `SELECT * FROM contact_statuses ORDER BY id DESC`,
     );
     res.status(200).json({ contactStatuses });
   } catch (err) {
@@ -1145,7 +1145,7 @@ exports.getContactStatuses = async (req, res) => {
 exports.getNextActions = async (req, res) => {
   try {
     const [nextActions] = await pool.query(
-      `SELECT * FROM next_actions ORDER BY id DESC`
+      `SELECT * FROM next_actions ORDER BY id DESC`,
     );
     res.status(200).json({ nextActions });
   } catch (err) {
@@ -1201,7 +1201,7 @@ exports.addPaymentV1 = async (req, res) => {
       INSERT INTO payments (casefile_id, amount_paid, date_paid, receipt_no, payment_channel, comment, posted_by)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
-      [cfid, amount, date, reference, channel, comment, staff]
+      [cfid, amount, date, reference, channel, comment, staff],
     );
 
     res.status(201).json({ message: "Payment recorded successfully" });
@@ -1228,13 +1228,68 @@ exports.addPayment = async (req, res) => {
         (casefile_id, amount_paid, date_paid, receipt_no, payment_channel, comment, posted_by, status)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
-      [cfid, amount, date, reference, channel, comment, staff, status]
+      [cfid, amount, date, reference, channel, comment, staff, status],
     );
 
     res.status(201).json({ message: `Payment recorded as ${status}` });
   } catch (err) {
     console.error("Error adding payment:", err);
     res.status(500).json({ message: "Server error adding payment" });
+  }
+};
+
+exports.updateBalance = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Excel file is required" });
+    }
+
+    // 1. Parse Excel file from memory
+    const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+
+    // Convert to array of objects
+    const data = XLSX.utils.sheet_to_json(worksheet);
+
+    if (data.length === 0) {
+      return res.status(400).json({ message: "Excel file is empty" });
+    }
+
+    const updates = [];
+    for (const row of data) {
+      const cfid = row.CFID || row.cfid || row["CFID"];
+      let balance = row.BALANCE || row.balance || row["BALANCE"];
+
+      if (!cfid) continue;
+
+      // Convert balance to number
+      balance = parseFloat(balance);
+      if (isNaN(balance)) balance = 0;
+
+      updates.push({ cfid: String(cfid).trim(), balance });
+    }
+
+    if (updates.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "No valid CFID found in the file" });
+    }
+
+    const updatedCount = await Staff.updateBalances(client_id, updates);
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully updated ${updatedCount} case file balances`,
+      updatedCount,
+      totalProcessed: updates.length,
+    });
+  } catch (error) {
+    console.error("Update balances error:", error);
+    res.status(500).json({
+      message: "Failed to update balances",
+      error: error.message,
+    });
   }
 };
 
@@ -1338,7 +1393,15 @@ exports.addCaseFileContact = async (req, res) => {
       INSERT INTO casefile_contacts (casefile_id, full_name, relationship, phones, emails, address, posted_by)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
-      [casefile_id, full_name, relationship, phones, emails, address, posted_by]
+      [
+        casefile_id,
+        full_name,
+        relationship,
+        phones,
+        emails,
+        address,
+        posted_by,
+      ],
     );
 
     res.status(201).json({ message: "Contact added successfully" });

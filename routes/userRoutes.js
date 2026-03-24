@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { authenticateToken } = require("../middlewares/authMiddleware");
 const upload = require("../middlewares/upload");
+const upload1 = require("../middlewares/upload1");
 const {
   createStaff,
   getAllStaff,
@@ -36,6 +37,7 @@ const {
   addContactStatus,
   getNextActions,
   getSMSTemplates,
+  updateBalance,
 } = require("../controllers/userController");
 
 // === Staff & Case Files ===
@@ -104,6 +106,12 @@ router.post("/casefile/ptp", authenticateToken, addPTP);
 router.get("/casefile/payments", authenticateToken, getPayments);
 router.get("/casefile/payments/pending", authenticateToken, getPendingPayments);
 router.post("/casefile/payments", authenticateToken, addPayment);
+router.post(
+  "/casefile/update-balance",
+  authenticateToken,
+  upload1.single("file"),
+  updateBalance,
+);
 
 // === Reference Lookups ===
 router.get("/call-types", authenticateToken, getCallTypes);

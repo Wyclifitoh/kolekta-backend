@@ -4,21 +4,21 @@ const bcrypt = require("bcryptjs");
 exports.findByEmail = async (email_address) => {
   const [rows] = await pool.query(
     "SELECT * FROM staff WHERE email_address = ?",
-    [email_address]
+    [email_address],
   );
   return rows[0];
 };
 
 exports.findLatestStaffId = async () => {
   const [rows] = await pool.query(
-    "SELECT staff_id FROM staff ORDER BY staff_id DESC LIMIT 1"
+    "SELECT staff_id FROM staff ORDER BY staff_id DESC LIMIT 1",
   );
   return rows[0];
 };
 
 exports.findLatestFileId = async () => {
   const [rows] = await pool.query(
-    "SELECT cfid FROM case_files ORDER BY cfid DESC LIMIT 1"
+    "SELECT cfid FROM case_files ORDER BY cfid DESC LIMIT 1",
   );
   return rows[0];
 };
@@ -37,7 +37,7 @@ exports.createStaff = async (staffData) => {
       staffData.role,
       staffData.permission,
       staffData.password,
-    ]
+    ],
   );
   return result;
 };
@@ -93,7 +93,7 @@ exports.updateStaff = async (id, staffData) => {
   if (permission) {
     updates.push(`permission = ?`);
     values.push(
-      typeof permission === "string" ? permission : JSON.stringify(permission)
+      typeof permission === "string" ? permission : JSON.stringify(permission),
     );
   }
   if (password) {
@@ -124,7 +124,7 @@ exports.deleteStaff = async (id) => {
 exports.toggleStaffStatus = async (id, isActive) => {
   const [result] = await pool.query(
     "UPDATE staff SET is_active = ?, updated_date = NOW() WHERE id = ?",
-    [isActive ? 1 : 0, id]
+    [isActive ? 1 : 0, id],
   );
   return result;
 };
@@ -341,7 +341,7 @@ exports.findAll = async (filters) => {
     const sortOrder = filters.order?.toUpperCase() === "ASC" ? "ASC" : "DESC";
 
     const isAdminOrTL = ["admin", "team_leader"].includes(filters.role);
-    
+
     let sql = `
       SELECT
         cf.id,
@@ -552,4 +552,47 @@ exports.findCaseFileByID = async (id) => {
 
   const [rows] = await pool.query(sql, [id]);
   return rows[0] || null;
+};
+
+exports.updateBalances = async () => {
+  if (!updates || updates.length === 0) return 0;
+
+  try {
+    await connection.beginTransaction();
+
+    let updatedCount = 0;
+
+    const chunkSize = 500;
+
+    for (let i = 0; i < updates.length; i += chunkSize) {
+      const chunk = updates.slice(i, i + chunkSize);
+
+      let caseSql = "";
+      const params = [];
+
+      chunk.forEach(({ cfid, balance }) => {
+        caseSql += "WHEN cfid = ? THEN ? ";
+        params.push(cfid, balance);
+      });
+
+      const sql = `
+        UPDATE case_files 
+        SET 
+          balance = CASE ${caseSql} END,
+          updated_at = NOW(),
+        WHERE cfid IN (${chunk.map(() => "?").join(",")})
+      `;
+
+      const [result] = await pool.query(sql, params);
+      updatedCount += result.affectedRows;
+    }
+
+    await connection.commit();
+    console.log(`Updated ${updatedCount} balances for client ${client_id}`);
+
+    return updatedCount;
+  } catch (error) {
+    console.error(`Error ${error}`);
+    throw new Error(`Error ${error.message}`);
+  }
 };
