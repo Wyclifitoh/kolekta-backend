@@ -559,37 +559,38 @@ exports.updateBalances = async (updates) => {
 
   try {
     let updatedCount = 0;
-
     const chunkSize = 500;
 
     for (let i = 0; i < updates.length; i += chunkSize) {
       const chunk = updates.slice(i, i + chunkSize);
 
       let caseSql = "";
-      const params = [];
+      const caseParams = [];
+      const idParams = [];
 
       chunk.forEach(({ cfid, balance }) => {
         caseSql += "WHEN cfid = ? THEN ? ";
-        params.push(cfid, balance);
+        caseParams.push(cfid, balance);
+        idParams.push(cfid);
       });
+      
+      const totalParams = [...caseParams, ...idParams];
 
       const sql = `
         UPDATE case_files 
         SET 
-          balance = CASE ${caseSql} END,
+          balance = CASE ${caseSql} ELSE balance END,
           updated_at = NOW()
-        WHERE cfid IN (${chunk.map(() => "?").join(",")})
+        WHERE cfid IN (${idParams.map(() => "?").join(",")})
       `;
 
-      const [result] = await pool.query(sql, params);
+      const [result] = await pool.query(sql, totalParams);
       updatedCount += result.affectedRows;
     }
 
-    console.log(`Updated ${updatedCount} balances for client ${client_id}`);
-
     return updatedCount;
   } catch (error) {
-    console.error(`Error ${error}`);
-    throw new Error(`Error ${error.message}`);
+    console.error(`Update balances error: ${error.message}`);
+    throw error;
   }
 };
