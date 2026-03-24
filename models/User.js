@@ -558,8 +558,6 @@ exports.updateBalances = async (updates) => {
   if (!updates || updates.length === 0) return 0;
 
   try {
-    await connection.beginTransaction();
-
     let updatedCount = 0;
 
     const chunkSize = 500;
@@ -587,7 +585,6 @@ exports.updateBalances = async (updates) => {
       updatedCount += result.affectedRows;
     }
 
-    await connection.commit();
     console.log(`Updated ${updatedCount} balances for client ${client_id}`);
 
     return updatedCount;
