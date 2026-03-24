@@ -554,7 +554,7 @@ exports.findCaseFileByID = async (id) => {
   return rows[0] || null;
 };
 
-exports.updateBalances = async () => {
+exports.updateBalances = async (updates) => {
   if (!updates || updates.length === 0) return 0;
 
   try {

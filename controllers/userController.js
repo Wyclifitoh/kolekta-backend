@@ -1277,7 +1277,7 @@ exports.updateBalance = async (req, res) => {
         .json({ message: "No valid CFID found in the file" });
     }
 
-    const updatedCount = await Staff.updateBalances(client_id, updates);
+    const updatedCount = await Staff.updateBalances(updates);
 
     res.status(200).json({
       success: true,
