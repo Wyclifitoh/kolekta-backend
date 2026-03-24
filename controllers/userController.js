@@ -11,6 +11,7 @@ const path = require("path");
 const pool = require("../config/db");
 const fs = require("fs");
 const { logInteraction } = require("../helpers/casefileInteractions");
+const XLSX = require('xlsx');
 
 exports.createStaff = async (req, res) => {
   const {
