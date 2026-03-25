@@ -46,7 +46,14 @@ exports.addClient = async (req, res) => {
     // Insert client into database
     const [clientResult] = await pool.query(
       "INSERT INTO clients (name, abbreviation, client_type, team_leader_id, paybill, general_target) VALUES (?, ?, ?, ?, ?, ?)",
-      [name, abbreviation, client_type, team_leader_id, paybill, general_target]
+      [
+        name,
+        abbreviation,
+        client_type,
+        team_leader_id,
+        paybill,
+        general_target,
+      ],
     );
     const clientID = clientResult.insertId;
 
@@ -63,7 +70,7 @@ exports.addClient = async (req, res) => {
 
       await pool.query(
         "INSERT INTO client_contacts (client_id, name, designation, branch_department, phone, email) VALUES ?;",
-        [contactValues]
+        [contactValues],
       );
     }
 
@@ -81,7 +88,7 @@ exports.addDebtCategory = async (req, res) => {
 
     const [result] = await pool.query(
       "INSERT INTO debt_categories (title, description) VALUES (?, ?)",
-      [title, description]
+      [title, description],
     );
 
     return res.status(201).json({
@@ -100,7 +107,7 @@ exports.addDebtCategory = async (req, res) => {
 exports.getAllDebtCategory = async (req, res) => {
   try {
     const [categories] = await pool.query(
-      "SELECT * FROM debt_categories ORDER BY id ASC"
+      "SELECT * FROM debt_categories ORDER BY id ASC",
     );
     return res.status(200).json(categories);
   } catch (error) {
@@ -120,7 +127,7 @@ exports.updateDebtCategory = async (req, res) => {
 
     const [result] = await pool.query(
       "UPDATE debt_categories SET title = ?, description = ? WHERE id = ?",
-      [title, description, id]
+      [title, description, id],
     );
 
     if (result.affectedRows === 0) {
@@ -146,7 +153,7 @@ exports.deleteDebtCategory = async (req, res) => {
 
     const [result] = await pool.query(
       "DELETE FROM debt_categories WHERE id = ?",
-      [id]
+      [id],
     );
 
     if (result.affectedRows === 0) {
@@ -172,7 +179,7 @@ exports.addDebtType = async (req, res) => {
 
     const [result] = await pool.query(
       "INSERT INTO debt_types (title, description) VALUES (?, ?)",
-      [title, description]
+      [title, description],
     );
 
     return res.status(201).json({
@@ -191,7 +198,7 @@ exports.addDebtType = async (req, res) => {
 exports.getAllDebtTypes = async (req, res) => {
   try {
     const [result] = await pool.query(
-      "SELECT * FROM debt_types ORDER BY id ASC"
+      "SELECT * FROM debt_types ORDER BY id ASC",
     );
     return res.status(200).json(result);
   } catch (error) {
@@ -209,7 +216,7 @@ exports.updateDebtType = async (req, res) => {
 
     const [result] = await pool.query(
       "UPDATE debt_types SET title = ?, description = ? WHERE id = ?",
-      [title, description, id]
+      [title, description, id],
     );
 
     if (result.affectedRows === 0) {
@@ -262,7 +269,7 @@ exports.addDebtSubType = async (req, res) => {
       title,
       description,
       debt_type_id,
-      status
+      status,
     );
     res.status(201).json({
       message: "Debt sub type added successfully",
@@ -321,7 +328,7 @@ exports.addClientType = async (req, res) => {
     }
     const [result] = await pool.query(
       `INSERT INTO client_types (type, description) VALUES (?, ?)`,
-      [type, description]
+      [type, description],
     );
     res.status(201).json({ id: result.insertId, type, description });
   } catch (err) {
@@ -334,7 +341,7 @@ exports.addClientType = async (req, res) => {
 exports.getAllClientTypes = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM client_types ORDER BY id DESC`
+      `SELECT * FROM client_types ORDER BY id DESC`,
     );
     res.status(200).json(rows);
   } catch (err) {
@@ -355,7 +362,7 @@ exports.updateClientType = async (req, res) => {
 
     const [result] = await pool.query(
       `UPDATE client_types SET type = ?, description = ? WHERE id = ?`,
-      [type, description, id]
+      [type, description, id],
     );
 
     if (result.affectedRows === 0) {
@@ -427,7 +434,7 @@ exports.addClientProduct = async (req, res) => {
         general_target || 0,
         paybill || null,
         status || "active",
-      ]
+      ],
     );
 
     res.status(201).json({
@@ -449,7 +456,7 @@ exports.addClientProduct = async (req, res) => {
 exports.getAllClientProducts = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM client_products ORDER BY id DESC`
+      `SELECT * FROM client_products ORDER BY id DESC`,
     );
     res.status(200).json(rows);
   } catch (err) {
@@ -482,7 +489,7 @@ exports.updateClientProduct = async (req, res) => {
         paybill || null,
         status || "active",
         id,
-      ]
+      ],
     );
 
     if (result.affectedRows === 0) {
@@ -512,7 +519,7 @@ exports.deleteClientProduct = async (req, res) => {
   try {
     const [result] = await pool.query(
       "DELETE FROM client_products WHERE id = ?",
-      [id]
+      [id],
     );
 
     if (result.affectedRows === 0) {
@@ -532,7 +539,7 @@ exports.addContactability = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO contactability (title, description, status) VALUES (?, ?, ?)`,
-      [title, description, status || "ACTIVE"]
+      [title, description, status || "ACTIVE"],
     );
     res.status(201).json({ id: result.insertId, title, description, status });
   } catch (err) {
@@ -544,7 +551,7 @@ exports.addContactability = async (req, res) => {
 exports.getAllContactability = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM contactability ORDER BY id DESC`
+      `SELECT * FROM contactability ORDER BY id DESC`,
     );
     res.status(200).json(rows);
   } catch (err) {
@@ -567,7 +574,7 @@ exports.updateContactability = async (req, res) => {
       `UPDATE contactability 
        SET title = ?, description = ?, status = ?
        WHERE id = ?`,
-      [title, description || null, status || "ACTIVE", id]
+      [title, description || null, status || "ACTIVE", id],
     );
 
     if (result.affectedRows === 0) {
@@ -594,7 +601,7 @@ exports.deleteContactability = async (req, res) => {
   try {
     const [result] = await pool.query(
       "DELETE FROM contactability WHERE id = ?",
-      [id]
+      [id],
     );
 
     if (result.affectedRows === 0) {
@@ -614,7 +621,7 @@ exports.addContactType = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO contact_types (title, contactability_id, abbreviation) VALUES (?, ?, ?)`,
-      [title, contactability_id, abbreviation]
+      [title, contactability_id, abbreviation],
     );
     res
       .status(201)
@@ -657,7 +664,7 @@ exports.updateContactType = async (req, res) => {
       `UPDATE contact_types 
        SET title = ?, contactability_id = ?, abbreviation = ?
        WHERE id = ?`,
-      [title, contactability_id || null, abbreviation || null, id]
+      [title, contactability_id || null, abbreviation || null, id],
     );
 
     if (result.affectedRows === 0) {
@@ -684,7 +691,7 @@ exports.deleteContactType = async (req, res) => {
   try {
     const [result] = await pool.query(
       "DELETE FROM contact_types WHERE id = ?",
-      [id]
+      [id],
     );
 
     if (result.affectedRows === 0) {
@@ -706,7 +713,7 @@ exports.addContactStatus = async (req, res) => {
     const [result] = await pool.query(
       `INSERT INTO contact_statuses (title, contact_type_id, abbreviation, max_days, dialing_priority) 
        VALUES (?, ?, ?, ?, ?)`,
-      [title, contact_type_id, abbreviation, max_days, dialing_priority]
+      [title, contact_type_id, abbreviation, max_days, dialing_priority],
     );
     res.status(201).json({ id: result.insertId, title, contact_type_id });
   } catch (err) {
@@ -757,7 +764,7 @@ exports.updateContactStatus = async (req, res) => {
         max_days || 0,
         dialing_priority || 0,
         id,
-      ]
+      ],
     );
 
     if (result.affectedRows === 0) {
@@ -786,7 +793,7 @@ exports.deleteContactStatus = async (req, res) => {
   try {
     const [result] = await pool.query(
       "DELETE FROM contact_statuses WHERE id = ?",
-      [id]
+      [id],
     );
 
     if (result.affectedRows === 0) {
@@ -806,7 +813,7 @@ exports.addClosureReason = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO closure_reasons (title, description, abbreviation, status) VALUES (?, ?, ?, ?)`,
-      [title, description, abbreviation, status || "ACTIVE"]
+      [title, description, abbreviation, status || "ACTIVE"],
     );
     res
       .status(201)
@@ -820,7 +827,7 @@ exports.addClosureReason = async (req, res) => {
 exports.getAllClosureReasons = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM closure_reasons ORDER BY id DESC`
+      `SELECT * FROM closure_reasons ORDER BY id DESC`,
     );
     res.status(200).json(rows);
   } catch (err) {
@@ -843,7 +850,13 @@ exports.updateClosureReason = async (req, res) => {
       `UPDATE closure_reasons
        SET title = ?, description = ?, abbreviation = ?, status = ?
        WHERE id = ?`,
-      [title, description || null, abbreviation || null, status || "ACTIVE", id]
+      [
+        title,
+        description || null,
+        abbreviation || null,
+        status || "ACTIVE",
+        id,
+      ],
     );
 
     if (result.affectedRows === 0) {
@@ -871,7 +884,7 @@ exports.deleteClosureReason = async (req, res) => {
   try {
     const [result] = await pool.query(
       "DELETE FROM closure_reasons WHERE id = ?",
-      [id]
+      [id],
     );
 
     if (result.affectedRows === 0) {
@@ -891,7 +904,7 @@ exports.addNextAction = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO next_actions (title, description, abbreviation, status) VALUES (?, ?, ?, ?)`,
-      [title, description, abbreviation, status || "ACTIVE"]
+      [title, description, abbreviation, status || "ACTIVE"],
     );
     res
       .status(201)
@@ -905,7 +918,7 @@ exports.addNextAction = async (req, res) => {
 exports.getAllNextActions = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM next_actions ORDER BY id DESC`
+      `SELECT * FROM next_actions ORDER BY id DESC`,
     );
     res.status(200).json(rows);
   } catch (err) {
@@ -928,7 +941,13 @@ exports.updateNextAction = async (req, res) => {
       `UPDATE next_actions
        SET title = ?, description = ?, abbreviation = ?, status = ?
        WHERE id = ?`,
-      [title, description || null, abbreviation || null, status || "ACTIVE", id]
+      [
+        title,
+        description || null,
+        abbreviation || null,
+        status || "ACTIVE",
+        id,
+      ],
     );
 
     if (result.affectedRows === 0) {
@@ -975,7 +994,7 @@ exports.addCallType = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO call_types (title, description) VALUES (?, ?)`,
-      [title, description]
+      [title, description],
     );
     res.status(201).json({ id: result.insertId, title, description });
   } catch (err) {
@@ -987,7 +1006,7 @@ exports.addCallType = async (req, res) => {
 exports.getAllCallTypes = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM call_types ORDER BY id DESC`
+      `SELECT * FROM call_types ORDER BY id DESC`,
     );
     res.status(200).json(rows);
   } catch (err) {
@@ -1008,7 +1027,7 @@ exports.updateCallType = async (req, res) => {
 
     const [result] = await pool.query(
       `UPDATE call_types SET title = ?, description = ? WHERE id = ?`,
-      [title, description || null, id]
+      [title, description || null, id],
     );
 
     if (result.affectedRows === 0) {
@@ -1053,7 +1072,7 @@ exports.addPtpRescheduleReason = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO ptp_reschedule_reasons (title, description, status) VALUES (?, ?, ?)`,
-      [title, description, status || "ACTIVE"]
+      [title, description, status || "ACTIVE"],
     );
     res.status(201).json({ id: result.insertId, title, description, status });
   } catch (err) {
@@ -1065,7 +1084,7 @@ exports.addPtpRescheduleReason = async (req, res) => {
 exports.getAllPtpRescheduleReasons = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM ptp_reschedule_reasons ORDER BY id DESC`
+      `SELECT * FROM ptp_reschedule_reasons ORDER BY id DESC`,
     );
     res.status(200).json(rows);
   } catch (err) {
@@ -1086,7 +1105,7 @@ exports.updatePtpRescheduleReason = async (req, res) => {
 
     const [result] = await pool.query(
       `UPDATE ptp_reschedule_reasons SET title = ?, description = ?, status = ? WHERE id = ?`,
-      [title, description || null, status || "ACTIVE", id]
+      [title, description || null, status || "ACTIVE", id],
     );
 
     if (result.affectedRows === 0) {
@@ -1115,7 +1134,7 @@ exports.deletePtpRescheduleReason = async (req, res) => {
   try {
     const [result] = await pool.query(
       `DELETE FROM ptp_reschedule_reasons WHERE id = ?`,
-      [id]
+      [id],
     );
 
     if (result.affectedRows === 0) {
@@ -1145,7 +1164,7 @@ exports.getSummaryV1 = async (req, res) => {
     } else if (userRole === "team_leader") {
       // For team leader, get all staff IDs under them
       const [teamStaff] = await pool.query(
-        `SELECT id FROM staff WHERE manager_id = ${userId}`
+        `SELECT id FROM staff WHERE manager_id = ${userId}`,
       );
       const staffIds = teamStaff.map((s) => s.id);
       if (staffIds.length > 0) {
@@ -1162,14 +1181,14 @@ exports.getSummaryV1 = async (req, res) => {
 
     // Step 2: Total Cases
     const [cases] = await pool.query(
-      `SELECT COUNT(*) as total FROM case_files ${caseFilter}`
+      `SELECT COUNT(*) as total FROM case_files ${caseFilter}`,
     );
 
     // Step 3: Active Staff (only admins/team_leaders)
     let activeStaffCount = 0;
     if (userRole !== "staff") {
       const [activeStaff] = await pool.query(
-        `SELECT COUNT(*) as total FROM staff WHERE is_active = 1`
+        `SELECT COUNT(*) as total FROM staff WHERE is_active = 1`,
       );
       activeStaffCount = activeStaff[0].total;
     }
@@ -1309,7 +1328,7 @@ exports.getSummaryV1 = async (req, res) => {
       caseCondition = `held_by = ${userId}`;
     } else if (userRole === "team_leader") {
       const [teamStaff] = await pool.query(
-        `SELECT id FROM staff WHERE manager_id = ${userId}`
+        `SELECT id FROM staff WHERE manager_id = ${userId}`,
       );
       const staffIds = teamStaff.map((s) => s.id);
       caseCondition =
@@ -1321,12 +1340,12 @@ exports.getSummaryV1 = async (req, res) => {
 
     // Current totals
     const [[cases]] = await pool.query(
-      `SELECT COUNT(*) as total FROM case_files ${caseFilter}`
+      `SELECT COUNT(*) as total FROM case_files ${caseFilter}`,
     );
     const [[activeStaff]] =
       userRole !== "staff"
         ? await pool.query(
-            `SELECT COUNT(*) as total FROM staff WHERE is_active = 1`
+            `SELECT COUNT(*) as total FROM staff WHERE is_active = 1`,
           )
         : [[{ total: 0 }]];
     const [[recovered]] = await pool.query(`
@@ -1437,7 +1456,7 @@ exports.getSummary = async (req, res) => {
     } else if (userRole === "team_leader") {
       const [teamStaff] = await pool.query(
         `SELECT id FROM staff WHERE manager_id = ?`,
-        [userId]
+        [userId],
       );
       const staffIds = teamStaff.map((s) => s.id);
       caseCondition =
@@ -1449,13 +1468,13 @@ exports.getSummary = async (req, res) => {
 
     // 2. Totals
     const [[cases]] = await pool.query(
-      `SELECT COUNT(*) AS total FROM case_files ${caseFilter}`
+      `SELECT COUNT(*) AS total FROM case_files ${caseFilter}`,
     );
 
     const [[activeStaff]] =
       userRole !== "staff"
         ? await pool.query(
-            `SELECT COUNT(*) AS total FROM staff WHERE is_active = 1`
+            `SELECT COUNT(*) AS total FROM staff WHERE is_active = 1`,
           )
         : [[{ total: 0 }]];
 
@@ -1598,7 +1617,7 @@ exports.getCalendarV1 = async (req, res) => {
       caseCondition = `c.held_by = ${userId}`;
     } else if (userRole === "team_leader") {
       const [teamStaff] = await pool.query(
-        `SELECT id FROM staff WHERE manager_id = ${userId}`
+        `SELECT id FROM staff WHERE manager_id = ${userId}`,
       );
       const staffIds = teamStaff.map((s) => s.id);
       caseCondition =
@@ -1693,7 +1712,7 @@ exports.getCalendar = async (req, res) => {
       caseCondition = `c.held_by = ${userId}`;
     } else if (userRole === "team_leader") {
       const [teamStaff] = await pool.query(
-        `SELECT id FROM staff WHERE manager_id = ${userId}`
+        `SELECT id FROM staff WHERE manager_id = ${userId}`,
       );
       const staffIds = teamStaff.map((s) => s.id);
       caseCondition =
@@ -1939,8 +1958,7 @@ exports.getTaskListV1 = async (req, res) => {
 
 exports.getTaskList = async (req, res) => {
   const userId = req.user.id;
-  const userRole = req.user.role; // 'staff', 'team_leader', 'admin'
-
+  const userRole = req.user.role;
   try {
     let query = `
       SELECT 
@@ -1953,6 +1971,7 @@ exports.getTaskList = async (req, res) => {
         MAX(ct.title) AS contact_type,
         MAX(cs.title) AS contact_status,
         cna.next_action_date AS task_date,
+        MAX(u.first_name) AS staff,
         
         -- Balance from payments table
         (MAX(cf.amount) - COALESCE(SUM(CASE WHEN pay.status = 'confirmed' THEN pay.amount_paid ELSE 0 END), 0)) AS balance,
@@ -1990,7 +2009,7 @@ exports.getTaskList = async (req, res) => {
     const params = [];
 
     // If staff, only show tasks assigned to them
-    if (userRole === "staff") {
+    if (userRole === "account_manager") {
       query += ` AND cna.staff_id = ?`;
       params.push(userId);
     }
@@ -2021,7 +2040,7 @@ exports.allocateCasesV1 = async (req, res) => {
   try {
     const [result] = await pool.query(
       `UPDATE case_files SET held_by = ? WHERE cfid IN (?)`,
-      [user_id, case_ids]
+      [user_id, case_ids],
     );
 
     return res.json({
@@ -2051,11 +2070,11 @@ exports.deleteCasesV1 = async (req, res) => {
     await conn.query(`DELETE FROM ptps WHERE casefile_id IN (?)`, [case_ids]);
     await conn.query(
       `DELETE FROM casefile_interactions WHERE casefile_id IN (?)`,
-      [case_ids]
+      [case_ids],
     );
     await conn.query(
       `DELETE FROM casefile_next_actions WHERE casefile_id IN (?)`,
-      [case_ids]
+      [case_ids],
     );
     await conn.query(`DELETE FROM casefile_contacts WHERE casefile_id IN (?)`, [
       case_ids,
@@ -2073,7 +2092,7 @@ exports.deleteCasesV1 = async (req, res) => {
     // Finally delete case_files
     const [result] = await conn.query(
       `DELETE FROM case_files WHERE cfid IN (?)`,
-      [case_ids]
+      [case_ids],
     );
 
     await conn.commit();
@@ -2109,17 +2128,17 @@ exports.allocateCases = async (req, res) => {
     // First update the case files allocation
     const [result] = await pool.query(
       `UPDATE case_files SET held_by = ? WHERE cfid IN (?)`,
-      [user_id, case_ids]
+      [user_id, case_ids],
     );
 
     // Fetch names for logging
     const [[allocatedTo]] = await pool.query(
       `SELECT first_name, last_name FROM staff WHERE id = ?`,
-      [user_id]
+      [user_id],
     );
     const [[allocatedBy]] = await pool.query(
       `SELECT first_name, last_name FROM staff WHERE id = ?`,
-      [performedBy]
+      [performedBy],
     );
 
     const allocatedToName =
@@ -2165,14 +2184,14 @@ exports.deleteCases = async (req, res) => {
     // Safety check: Any confirmed payments?
     const [payments] = await conn.query(
       `SELECT DISTINCT casefile_id FROM payments WHERE casefile_id IN (?) AND status = 'confirmed'`,
-      [case_ids]
+      [case_ids],
     );
 
     if (payments.length > 0) {
       const blockedCases = payments.map((p) => p.casefile_id);
       return res.status(400).json({
         message: `Cannot delete case(s) with confirmed payments: ${blockedCases.join(
-          ", "
+          ", ",
         )}`,
       });
     }
@@ -2186,11 +2205,11 @@ exports.deleteCases = async (req, res) => {
     await conn.query(`DELETE FROM ptps WHERE casefile_id IN (?)`, [case_ids]);
     await conn.query(
       `DELETE FROM casefile_interactions WHERE casefile_id IN (?)`,
-      [case_ids]
+      [case_ids],
     );
     await conn.query(
       `DELETE FROM casefile_next_actions WHERE casefile_id IN (?)`,
-      [case_ids]
+      [case_ids],
     );
     await conn.query(`DELETE FROM casefile_contacts WHERE casefile_id IN (?)`, [
       case_ids,
@@ -2208,7 +2227,7 @@ exports.deleteCases = async (req, res) => {
     // Finally delete case_files
     const [result] = await conn.query(
       `DELETE FROM case_files WHERE cfid IN (?)`,
-      [case_ids]
+      [case_ids],
     );
 
     await conn.commit();
