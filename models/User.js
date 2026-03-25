@@ -395,8 +395,11 @@ exports.findAll = async (filters) => {
         SELECT ci1.*
         FROM casefile_interactions ci1
         INNER JOIN (
-            SELECT casefile_id, MAX(id) AS latest_id
+            SELECT 
+                casefile_id, 
+                MAX(id) AS latest_id
             FROM casefile_interactions
+            WHERE notes NOT LIKE 'Casefile allocated to%'
             GROUP BY casefile_id
         ) ci2
         ON ci1.id = ci2.latest_id
