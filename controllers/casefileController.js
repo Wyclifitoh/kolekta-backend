@@ -8,6 +8,7 @@ const Mail = require("../services/mailService");
 const Contacts = require("../models/contactsModel");
 const { logInteraction } = require("../helpers/casefileInteractions");
 const pool = require("../config/db");
+const { logCasefileActivity } = require("./logActivity");
 //  Create Case File
 exports.createCaseFile = async (req, res) => {
   try {
@@ -67,7 +68,7 @@ exports.addInteraction = async (req, res) => {
            next_action_date = VALUES(next_action_date),
            updated_by = VALUES(updated_by),
            updated_at = NOW()`,
-        [casefile_id, next_action_id, next_action_date, createdBy, createdBy]
+        [casefile_id, next_action_id, next_action_date, createdBy, createdBy],
       );
     }
 
@@ -78,7 +79,7 @@ exports.addInteraction = async (req, res) => {
          SET ptp_status = ?, updated_at = NOW() 
          WHERE casefile_id = ? AND is_active = 1 
          ORDER BY created_at DESC LIMIT 1`,
-        [last_ptp_outcome, casefile_id]
+        [last_ptp_outcome, casefile_id],
       );
     }
 
@@ -94,7 +95,7 @@ exports.addInteraction = async (req, res) => {
           ptp.amount,
           ptp.fullFinal ? "Full & Final" : "Normal",
           createdBy,
-        ]
+        ],
       );
 
       const [ptpData] = await conn.query(`SELECT * FROM ptps WHERE id = ?`, [
@@ -116,8 +117,13 @@ exports.addInteraction = async (req, res) => {
         next_action_date,
         ptp_id: newPTP ? newPTP.id : null,
       },
-      conn
+      conn,
     );
+
+    await logCasefileActivity(req.user.id, casefile_id, "add_note", {
+      note: notes,
+      nextAction: next_action_date,
+    });
 
     await conn.commit();
 
@@ -157,7 +163,7 @@ exports.reschedulePTP = async (req, res) => {
       `UPDATE ptps 
        SET new_amount = ?, new_date = ?, is_rescheduled = 1, updated_at = NOW()
        WHERE id = ?`,
-      [newAmount, newDate, ptpId]
+      [newAmount, newDate, ptpId],
     );
 
     // Log interaction for reschedule
@@ -170,8 +176,13 @@ exports.reschedulePTP = async (req, res) => {
         next_action_date: nextActionDate,
         ptp_id: ptpId,
       },
-      conn
+      conn,
     );
+
+    await logCasefileActivity(req.user.id, casefile_id, "update_ptp", {
+      note: reason,
+      next_action_date: nextActionDate,
+    });
 
     // await logInteraction({
     //   casefile_id: req.body.casefile_id,

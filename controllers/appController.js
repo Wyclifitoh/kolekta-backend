@@ -2242,3 +2242,60 @@ exports.deleteCases = async (req, res) => {
     conn.release();
   }
 };
+
+exports.getStaffActivity = async (req, res) => {
+  try {
+    const { mode, date, startDate, endDate } = req.query;
+
+    let query = "";
+    let params = [];
+
+    if (mode === "daily" && date) {
+      query = `
+        SELECT 
+          u.first_name AS user,
+          MIN(s.login_time) AS login_time,
+          MIN(a.performed_at) AS first_update,
+          MAX(a.performed_at) AS last_update,
+          COUNT(DISTINCT a.cfid) AS files_worked
+        FROM user_login_sessions s
+        JOIN staff u ON s.user_id = u.id
+        LEFT JOIN casefile_activity_log a 
+          ON a.user_id = u.id 
+          AND DATE(a.performed_at) = DATE(s.login_time)
+        WHERE DATE(s.login_time) = ?
+        GROUP BY u.id, u.first_name
+        ORDER BY login_time ASC;
+      `;
+      params = [date];
+    } else if (mode === "range" && startDate && endDate) {
+      query = `
+        SELECT 
+          u.first_name AS user,
+          COUNT(DISTINCT a.cfid) AS files_worked
+        FROM casefile_activity_log a
+        JOIN staff u ON a.user_id = u.id
+        WHERE a.performed_at BETWEEN ? AND ?
+        GROUP BY u.id, u.first_name
+        ORDER BY files_worked DESC;
+      `;
+      params = [startDate, endDate];
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide valid parameters",
+      });
+    }
+
+    const [rows] = await pool.query(query, params);
+
+    res.json({
+      success: true,
+      mode,
+      data: rows,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

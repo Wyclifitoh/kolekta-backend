@@ -146,6 +146,14 @@ exports.findUserByEmail = async (email) => {
   return rows[0];
 };
 
+exports.saveLoginSession = async (userId, ip, token) => {
+  const sql = `INSERT INTO user_login_sessions 
+              (user_id, ip_address, session_token) 
+              VALUES (?, ?, ?)`;
+  const [result] = await pool.query(sql, [userId, ip, token]);
+  return result;
+};
+
 // Find user by id
 exports.findUserById = async (id) => {
   const sql = `SELECT * FROM staff WHERE id = ?`;

@@ -13,6 +13,7 @@ const fs = require("fs");
 const { logInteraction } = require("../helpers/casefileInteractions");
 const XLSX = require("xlsx");
 const { cleanBalance } = require("../utils/cleanBalance");
+const { logCasefileActivity } = require("./logActivity");
 
 exports.createStaff = async (req, res) => {
   const {
@@ -1232,6 +1233,11 @@ exports.addPayment = async (req, res) => {
     `,
       [cfid, amount, date, reference, channel, comment, staff, status],
     );
+
+    await logCasefileActivity(req.user.id, cfid, "add_payment", {
+      ref: reference,
+      amount: amount,
+    });
 
     res.status(201).json({ message: `Payment recorded as ${status}` });
   } catch (err) {
