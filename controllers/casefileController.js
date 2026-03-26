@@ -379,3 +379,13 @@ exports.closeCases = async (req, res) => {
       .json({ message: "Failed to close case files", error: error.message });
   }
 };
+
+exports.getPtps = async (req, res) => {
+  try {
+    const ptps = await PTPs.findPtps();
+
+    res.status(200).json({ ptps });
+  } catch (error) {
+    console.error("Error: ", error);
+  }
+};

@@ -10,7 +10,8 @@ const {
   sendMail,
   getPayments,
   closeCases,
-  confirmPayment} = require('../controllers/casefileController');
+  confirmPayment,
+  getPtps} = require('../controllers/casefileController');
 
 
 // Interactions
@@ -19,6 +20,7 @@ router.post('/interactions', authenticateToken, addInteraction);
 // PTPs
 router.post('/ptp', authenticateToken, addPTP); 
 router.put('/ptp/reschedule', authenticateToken, reschedulePTP);
+router.get('/ptp', authenticateToken, getPtps)
 
 // Payments
 router.post('/payments', authenticateToken, addPayment);
