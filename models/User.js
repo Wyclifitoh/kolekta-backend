@@ -519,6 +519,7 @@ exports.findCaseFileByID = async (id) => {
       cf.loan_counter,
       cf.risk_category,
       cf.status,
+      cf.balance AS bal,
       cf.outsource_date,
       cf.days_since_outsource,
       cf.batch_no,
