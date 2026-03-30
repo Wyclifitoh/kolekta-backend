@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { authenticateToken } = require('../middlewares/authMiddleware');
+const { authenticateToken } = require("../middlewares/authMiddleware");
 const {
   addInteraction,
   reschedulePTP,
@@ -11,31 +11,33 @@ const {
   getPayments,
   closeCases,
   confirmPayment,
-  getPtps} = require('../controllers/casefileController');
-
+  getPtps,
+  exportPtps,
+} = require("../controllers/casefileController");
 
 // Interactions
-router.post('/interactions', authenticateToken, addInteraction); 
+router.post("/interactions", authenticateToken, addInteraction);
 
 // PTPs
-router.post('/ptp', authenticateToken, addPTP); 
-router.put('/ptp/reschedule', authenticateToken, reschedulePTP);
-router.get('/ptp', authenticateToken, getPtps)
+router.post("/ptp", authenticateToken, addPTP);
+router.put("/ptp/reschedule", authenticateToken, reschedulePTP);
+router.get("/ptp", authenticateToken, getPtps);
+router.get("/ptp/export", authenticateToken, exportPtps);
 
 // Payments
-router.post('/payments', authenticateToken, addPayment);
-router.get('/payments', authenticateToken, getPayments)
-router.put('/payments/:id/confirm', authenticateToken, confirmPayment)
+router.post("/payments", authenticateToken, addPayment);
+router.get("/payments", authenticateToken, getPayments);
+router.put("/payments/:id/confirm", authenticateToken, confirmPayment);
 
 // SMS
-router.post('/sms', authenticateToken, sendSMS);
+router.post("/sms", authenticateToken, sendSMS);
 
 // Mail
-router.post('/mail', authenticateToken, sendMail);
+router.post("/mail", authenticateToken, sendMail);
 
 // Contacts
 // router.get('/contacts/:casefile_id', authenticateToken, getContacts);
 
-router.post('/close-cases', authenticateToken, closeCases);
+router.post("/close-cases", authenticateToken, closeCases);
 
 module.exports = router;

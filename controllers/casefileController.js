@@ -9,6 +9,7 @@ const Contacts = require("../models/contactsModel");
 const { logInteraction } = require("../helpers/casefileInteractions");
 const pool = require("../config/db");
 const { logCasefileActivity } = require("./logActivity");
+const ExcelJS = require("exceljs");
 //  Create Case File
 exports.createCaseFile = async (req, res) => {
   try {
@@ -382,10 +383,48 @@ exports.closeCases = async (req, res) => {
 
 exports.getPtps = async (req, res) => {
   try {
-    const ptps = await PTPs.findPtps();
-
+    const ptps = await PTPs.findPtps(req.query);
     res.status(200).json({ ptps });
   } catch (error) {
     console.error("Error: ", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.exportPtps = async (req, res) => {
+  try {
+    const ptps = await PTPs.findPtps(req.query);
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("PTP Records");
+
+    worksheet.columns = [
+      { header: "Full Name", key: "full_names", width: 25 },
+      { header: "Account Number", key: "account_number", width: 20 },
+      { header: "PTP Date", key: "ptp_date", width: 15 },
+      { header: "PTP Amount", key: "ptp_amount", width: 15 },
+      { header: "Balance", key: "balance", width: 15 },
+      { header: "Status", key: "ptp_status", width: 15 },
+      { header: "ACM", key: "ptp_by", width: 20 },
+    ];
+
+    worksheet.addRows(ptps);
+
+    worksheet.getRow(1).font = { bold: true };
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=" + `PTP_Export_${Date.now()}.xlsx`,
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error("Export Error: ", error);
+    res.status(500).send("Failed to export file");
   }
 };
