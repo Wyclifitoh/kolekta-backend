@@ -1,9 +1,9 @@
-name: Deploy Kolekta Backend
+name: Deploy Kolekta Backend(Demo)
 
 on:
   push:
     branches:
-      - main 
+      - demo 
 
 jobs:
   deploy:
@@ -23,17 +23,17 @@ jobs:
           # port: ${{ secrets.PORT }}
           script: |
             # Navigate to your project folder
-            cd /var/www/kolekta-backend
+            cd /var/www/kolekta-backend-demo
             
             # Pull the latest changes from GitHub
-            git pull origin main
+            git pull origin demo
             
             # Install only production dependencies to keep the VPS light
             npm install --production
             
             # Inject the VPS-specific credentials
             # This overwrites the .env file with your GitHub Secret values
-            echo "${{ secrets.ENV_CONTENTS }}" > .env
+            echo "${{ secrets.ENV_CONTENTS_DEMO }}" > .env
             
             # Restart your application (using PM2 is highly recommended)
-            pm2 reload kolekta-backend || pm2 start index.js --name "kolekta-backend"
+            pm2 reload kolekta-demo || pm2 start app.js --name "kolekta-demo"
