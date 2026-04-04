@@ -8,6 +8,7 @@ const router = express.Router();
 
 // GET /health - Basic health check
 router.get('/', async (req, res) => {
+  
   const healthCheck = {
     status: 'ok',
     timestamp: new Date().toISOString(),
